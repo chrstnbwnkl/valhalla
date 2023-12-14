@@ -56,6 +56,7 @@
    * CHANGED: `/expansion`: add field `prev_edge_id`, make the GeoJSON features `LineString`s [#4275](https://github.com/valhalla/valhalla/issues/4275)
    * CHANGED: date_time refactor as a preparation to return DST/timezone related offset in the response [#4365](https://github.com/valhalla/valhalla/pull/4365)
    * ADDED: --optimize & --log-details to valhalla_run_matrix [#4355](https://github.com/valhalla/valhalla/pull/4334)
+   * ADDED: most access restrictions to /locate response [#4431](https://github.com/valhalla/valhalla/pull/4431
 
 ## Release Date: 2023-05-11 Valhalla 3.4.0
 * **Removed**
