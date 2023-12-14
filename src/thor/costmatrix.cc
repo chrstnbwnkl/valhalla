@@ -54,8 +54,9 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)),
       max_reserved_locations_count_(
           config.get<uint32_t>("max_reserved_locations_costmatrix", kMaxLocationReservation)),
-      access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
-      locs_remaining_{0, 0}, current_cost_threshold_(0), has_time_(false), targets_{new TargetMap} {
+      access_mode_(kAutoAccess),
+      mode_(travel_mode_t::kDrive), locs_count_{0, 0}, locs_remaining_{0, 0},
+      current_cost_threshold_(0), has_time_(false), targets_{new TargetMap} {
 }
 
 CostMatrix::~CostMatrix() {
