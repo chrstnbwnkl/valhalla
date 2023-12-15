@@ -222,7 +222,7 @@ uint32_t second_of_week(uint32_t epoch_time, const date::time_zone* time_zone);
  * @param in_tz    the start timezone
  * @param out_tz   the end timezone
  * @param offset   the offset in seconds from the input date time string
- * @return out_dt  a tuple containing the time, UTC offset and timezone name at the out_edge in
+ * @return out_dt  a struct containing the time, UTC offset and timezone name at the out_edge in
  *                 local time after the offset is applied to the in_dt
  */
 date_time_t
