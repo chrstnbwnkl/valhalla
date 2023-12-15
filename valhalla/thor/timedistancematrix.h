@@ -277,7 +277,8 @@ protected:
                               const uint64_t& origin_tz,
                               const baldr::GraphId& pred_id,
                               std::vector<std::string>& out_date_times,
-                              std::vector<std::string>& out_time_zones);
+                              std::vector<std::string>& out_time_zone_offsets,
+                              std::vector<std::string>& out_time_zone_names);
 };
 
 } // namespace thor

@@ -206,7 +206,8 @@ void TimeDistanceMatrix::ComputeMatrix(Api& request,
   auto time_infos = SetTime(origins, graphreader);
   // thanks to protobuf not handling strings well, we have to collect those
   std::vector<std::string> out_date_times(num_elements);
-  std::vector<std::string> out_time_zones(num_elements);
+  std::vector<std::string> out_time_zone_offsets(num_elements);
+  std::vector<std::string> out_time_zone_names(num_elements);
 
   // Initialize destinations once for all origins
   InitDestinations<expansion_direction>(graphreader, destinations);
@@ -238,7 +239,8 @@ void TimeDistanceMatrix::ComputeMatrix(Api& request,
       if (predindex == kInvalidLabel) {
         // Can not expand any further...
         FormTimeDistanceMatrix(request, graphreader, FORWARD, origin_index, origin.date_time(),
-                               time_info.timezone_index, GraphId{}, out_date_times, out_time_zones);
+                               time_info.timezone_index, GraphId{}, out_date_times,
+                               out_time_zone_offsets, out_time_zone_names);
         break;
       }
 
@@ -264,7 +266,7 @@ void TimeDistanceMatrix::ComputeMatrix(Api& request,
                                matrix_locations)) {
           FormTimeDistanceMatrix(request, graphreader, FORWARD, origin_index, origin.date_time(),
                                  time_info.timezone_index, pred.edgeid(), out_date_times,
-                                 out_time_zones);
+                                 out_time_zone_offsets, out_time_zone_names);
           break;
         }
       }
@@ -273,7 +275,7 @@ void TimeDistanceMatrix::ComputeMatrix(Api& request,
       if (pred.cost().cost > current_cost_threshold_) {
         FormTimeDistanceMatrix(request, graphreader, FORWARD, origin_index, origin.date_time(),
                                time_info.timezone_index, pred.edgeid(), out_date_times,
-                               out_time_zones);
+                               out_time_zone_offsets, out_time_zone_names);
         break;
       }
 
@@ -563,7 +565,8 @@ void TimeDistanceMatrix::FormTimeDistanceMatrix(Api& request,
                                                 const uint64_t& origin_tz,
                                                 const GraphId& pred_id,
                                                 std::vector<std::string>& out_date_times,
-                                                std::vector<std::string>& out_time_zones) {
+                                                std::vector<std::string>& out_time_zone_offsets,
+                                                std::vector<std::string>& out_time_zone_names) {
   // when it's forward, origin_index will be the source_index
   // when it's reverse, origin_index will be the target_index
   valhalla::Matrix& matrix = *request.mutable_matrix();
@@ -580,13 +583,12 @@ void TimeDistanceMatrix::FormTimeDistanceMatrix(Api& request,
 
     // this logic doesn't work with string repeated fields, gotta collect them
     // and process them later
-    auto date_time_info =
+    auto dt_info =
         DateTime::offset_date(origin_dt, origin_tz, reader.GetTimezoneFromEdge(pred_id, tile),
                               static_cast<uint64_t>(time));
-    std::string date_time = date_time_info.first;
-    std::string time_zone = date_time_info.second;
-    out_date_times[pbf_idx] = date_time;
-    out_time_zones[pbf_idx] = time_zone;
+    out_date_times[pbf_idx] = dt_info.date_time;
+    out_time_zone_offsets[pbf_idx] = dt_info.time_zone_offset;
+    out_time_zone_names[pbf_idx] = dt_info.time_zone_name;
   }
 }
 

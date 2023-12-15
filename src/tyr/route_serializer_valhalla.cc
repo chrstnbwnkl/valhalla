@@ -193,8 +193,12 @@ void locations(const valhalla::Api& api, int route_index, rapidjson::writer_wrap
         writer("date_time", location->date_time());
       }
 
-      if (!location->time_zone().empty()) {
-        writer("time_zone", location->time_zone());
+      if (!location->time_zone_offset().empty()) {
+        writer("time_zone_offset", location->time_zone_offset());
+      }
+
+      if (!location->time_zone_name().empty()) {
+        writer("time_zone_name", location->time_zone_name());
       }
 
       if (location->waiting_secs()) {
