@@ -1192,7 +1192,7 @@ uint32_t second_of_week(uint32_t epoch_time, const date::time_zone* time_zone) {
   return day * midgard::kSecondsPerDay + since_midnight.count();
 }
 
-date_time_t
+dt_info_t
 offset_date(const std::string& in_dt, const uint32_t in_tz, const uint32_t out_tz, float offset) {
   if (in_dt.empty()) {
     return {"", "", ""};
