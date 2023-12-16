@@ -349,12 +349,14 @@ TEST_F(AlgorithmTest, TDForward) {
     auto api = gurka::do_action(valhalla::Options::route, map, {"8", "A"}, "auto",
                                 {{"/date_time/type", "1"}, {"/date_time/value", "2020-10-30T09:00"}});
     EXPECT_EQ(api.trip().routes(0).legs(0).algorithms(0), "time_dependent_forward_a*");
+    EXPECT_EQ(api.options().locations(0).time_zone_offset(), "+00:00");
   }
 
   {
     auto api = gurka::do_action(valhalla::Options::route, map, {"2", "5"}, "auto",
                                 {{"/date_time/type", "3"}, {"/date_time/value", "2020-10-30T09:00"}});
     EXPECT_EQ(api.trip().routes(0).legs(0).algorithms(0), "time_dependent_forward_a*");
+    EXPECT_EQ(api.options().locations(0).time_zone_offset(), "");
   }
 }
 
@@ -370,6 +372,7 @@ TEST_F(AlgorithmTest, TDReverse) {
     auto api = gurka::do_action(valhalla::Options::route, map, {"9", "7"}, "auto",
                                 {{"/date_time/type", "2"}, {"/date_time/value", "2020-10-30T09:00"}});
     EXPECT_EQ(api.trip().routes(0).legs(0).algorithms(0), "time_dependent_reverse_a*");
+    EXPECT_EQ(api.options().locations(0).time_zone_offset(), "+00:00");
   }
 }
 
@@ -388,6 +391,7 @@ TEST_F(AlgorithmTest, Bidir) {
                                  {"/costing_options/auto/speed_types/0", "constrained"}});
     EXPECT_EQ(api.trip().routes(0).legs(0).algorithms(0), "bidirectional_a*");
     EXPECT_EQ(speed_from_edge(api), constrained);
+    EXPECT_EQ(api.options().locations(0).time_zone_offset(), "");
   }
 
   {
