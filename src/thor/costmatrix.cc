@@ -54,9 +54,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)),
       max_reserved_locations_count_(
           config.get<uint32_t>("max_reserved_locations_costmatrix", kMaxLocationReservation)),
-      access_mode_(kAutoAccess),
-      mode_(travel_mode_t::kDrive), locs_count_{0, 0}, locs_remaining_{0, 0},
-      current_cost_threshold_(0), has_time_(false), targets_{new TargetMap} {
+      access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
+      locs_remaining_{0, 0}, current_cost_threshold_(0), has_time_(false), targets_{new TargetMap} {
 }
 
 CostMatrix::~CostMatrix() {
@@ -500,7 +499,9 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
                             (pred.closure_pruning() || !costing_->IsClosed(meta.edge, tile)),
                             static_cast<bool>(flow_sources & kDefaultFlowMask),
                             costing_->TurnType(pred.opp_local_idx(), nodeinfo, meta.edge),
-                            restriction_idx);
+                            restriction_idx, 0,
+                            meta.edge->destonly() ||
+                                (costing_->is_hgv() && meta.edge->destonly_hgv()));
   } else {
     edgelabels.emplace_back(pred_idx, meta.edge_id, opp_edge_id, meta.edge, newcost, mode_, tc,
                             pred_dist, (pred.not_thru_pruning() || !meta.edge->not_thru()),
@@ -508,7 +509,8 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
                             static_cast<bool>(flow_sources & kDefaultFlowMask),
                             costing_->TurnType(meta.edge->localedgeidx(), nodeinfo, opp_edge,
                                                opp_pred_edge),
-                            restriction_idx);
+                            restriction_idx, 0,
+                            opp_edge->destonly() || (costing_->is_hgv() && opp_edge->destonly_hgv()));
   }
   adj.add(idx);
   if (!FORWARD) {
@@ -881,7 +883,9 @@ void CostMatrix::SetSources(GraphReader& graphreader,
       // flags on small loops. Set this to false here to override this for now.
       BDEdgeLabel edge_label(kInvalidLabel, edgeid, oppedge, directededge, cost, mode_, ec, d, false,
                              true, static_cast<bool>(flow_sources & kDefaultFlowMask),
-                             InternalTurn::kNoTurn, -1);
+                             InternalTurn::kNoTurn, -1, 0,
+                             directededge->destonly() ||
+                                 (costing_->is_hgv() && directededge->destonly_hgv()));
       edge_label.set_not_thru(false);
 
       // Add EdgeLabel to the adjacency list (but do not set its status).
@@ -959,7 +963,9 @@ void CostMatrix::SetTargets(baldr::GraphReader& graphreader,
       // flags on small loops. Set this to false here to override this for now.
       BDEdgeLabel edge_label(kInvalidLabel, opp_edge_id, edgeid, opp_dir_edge, cost, mode_, ec, d,
                              false, true, static_cast<bool>(flow_sources & kDefaultFlowMask),
-                             InternalTurn::kNoTurn, -1);
+                             InternalTurn::kNoTurn, -1, 0,
+                             opp_dir_edge->destonly() ||
+                                 (costing_->is_hgv() && opp_dir_edge->destonly_hgv()));
       edge_label.set_not_thru(false);
 
       // Add EdgeLabel to the adjacency list (but do not set its status).
