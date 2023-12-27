@@ -536,3 +536,63 @@ TEST(StandAlone, CostMatrixShapes) {
 
   res.erase();
 }
+
+class DateTimeTest : public ::testing::Test {
+protected:
+  // check both with and without time zones present
+  static gurka::map map;
+  static gurka::map map_tz;
+
+  static void SetUpTestSuite() {
+    constexpr double gridsize = 1500;
+
+    // ~ are approximate time zone crossings
+    const std::string ascii_map = R"(
+      A----------B
+      |          |
+      C          D
+      |          |
+      ~          ~
+      |          |
+      |          |
+      E          F
+      |          |
+      G----------H
+    )";
+
+    const gurka::ways ways = {{"AC", {{"highway", "residential"}}},
+                              {"CE", {{"highway", "residential"}}},
+                              {"EG", {{"highway", "residential"}}},
+                              {"GH", {{"highway", "residential"}}},
+                              {"HF", {{"highway", "residential"}}},
+                              {"FD", {{"highway", "residential"}}},
+                              {"DB", {{"highway", "residential"}}},
+                              {"BA", {{"highway", "residential"}}}};
+
+    // const auto layout = gurka::detail::map_to_coordinates(ascii_map, gridsize, {-8.5755, 42.1079});
+    const auto layout = gurka::detail::map_to_coordinates(ascii_map, gridsize);
+    map = gurka::buildtiles(layout, ways, {}, {}, "test/data/time_zone_matrix_no_tz");
+    map_tz = gurka::buildtiles(layout, ways, {}, {}, "test/data/time_zone_matrix",
+                               {{"mjolnir.timezone", "test/data/tz.sqlite"}});
+  }
+};
+gurka::map DateTimeTest::map = {};
+gurka::map DateTimeTest::map_tz = {};
+
+TEST_F(DateTimeTest, DepartAt) {
+  rapidjson::Document res_doc;
+  std::string res;
+  {
+    auto api = gurka::do_action(valhalla::Options::sources_to_targets, map_tz, {"A", "G"}, {"A", "G"},
+                                "bicycle",
+                                {{"/date_time/type", "1"}, {"/date_time/value", "2020-10-30T09:00"}},
+                                nullptr, &res);
+    // EXPECT_EQ(api.matrix().time_zone_offsets(0), "+01:00");
+    // EXPECT_EQ(api.matrix().time_zone_offsets(1), "+00:00");
+
+    // EXPECT_TRUE(res_doc["sources_to_targets"].GetArray()[0].GetArray()[0].HasMember("date_time"));
+    std::cerr << res << std::endl;
+    // EXPECT_EQ(res_doc["sources_to_targets"].GetArray()[0].GetArray()[0].GetObject()["date_time"],
+    //           "2020-10-30T09:00");
+  }
+}

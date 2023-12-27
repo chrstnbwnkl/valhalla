@@ -289,10 +289,20 @@ void TimeDistanceMatrix::ComputeMatrix(Api& request,
     reset();
   }
 
-  // amend the date_time strings
-  for (auto& date_time : out_date_times) {
+  // amend the date time information
+  for (unsigned int i = 0; i < out_date_times.size(); ++i) {
+
+    auto& date_time = out_date_times[i];
     auto* pbf_dt = request.mutable_matrix()->mutable_date_times()->Add();
     *pbf_dt = date_time;
+
+    auto& time_zone_offset = out_time_zone_offsets[i];
+    auto* pbf_tzo = request.mutable_matrix()->mutable_time_zone_offsets()->Add();
+    *pbf_tzo = time_zone_offset;
+
+    auto& time_zone_name = out_time_zone_names[i];
+    auto* pbf_tzn = request.mutable_matrix()->mutable_time_zone_names()->Add();
+    *pbf_tzn = time_zone_name;
   }
 }
 

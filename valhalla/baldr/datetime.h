@@ -55,7 +55,7 @@ protected:
  */
 const tz_db_t& get_tz_db();
 
-struct date_time_t {
+struct dt_info_t {
   std::string date_time;
   std::string time_zone_offset;
   std::string time_zone_name;
@@ -225,7 +225,7 @@ uint32_t second_of_week(uint32_t epoch_time, const date::time_zone* time_zone);
  * @return out_dt  a tuple containing the time, UTC offset and timezone name at the out_edge in
  *                 local time after the offset is applied to the in_dt
  */
-date_time_t
+dt_info_t
 offset_date(const std::string& in_dt, const uint32_t in_tz, const uint32_t out_tz, float offset);
 
 /**

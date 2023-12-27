@@ -16,6 +16,7 @@
 
 namespace { // NOTE, the below timezone maps are indexed for compatibility reasons. We put the value
             // (index)
+const valhalla::baldr::DateTime::dt_info_t INVALID_DT = {"", "", ""};
 // into the tiles, so it needs to be stable. We have 2 timezone maps here:
 //  - tz_name_to_id:
 //    - before 2023c: currently and past official timezone names
@@ -1192,10 +1193,10 @@ uint32_t second_of_week(uint32_t epoch_time, const date::time_zone* time_zone) {
   return day * midgard::kSecondsPerDay + since_midnight.count();
 }
 
-date_time_t
+dt_info_t
 offset_date(const std::string& in_dt, const uint32_t in_tz, const uint32_t out_tz, float offset) {
   if (in_dt.empty()) {
-    return {"", "", ""};
+    return INVALID_DT;
   } // get the input UTC time, add the offset and translate to the out timezone
 
   auto iepoch = DateTime::seconds_since_epoch(in_dt, DateTime::get_tz_db().from_index(in_tz));
@@ -1205,6 +1206,10 @@ offset_date(const std::string& in_dt, const uint32_t in_tz, const uint32_t out_t
   auto tz = DateTime::get_tz_db().from_index(out_tz);
   auto dt = DateTime::seconds_to_date(oepoch, tz, true);
 
+  // dt can be empty if time zones are invalid
+  if (dt.empty()) {
+    return INVALID_DT;
+  };
   return {dt.substr(0, 16), dt.substr(16), tz->name()};
 }
 } // namespace DateTime
