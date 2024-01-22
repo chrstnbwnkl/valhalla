@@ -1,6 +1,8 @@
 {
   "posix_locale": "ru_RU.UTF-8",
-  "aliases": ["ru"],
+  "aliases": [
+    "ru"
+  ],
   "instructions": {
     "arrive": {
       "phrases": {
@@ -8,8 +10,12 @@
         "1": "Прибытие: <TIME> в <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Arrive: 8:02 AM."],
-        "1": ["Arrive: 8:02 AM at 8 St - NYU."]
+        "0": [
+          "Arrive: 8:02 AM."
+        ],
+        "1": [
+          "Arrive: 8:02 AM at 8 St - NYU."
+        ]
       }
     },
     "arrive_verbal": {
@@ -18,8 +24,12 @@
         "1": "Прибытие к <TIME> в <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Arrive at 8:02 AM."],
-        "1": ["Arrive at 8:02 AM at 8 St - NYU."]
+        "0": [
+          "Arrive at 8:02 AM."
+        ],
+        "1": [
+          "Arrive at 8:02 AM at 8 St - NYU."
+        ]
       }
     },
     "bear": {
@@ -35,21 +45,31 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Bear right."],
-        "1": ["Bear left onto Arlen Road."],
+        "0": [
+          "Bear right."
+        ],
+        "1": [
+          "Bear left onto Arlen Road."
+        ],
         "2": [
           "Bear right onto Belair Road/US 1 Business. Continue on US 1 Business."
         ],
-        "3": ["Bear left to stay on US 15 South."],
-        "4": ["Bear right at Mannenbashi East."],
-        "5": ["Bear left toward Baltimore."]
+        "3": [
+          "Bear left to stay on US 15 South."
+        ],
+        "4": [
+          "Bear right at Mannenbashi East."
+        ],
+        "5": [
+          "Bear left toward Baltimore."
+        ]
       }
     },
     "bear_verbal": {
@@ -65,19 +85,31 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Bear right."],
-        "1": ["Bear left onto Arlen Road."],
-        "2": ["Bear right onto Belair Road, U.S. 1 Business."],
-        "3": ["Bear left to stay on U.S. 15 South."],
-        "4": ["Bear right at Mannenbashi East."],
-        "5": ["Bear left toward Baltimore."]
+        "0": [
+          "Bear right."
+        ],
+        "1": [
+          "Bear left onto Arlen Road."
+        ],
+        "2": [
+          "Bear right onto Belair Road, U.S. 1 Business."
+        ],
+        "3": [
+          "Bear left to stay on U.S. 15 South."
+        ],
+        "4": [
+          "Bear right at Mannenbashi East."
+        ],
+        "5": [
+          "Bear left toward Baltimore."
+        ]
       }
     },
     "becomes": {
@@ -85,7 +117,9 @@
         "0": "<PREVIOUS_STREET_NAMES> переходит в <STREET_NAMES>."
       },
       "example_phrases": {
-        "0": ["Vine Street becomes Middletown Road."]
+        "0": [
+          "Vine Street becomes Middletown Road."
+        ]
       }
     },
     "becomes_verbal": {
@@ -93,7 +127,9 @@
         "0": "<PREVIOUS_STREET_NAMES> переходит в <STREET_NAMES>."
       },
       "example_phrases": {
-        "0": ["Vine Street becomes Middletown Road."]
+        "0": [
+          "Vine Street becomes Middletown Road."
+        ]
       }
     },
     "continue": {
@@ -107,16 +143,21 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходному переходу"
       ],
       "example_phrases": {
-        "0": ["Continue."],
-        "1": ["Continue on 10th Avenue."],
-        "2": ["Continue at Mannenbashi East."],
-        "3": ["Continue toward Baltimore."]
+        "0": [
+          "Continue."
+        ],
+        "1": [
+          "Continue on 10th Avenue."
+        ],
+        "2": [
+          "Continue at Mannenbashi East."
+        ],
+        "3": [
+          "Continue toward Baltimore."
+        ]
       }
     },
     "continue_verbal": {
@@ -134,10 +175,6 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходному переходу"
       ],
       "metric_lengths": [
@@ -155,14 +192,30 @@
         "менее десяти футов"
       ],
       "example_phrases": {
-        "0": ["Continue."],
-        "1": ["Continue for 300 feet."],
-        "2": ["Continue on 10th Avenue."],
-        "3": ["Continue on 10th Avenue for 3 miles."],
-        "4": ["Continue at Mannenbashi East."],
-        "5": ["Continue at Mannenbashi East for 2 miles."],
-        "6": ["Continue toward Baltimore."],
-        "7": ["Continue toward Baltimore for 5 miles."]
+        "0": [
+          "Continue."
+        ],
+        "1": [
+          "Continue for 300 feet."
+        ],
+        "2": [
+          "Continue on 10th Avenue."
+        ],
+        "3": [
+          "Continue on 10th Avenue for 3 miles."
+        ],
+        "4": [
+          "Continue at Mannenbashi East."
+        ],
+        "5": [
+          "Continue at Mannenbashi East for 2 miles."
+        ],
+        "6": [
+          "Continue toward Baltimore."
+        ],
+        "7": [
+          "Continue toward Baltimore for 5 miles."
+        ]
       }
     },
     "continue_verbal_alert": {
@@ -176,16 +229,21 @@
         "пешеходная дорожка",
         "велосипедная дорожка",
         "дорожка для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Continue."],
-        "1": ["Continue on 10th Avenue."],
-        "2": ["Continue at Mannenbashi East."],
-        "3": ["Continue toward Baltimore."]
+        "0": [
+          "Continue."
+        ],
+        "1": [
+          "Continue on 10th Avenue."
+        ],
+        "2": [
+          "Continue at Mannenbashi East."
+        ],
+        "3": [
+          "Continue toward Baltimore."
+        ]
       }
     },
     "depart": {
@@ -194,8 +252,12 @@
         "1": "Отправление: <TIME> из <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Depart: 8:02 AM."],
-        "1": ["Depart: 8:02 AM from 8 St - NYU."]
+        "0": [
+          "Depart: 8:02 AM."
+        ],
+        "1": [
+          "Depart: 8:02 AM from 8 St - NYU."
+        ]
       }
     },
     "depart_verbal": {
@@ -204,8 +266,12 @@
         "1": "Отправление в <TIME> из <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Depart at 8:02 AM."],
-        "1": ["Depart at 8:02 AM from 8 St - NYU."]
+        "0": [
+          "Depart at 8:02 AM."
+        ],
+        "1": [
+          "Depart at 8:02 AM from 8 St - NYU."
+        ]
       }
     },
     "destination": {
@@ -215,15 +281,24 @@
         "2": "Пункт назначения <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["You have arrived at your destination."],
-        "1": ["You have arrived at 3206 Powelton Avenue."],
+        "0": [
+          "You have arrived at your destination."
+        ],
+        "1": [
+          "You have arrived at 3206 Powelton Avenue."
+        ],
         "2": [
           "Your destination is on the left.",
           "Your destination is on the right."
         ],
-        "3": ["Lancaster Brewing Company is on the left."]
+        "3": [
+          "Lancaster Brewing Company is on the left."
+        ]
       }
     },
     "destination_verbal": {
@@ -233,15 +308,24 @@
         "2": "Пункт назначения <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["You have arrived at your destination."],
-        "1": ["You have arrived at 32 o6 Powelton Avenue."],
+        "0": [
+          "You have arrived at your destination."
+        ],
+        "1": [
+          "You have arrived at 32 o6 Powelton Avenue."
+        ],
         "2": [
           "Your destination is on the left.",
           "Your destination is on the right."
         ],
-        "3": ["Lancaster Brewing Company is on the left."]
+        "3": [
+          "Lancaster Brewing Company is on the left."
+        ]
       }
     },
     "destination_verbal_alert": {
@@ -251,15 +335,24 @@
         "2": "Пункт назначения будет <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> будет <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["You will arrive at your destination."],
-        "1": ["You will arrive at 32 o6 Powelton Avenue."],
+        "0": [
+          "You will arrive at your destination."
+        ],
+        "1": [
+          "You will arrive at 32 o6 Powelton Avenue."
+        ],
         "2": [
           "Your destination will be on the left.",
           "Your destination will be on the right."
         ],
-        "3": ["Lancaster Brewing Company will be on the left."]
+        "3": [
+          "Lancaster Brewing Company will be on the left."
+        ]
       }
     },
     "enter_ferry": {
@@ -271,22 +364,24 @@
       },
       "empty_street_name_labels": [
         "пешеходной дорожке",
-        "велосипедной дорожки",
-        "дорожки для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
-        "велосипедной дорожки",
         "велосипедной дорожке",
+        "дорожке для горных велосипедов",
         "пешеходному переходу"
       ],
       "ferry_label": "Паром",
       "example_phrases": {
-        "0": ["Take the Ferry."],
-        "1": ["Take the Millersburg Ferry."],
-        "2": ["Take the Bridgeport - Port Jefferson Ferry."],
-        "3": ["Take the ferry toward Cape May."]
+        "0": [
+          "Take the Ferry."
+        ],
+        "1": [
+          "Take the Millersburg Ferry."
+        ],
+        "2": [
+          "Take the Bridgeport - Port Jefferson Ferry."
+        ],
+        "3": [
+          "Take the ferry toward Cape May."
+        ]
       }
     },
     "enter_ferry_verbal": {
@@ -298,24 +393,24 @@
       },
       "empty_street_name_labels": [
         "пешеходной дорожке",
-        "велосипедной дорожки",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
-        "велосипедной дорожки",
-        "дорожки для горных велосипедов",
-        "пешеходный переход",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
         "пешеходному переходу"
       ],
       "ferry_label": "Паром",
       "example_phrases": {
-        "0": ["Take the Ferry."],
-        "1": ["Take the Millersburg Ferry."],
-        "2": ["Take the Bridgeport - Port Jefferson Ferry."],
-        "3": ["Take the ferry toward Cape May."]
+        "0": [
+          "Take the Ferry."
+        ],
+        "1": [
+          "Take the Millersburg Ferry."
+        ],
+        "2": [
+          "Take the Bridgeport - Port Jefferson Ferry."
+        ],
+        "3": [
+          "Take the ferry toward Cape May."
+        ]
       }
     },
     "enter_roundabout": {
@@ -353,13 +448,12 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Enter the roundabout."],
+        "0": [
+          "Enter the roundabout."
+        ],
         "1": [
           "Enter the roundabout and take the 1st exit.",
           "Enter the roundabout and take the 2nd exit.",
@@ -372,28 +466,48 @@
           "Enter the roundabout and take the 9th exit.",
           "Enter the roundabout and take the 10th exit."
         ],
-        "2": ["Enter the roundabout and take the 3rd exit onto Main Street."],
+        "2": [
+          "Enter the roundabout and take the 3rd exit onto Main Street."
+        ],
         "3": [
           "Enter the roundabout and take the 3rd exit onto US 322/Main Street. Continue on US 322."
         ],
-        "4": ["Enter the roundabout and take the 3rd exit toward Baltimore."],
-        "5": ["Enter the roundabout and take the exit onto Main Street."],
+        "4": [
+          "Enter the roundabout and take the 3rd exit toward Baltimore."
+        ],
+        "5": [
+          "Enter the roundabout and take the exit onto Main Street."
+        ],
         "6": [
           "Enter the roundabout and take the exit onto US 322/Main Street. Continue on US 322."
         ],
-        "7": ["Enter the roundabout and take the exit toward Baltimore."],
-        "8": ["Enter Dupont Circle."],
-        "9": ["Enter Dupont Circle and take the 1st exit."],
-        "10": ["Enter Dupont Circle and take the 3rd exit onto Main Street."],
+        "7": [
+          "Enter the roundabout and take the exit toward Baltimore."
+        ],
+        "8": [
+          "Enter Dupont Circle."
+        ],
+        "9": [
+          "Enter Dupont Circle and take the 1st exit."
+        ],
+        "10": [
+          "Enter Dupont Circle and take the 3rd exit onto Main Street."
+        ],
         "11": [
           "Enter Dupont Circle and take the 3rd exit onto US 322/Main Street. Continue on US 322."
         ],
-        "12": ["Enter Dupont Circle and take the 3rd exit toward Baltimore."],
-        "13": ["Enter Dupont Circle and take the exit onto Main Street."],
+        "12": [
+          "Enter Dupont Circle and take the 3rd exit toward Baltimore."
+        ],
+        "13": [
+          "Enter Dupont Circle and take the exit onto Main Street."
+        ],
         "14": [
           "Enter Dupont Circle and take the exit onto US 322/Main Street. Continue on US 322."
         ],
-        "15": ["Enter Dupont Circle and take the exit toward Baltimore."]
+        "15": [
+          "Enter Dupont Circle and take the exit toward Baltimore."
+        ]
       }
     },
     "enter_roundabout_verbal": {
@@ -431,13 +545,12 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Enter the roundabout."],
+        "0": [
+          "Enter the roundabout."
+        ],
         "1": [
           "Enter the roundabout and take the 1st exit.",
           "Enter the roundabout and take the 2nd exit.",
@@ -450,28 +563,48 @@
           "Enter the roundabout and take the 9th exit.",
           "Enter the roundabout and take the 10th exit."
         ],
-        "2": ["Enter the roundabout and take the 3rd exit onto Main Street."],
+        "2": [
+          "Enter the roundabout and take the 3rd exit onto Main Street."
+        ],
         "3": [
           "Enter the roundabout and take the 3rd exit onto U.S. 3 22/Main Street."
         ],
-        "4": ["Enter the roundabout and take the 3rd exit toward Baltimore."],
-        "5": ["Enter the roundabout and take the exit onto Main Street."],
+        "4": [
+          "Enter the roundabout and take the 3rd exit toward Baltimore."
+        ],
+        "5": [
+          "Enter the roundabout and take the exit onto Main Street."
+        ],
         "6": [
           "Enter the roundabout and take the exit onto U.S. 3 22/Main Street."
         ],
-        "7": ["Enter the roundabout and take the exit toward Baltimore."],
-        "8": ["Enter Dupont Circle."],
-        "9": ["Enter Dupont Circle and take the 1st exit."],
-        "10": ["Enter Dupont Circle and take the 3rd exit onto Main Street."],
+        "7": [
+          "Enter the roundabout and take the exit toward Baltimore."
+        ],
+        "8": [
+          "Enter Dupont Circle."
+        ],
+        "9": [
+          "Enter Dupont Circle and take the 1st exit."
+        ],
+        "10": [
+          "Enter Dupont Circle and take the 3rd exit onto Main Street."
+        ],
         "11": [
           "Enter Dupont Circle and take the 3rd exit onto U.S. 3 22/Main Street."
         ],
-        "12": ["Enter Dupont Circle and take the 3rd exit toward Baltimore."],
-        "13": ["Enter Dupont Circle and take the exit onto Main Street."],
+        "12": [
+          "Enter Dupont Circle and take the 3rd exit toward Baltimore."
+        ],
+        "13": [
+          "Enter Dupont Circle and take the exit onto Main Street."
+        ],
         "14": [
           "Enter Dupont Circle and take the exit onto U.S. 3 22/Main Street."
         ],
-        "15": ["Enter Dupont Circle and take the exit toward Baltimore."]
+        "15": [
+          "Enter Dupont Circle and take the exit toward Baltimore."
+        ]
       }
     },
     "exit": {
@@ -501,19 +634,39 @@
         "27": "Сверните на съезде <NAME_SIGN> к <TOWARD_SIGN>.",
         "29": "Сверните на съезде <NAME_SIGN> на <BRANCH_SIGN> к <TOWARD_SIGN>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["Take the exit on the left.", "Take the exit on the right."],
-        "1": ["Take exit 67 B-A on the right."],
-        "2": ["Take the US 322 West exit on the right."],
-        "3": ["Take exit 67 B-A on the right onto US 322 West."],
-        "4": ["Take the exit on the right toward Lewistown."],
-        "5": ["Take exit 67 B-A on the right toward Lewistown."],
-        "6": ["Take the US 322 West exit on the right toward Lewistown."],
+        "0": [
+          "Take the exit on the left.",
+          "Take the exit on the right."
+        ],
+        "1": [
+          "Take exit 67 B-A on the right."
+        ],
+        "2": [
+          "Take the US 322 West exit on the right."
+        ],
+        "3": [
+          "Take exit 67 B-A on the right onto US 322 West."
+        ],
+        "4": [
+          "Take the exit on the right toward Lewistown."
+        ],
+        "5": [
+          "Take exit 67 B-A on the right toward Lewistown."
+        ],
+        "6": [
+          "Take the US 322 West exit on the right toward Lewistown."
+        ],
         "7": [
           "Take exit 67 B-A on the right onto US 322 West toward Lewistown/State College."
         ],
-        "8": ["Take the White Marsh Boulevard exit on the left."],
+        "8": [
+          "Take the White Marsh Boulevard exit on the left."
+        ],
         "10": [
           "Take the White Marsh Boulevard exit on the left onto MD 43 East."
         ],
@@ -523,19 +676,39 @@
         "14": [
           "Take the White Marsh Boulevard exit on the left onto MD 43 East toward White Marsh."
         ],
-        "15": ["Take the exit."],
-        "16": ["Take exit 67 B-A."],
-        "17": ["Take the US 322 West exit."],
-        "18": ["Take exit 67 B-A onto US 322 West."],
-        "19": ["Take the exit toward Lewistown."],
-        "20": ["Take exit 67 B-A toward Lewistown."],
-        "21": ["Take the US 322 West exit toward Lewistown."],
+        "15": [
+          "Take the exit."
+        ],
+        "16": [
+          "Take exit 67 B-A."
+        ],
+        "17": [
+          "Take the US 322 West exit."
+        ],
+        "18": [
+          "Take exit 67 B-A onto US 322 West."
+        ],
+        "19": [
+          "Take the exit toward Lewistown."
+        ],
+        "20": [
+          "Take exit 67 B-A toward Lewistown."
+        ],
+        "21": [
+          "Take the US 322 West exit toward Lewistown."
+        ],
         "22": [
           "Take exit 67 B-A onto US 322 West toward Lewistown/State College."
         ],
-        "23": ["Take the White Marsh Boulevard exit."],
-        "25": ["Take the White Marsh Boulevard exit onto MD 43 East."],
-        "27": ["Take the White Marsh Boulevard exit toward White Marsh."],
+        "23": [
+          "Take the White Marsh Boulevard exit."
+        ],
+        "25": [
+          "Take the White Marsh Boulevard exit onto MD 43 East."
+        ],
+        "27": [
+          "Take the White Marsh Boulevard exit toward White Marsh."
+        ],
         "29": [
           "Take the White Marsh Boulevard exit onto MD 43 East toward White Marsh."
         ]
@@ -552,18 +725,21 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Exit the roundabout."],
-        "1": ["Exit the roundabout onto Philadelphia Road/MD 7."],
+        "0": [
+          "Exit the roundabout."
+        ],
+        "1": [
+          "Exit the roundabout onto Philadelphia Road/MD 7."
+        ],
         "2": [
           "Exit the roundabout onto Catoctin Mountain Highway/US 15. Continue on US 15."
         ],
-        "3": ["Exit the roundabout toward Baltimore."]
+        "3": [
+          "Exit the roundabout toward Baltimore."
+        ]
       }
     },
     "exit_roundabout_verbal": {
@@ -577,16 +753,21 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Exit the roundabout."],
-        "1": ["Exit the roundabout onto Philadelphia Road, Maryland 7."],
-        "2": ["Exit the roundabout onto Catoctin Mountain Highway, U.S. 15."],
-        "3": ["Exit the roundabout toward Baltimore."]
+        "0": [
+          "Exit the roundabout."
+        ],
+        "1": [
+          "Exit the roundabout onto Philadelphia Road, Maryland 7."
+        ],
+        "2": [
+          "Exit the roundabout onto Catoctin Mountain Highway, U.S. 15."
+        ],
+        "3": [
+          "Exit the roundabout toward Baltimore."
+        ]
       }
     },
     "exit_verbal": {
@@ -616,19 +797,39 @@
         "27": "Сверните на съезд на <NAME_SIGN> к <TOWARD_SIGN>.",
         "29": "Сверните на съезд на <NAME_SIGN> на <BRANCH_SIGN> к <TOWARD_SIGN>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["Take the exit on the left.", "Take the exit on the right."],
-        "1": ["Take exit 67 B-A on the right."],
-        "2": ["Take the U.S. 3 22 West exit on the right."],
-        "3": ["Take exit 67 B-A on the right onto U.S. 3 22 West."],
-        "4": ["Take the exit on the right toward Lewistown."],
-        "5": ["Take exit 67 B-A on the right toward Lewistown."],
-        "6": ["Take the U.S. 3 22 West exit on the right toward Lewistown."],
+        "0": [
+          "Take the exit on the left.",
+          "Take the exit on the right."
+        ],
+        "1": [
+          "Take exit 67 B-A on the right."
+        ],
+        "2": [
+          "Take the U.S. 3 22 West exit on the right."
+        ],
+        "3": [
+          "Take exit 67 B-A on the right onto U.S. 3 22 West."
+        ],
+        "4": [
+          "Take the exit on the right toward Lewistown."
+        ],
+        "5": [
+          "Take exit 67 B-A on the right toward Lewistown."
+        ],
+        "6": [
+          "Take the U.S. 3 22 West exit on the right toward Lewistown."
+        ],
         "7": [
           "Take exit 67 B-A on the right onto U.S. 3 22 West toward Lewistown, State College."
         ],
-        "8": ["Take the White Marsh Boulevard exit on the left."],
+        "8": [
+          "Take the White Marsh Boulevard exit on the left."
+        ],
         "10": [
           "Take the White Marsh Boulevard exit on the left onto Maryland 43 East."
         ],
@@ -638,19 +839,39 @@
         "14": [
           "Take the White Marsh Boulevard exit on the left onto Maryland 43 East toward White Marsh."
         ],
-        "15": ["Take the exit."],
-        "16": ["Take exit 67 B-A."],
-        "17": ["Take the US 322 West exit."],
-        "18": ["Take exit 67 B-A onto US 322 West."],
-        "19": ["Take the exit toward Lewistown."],
-        "20": ["Take exit 67 B-A toward Lewistown."],
-        "21": ["Take the US 322 West exit toward Lewistown."],
+        "15": [
+          "Take the exit."
+        ],
+        "16": [
+          "Take exit 67 B-A."
+        ],
+        "17": [
+          "Take the US 322 West exit."
+        ],
+        "18": [
+          "Take exit 67 B-A onto US 322 West."
+        ],
+        "19": [
+          "Take the exit toward Lewistown."
+        ],
+        "20": [
+          "Take exit 67 B-A toward Lewistown."
+        ],
+        "21": [
+          "Take the US 322 West exit toward Lewistown."
+        ],
         "22": [
           "Take exit 67 B-A onto US 322 West toward Lewistown/State College."
         ],
-        "23": ["Take the White Marsh Boulevard exit."],
-        "25": ["Take the White Marsh Boulevard exit onto MD 43 East."],
-        "27": ["Take the White Marsh Boulevard exit toward White Marsh."],
+        "23": [
+          "Take the White Marsh Boulevard exit."
+        ],
+        "25": [
+          "Take the White Marsh Boulevard exit onto MD 43 East."
+        ],
+        "27": [
+          "Take the White Marsh Boulevard exit toward White Marsh."
+        ],
         "29": [
           "Take the White Marsh Boulevard exit onto MD 43 East toward White Marsh."
         ]
@@ -661,7 +882,9 @@
         "0": "Сверните на съезд <EXIT_NUMBERS>"
       },
       "example_phrases": {
-        "0": ["Exit 1A"]
+        "0": [
+          "Exit 1A"
+        ]
       }
     },
     "keep": {
@@ -679,25 +902,40 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["левее", "прямо", "правее"],
+      "relative_directions": [
+        "левее",
+        "прямо",
+        "правее"
+      ],
       "example_phrases": {
         "0": [
           "Keep left at the fork.",
           "Keep straight at the fork.",
           "Keep right at the fork."
         ],
-        "1": ["Keep right to take exit 62."],
-        "2": ["Keep right to take I 895 South."],
-        "3": ["Keep right to take exit 62 onto I 895 South."],
-        "4": ["Keep right toward Annapolis."],
-        "5": ["Keep right to take exit 62 toward Annapolis."],
-        "6": ["Keep right to take I 895 South toward Annapolis."],
-        "7": ["Keep right to take exit 62 onto I 895 South toward Annapolis."]
+        "1": [
+          "Keep right to take exit 62."
+        ],
+        "2": [
+          "Keep right to take I 895 South."
+        ],
+        "3": [
+          "Keep right to take exit 62 onto I 895 South."
+        ],
+        "4": [
+          "Keep right toward Annapolis."
+        ],
+        "5": [
+          "Keep right to take exit 62 toward Annapolis."
+        ],
+        "6": [
+          "Keep right to take I 895 South toward Annapolis."
+        ],
+        "7": [
+          "Keep right to take exit 62 onto I 895 South toward Annapolis."
+        ]
       }
     },
     "keep_to_stay_on": {
@@ -711,20 +949,25 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["левее", "прямо", "правее"],
+      "relative_directions": [
+        "левее",
+        "прямо",
+        "правее"
+      ],
       "example_phrases": {
         "0": [
           "Keep left to stay on I 95 South.",
           "Keep straight to stay on I 95 South.",
           "Keep right to stay on I 95 South."
         ],
-        "1": ["Keep left to take exit 62 to stay on I 95 South."],
-        "2": ["Keep left to stay on I 95 South toward Baltimore."],
+        "1": [
+          "Keep left to take exit 62 to stay on I 95 South."
+        ],
+        "2": [
+          "Keep left to stay on I 95 South toward Baltimore."
+        ],
         "3": [
           "Keep left to take exit 62 to stay on I 95 South toward Baltimore."
         ]
@@ -741,20 +984,25 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["левее", "прямо", "правее"],
+      "relative_directions": [
+        "левее",
+        "прямо",
+        "правее"
+      ],
       "example_phrases": {
         "0": [
           "Keep left to stay on Interstate 95 South.",
           "Keep straight to stay on Interstate 95 South.",
           "Keep right to stay on Interstate 95 South."
         ],
-        "1": ["Keep left to take exit 62 to stay on Interstate 95 South."],
-        "2": ["Keep left to stay on I 95 South toward Baltimore."],
+        "1": [
+          "Keep left to take exit 62 to stay on Interstate 95 South."
+        ],
+        "2": [
+          "Keep left to stay on I 95 South toward Baltimore."
+        ],
         "3": [
           "Keep left to take exit 62 to stay on Interstate 95 South toward Baltimore."
         ]
@@ -775,24 +1023,37 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["левой стороны", "прямо", "правой стороны"],
+      "relative_directions": [
+        "левой стороны",
+        "прямо",
+        "правой стороны"
+      ],
       "example_phrases": {
         "0": [
           "Keep left at the fork.",
           "Keep straight at the fork.",
           "Keep right at the fork."
         ],
-        "1": ["Keep right to take exit 62."],
-        "2": ["Keep right to take Interstate 8 95 South."],
-        "3": ["Keep right to take exit 62 onto Interstate 8 95 South."],
-        "4": ["Keep right toward Annapolis."],
-        "5": ["Keep right to take exit 62 toward Annapolis."],
-        "6": ["Keep right to take Interstate 8 95 South toward Annapolis."],
+        "1": [
+          "Keep right to take exit 62."
+        ],
+        "2": [
+          "Keep right to take Interstate 8 95 South."
+        ],
+        "3": [
+          "Keep right to take exit 62 onto Interstate 8 95 South."
+        ],
+        "4": [
+          "Keep right toward Annapolis."
+        ],
+        "5": [
+          "Keep right to take exit 62 toward Annapolis."
+        ],
+        "6": [
+          "Keep right to take Interstate 8 95 South toward Annapolis."
+        ],
         "7": [
           "Keep right to take exit 62 onto Interstate 8 95 South toward Annapolis."
         ]
@@ -807,23 +1068,35 @@
         "4": "Выезжайте к <TOWARD_SIGN>.",
         "5": "Выезжайте <RELATIVE_DIRECTION> к <TOWARD_SIGN>."
       },
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "empty_street_name_labels": [
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Merge."],
-        "1": ["Merge left."],
-        "2": ["Merge onto I 76 West/Pennsylvania Turnpike."],
-        "3": ["Merge right onto I 83 South."],
-        "4": ["Merge toward Baltimore."],
-        "5": ["Merge right toward Baltimore."]
+        "0": [
+          "Merge."
+        ],
+        "1": [
+          "Merge left."
+        ],
+        "2": [
+          "Merge onto I 76 West/Pennsylvania Turnpike."
+        ],
+        "3": [
+          "Merge right onto I 83 South."
+        ],
+        "4": [
+          "Merge toward Baltimore."
+        ],
+        "5": [
+          "Merge right toward Baltimore."
+        ]
       }
     },
     "merge_verbal": {
@@ -835,23 +1108,35 @@
         "4": "Выезжайте к <TOWARD_SIGN>.",
         "5": "Выезжайте <RELATIVE_DIRECTION> к <TOWARD_SIGN>."
       },
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "empty_street_name_labels": [
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
       "example_phrases": {
-        "0": ["Merge."],
-        "1": ["Merge left."],
-        "2": ["Merge onto I 76 West/Pennsylvania Turnpike."],
-        "3": ["Merge right onto I 83 South."],
-        "4": ["Merge toward Baltimore."],
-        "5": ["Merge right toward Baltimore."]
+        "0": [
+          "Merge."
+        ],
+        "1": [
+          "Merge left."
+        ],
+        "2": [
+          "Merge onto I 76 West/Pennsylvania Turnpike."
+        ],
+        "3": [
+          "Merge right onto I 83 South."
+        ],
+        "4": [
+          "Merge toward Baltimore."
+        ],
+        "5": [
+          "Merge right toward Baltimore."
+        ]
       }
     },
     "post_transition_transit_verbal": {
@@ -863,7 +1148,10 @@
         "other": "остановок"
       },
       "example_phrases": {
-        "0": ["Travel 1 stop.", "Travel 3 stops."]
+        "0": [
+          "Travel 1 stop.",
+          "Travel 3 stops."
+        ]
       }
     },
     "post_transition_verbal": {
@@ -875,10 +1163,6 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходному переходу"
       ],
       "metric_lengths": [
@@ -896,7 +1180,10 @@
         "менее десяти футов"
       ],
       "example_phrases": {
-        "0": ["Continue for 300 feet.", "Continue for 9 miles."],
+        "0": [
+          "Continue for 300 feet.",
+          "Continue for 9 miles."
+        ],
         "1": [
           "Continue on Pennsylvania 7 43 for 6.2 miles.",
           "Continue on Main Street, Vermont 30 for 1 tenth of a mile."
@@ -921,27 +1208,58 @@
         "13": "Сверните на въезд на <BRANCH_SIGN> к <TOWARD_SIGN>.",
         "14": "Сверните на въезд на <NAME_SIGN>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["Take the ramp on the left.", "Take the ramp on the right."],
-        "1": ["Take the I 95 ramp on the right."],
-        "2": ["Take the ramp on the left toward JFK."],
-        "3": ["Take the South Conduit Avenue ramp on the left toward JFK."],
-        "4": ["Take the Gettysburg Pike ramp on the right."],
-        "5": ["Turn left to take the ramp.", "Turn right to take the ramp."],
-        "6": ["Turn left to take the PA 283 West ramp."],
+        "0": [
+          "Take the ramp on the left.",
+          "Take the ramp on the right."
+        ],
+        "1": [
+          "Take the I 95 ramp on the right."
+        ],
+        "2": [
+          "Take the ramp on the left toward JFK."
+        ],
+        "3": [
+          "Take the South Conduit Avenue ramp on the left toward JFK."
+        ],
+        "4": [
+          "Take the Gettysburg Pike ramp on the right."
+        ],
+        "5": [
+          "Turn left to take the ramp.",
+          "Turn right to take the ramp."
+        ],
+        "6": [
+          "Turn left to take the PA 283 West ramp."
+        ],
         "7": [
           "Turn left to take the ramp toward Harrisburg/Harrisburg International Airport."
         ],
         "8": [
           "Turn left to take the PA 283 West ramp toward Harrisburg/Harrisburg International Airport."
         ],
-        "9": ["Turn right to take the Gettysburg Pike ramp."],
-        "10": ["Take the ramp."],
-        "11": ["Take the I 95 ramp."],
-        "12": ["Take the ramp toward JFK."],
-        "13": ["Take the Soutch Conduit Avenue ramp toward JFK."],
-        "14": ["Take the Gettysburg ramp."]
+        "9": [
+          "Turn right to take the Gettysburg Pike ramp."
+        ],
+        "10": [
+          "Take the ramp."
+        ],
+        "11": [
+          "Take the I 95 ramp."
+        ],
+        "12": [
+          "Take the ramp toward JFK."
+        ],
+        "13": [
+          "Take the Soutch Conduit Avenue ramp toward JFK."
+        ],
+        "14": [
+          "Take the Gettysburg ramp."
+        ]
       }
     },
     "ramp_straight": {
@@ -953,13 +1271,21 @@
         "4": "Держитесь прямо, чтобы заехать на въезд на <NAME_SIGN>."
       },
       "example_phrases": {
-        "0": ["Stay straight to take the ramp."],
-        "1": ["Stay straight to take the US 322 East ramp."],
-        "2": ["Stay straight to take the ramp toward Hershey."],
+        "0": [
+          "Stay straight to take the ramp."
+        ],
+        "1": [
+          "Stay straight to take the US 322 East ramp."
+        ],
+        "2": [
+          "Stay straight to take the ramp toward Hershey."
+        ],
         "3": [
           "Stay straight to take the US 322 East/US 422 East/US 522 East/US 622 East ramp toward Hershey/Palmdale/Palmyra/Campbelltown."
         ],
-        "4": ["Stay straight to take the Gettysburg Pike ramp."]
+        "4": [
+          "Stay straight to take the Gettysburg Pike ramp."
+        ]
       }
     },
     "ramp_straight_verbal": {
@@ -971,13 +1297,21 @@
         "4": "Держитесь прямо, чтобы заехать на въезд на <NAME_SIGN>."
       },
       "example_phrases": {
-        "0": ["Stay straight to take the ramp."],
-        "1": ["Stay straight to take the U.S. 3 22 East ramp."],
-        "2": ["Stay straight to take the ramp toward Hershey."],
+        "0": [
+          "Stay straight to take the ramp."
+        ],
+        "1": [
+          "Stay straight to take the U.S. 3 22 East ramp."
+        ],
+        "2": [
+          "Stay straight to take the ramp toward Hershey."
+        ],
         "3": [
           "Stay straight to take the U.S. 3 22 East, U.S. 4 22 East ramp toward Hershey, Palmdale."
         ],
-        "4": ["Stay straight to take the Gettysburg Pike ramp."]
+        "4": [
+          "Stay straight to take the Gettysburg Pike ramp."
+        ]
       }
     },
     "ramp_verbal": {
@@ -998,27 +1332,58 @@
         "13": "Сверните на въезд на <BRANCH_SIGN> к <TOWARD_SIGN>.",
         "14": "Сверните на въезд на <NAME_SIGN>."
       },
-      "relative_directions": ["слева", "справа"],
+      "relative_directions": [
+        "слева",
+        "справа"
+      ],
       "example_phrases": {
-        "0": ["Take the ramp on the left.", "Take the ramp on the right."],
-        "1": ["Take the Interstate 95 ramp on the right."],
-        "2": ["Take the ramp on the left toward JFK."],
-        "3": ["Take the South Conduit Avenue ramp on the left toward JFK."],
-        "4": ["Take the Gettysburg Pike ramp on the right."],
-        "5": ["Turn left to take the ramp.", "Turn right to take the ramp."],
-        "6": ["Turn left to take the Pennsylvania 2 83 West ramp."],
+        "0": [
+          "Take the ramp on the left.",
+          "Take the ramp on the right."
+        ],
+        "1": [
+          "Take the Interstate 95 ramp on the right."
+        ],
+        "2": [
+          "Take the ramp on the left toward JFK."
+        ],
+        "3": [
+          "Take the South Conduit Avenue ramp on the left toward JFK."
+        ],
+        "4": [
+          "Take the Gettysburg Pike ramp on the right."
+        ],
+        "5": [
+          "Turn left to take the ramp.",
+          "Turn right to take the ramp."
+        ],
+        "6": [
+          "Turn left to take the Pennsylvania 2 83 West ramp."
+        ],
         "7": [
           "Turn left to take the ramp toward Harrisburg/Harrisburg International Airport."
         ],
         "8": [
           "Turn left to take the Pennsylvania 2 83 West ramp toward Harrisburg, Harrisburg International Airport."
         ],
-        "9": ["Turn right to take the Gettysburg Pike ramp."],
-        "10": ["Take the ramp."],
-        "11": ["Take the Interstate 95 ramp."],
-        "12": ["Take the ramp toward JFK."],
-        "13": ["Take the South Conduit Avenue ramp toward JFK."],
-        "14": ["Take the Gettysburg Pike ramp."]
+        "9": [
+          "Turn right to take the Gettysburg Pike ramp."
+        ],
+        "10": [
+          "Take the ramp."
+        ],
+        "11": [
+          "Take the Interstate 95 ramp."
+        ],
+        "12": [
+          "Take the ramp toward JFK."
+        ],
+        "13": [
+          "Take the South Conduit Avenue ramp toward JFK."
+        ],
+        "14": [
+          "Take the Gettysburg Pike ramp."
+        ]
       }
     },
     "sharp": {
@@ -1034,22 +1399,31 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходному переходу"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Make a sharp left."],
-        "1": ["Make a sharp right onto Flatbush Avenue."],
+        "0": [
+          "Make a sharp left."
+        ],
+        "1": [
+          "Make a sharp right onto Flatbush Avenue."
+        ],
         "2": [
           "Make a sharp left onto North Bond Street/US 1 Business/MD 924. Continue on MD 924."
         ],
-        "3": ["Make a sharp right to stay on Sunstone Drive."],
-        "4": ["Make a sharp right at Mannenbashi East."],
-        "5": ["Make a sharp left toward Baltimore."]
+        "3": [
+          "Make a sharp right to stay on Sunstone Drive."
+        ],
+        "4": [
+          "Make a sharp right at Mannenbashi East."
+        ],
+        "5": [
+          "Make a sharp left toward Baltimore."
+        ]
       }
     },
     "sharp_verbal": {
@@ -1065,20 +1439,31 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходному переходу"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Make a sharp left."],
-        "1": ["Make a sharp right onto Flatbush Avenue."],
-        "2": ["Make a sharp left onto North Bond Street, U.S. 1 Business."],
-        "3": ["Make a sharp right to stay on Sunstone Drive."],
-        "4": ["Make a sharp right at Mannenbashi East."],
-        "5": ["Make a sharp left toward Baltimore."]
+        "0": [
+          "Make a sharp left."
+        ],
+        "1": [
+          "Make a sharp right onto Flatbush Avenue."
+        ],
+        "2": [
+          "Make a sharp left onto North Bond Street, U.S. 1 Business."
+        ],
+        "3": [
+          "Make a sharp right to stay on Sunstone Drive."
+        ],
+        "4": [
+          "Make a sharp right at Mannenbashi East."
+        ],
+        "5": [
+          "Make a sharp left toward Baltimore."
+        ]
       }
     },
     "start": {
@@ -1110,13 +1495,13 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходному переходу"
       ],
       "example_phrases": {
-        "0": ["Head east.", "Head north."],
+        "0": [
+          "Head east.",
+          "Head north."
+        ],
         "1": [
           "Head southwest on 5th Avenue.",
           "Head west on the walkway",
@@ -1126,17 +1511,31 @@
         "2": [
           "Head south on North Prince Street/US 222/PA 272. Continue on US 222/PA 272."
         ],
-        "4": ["Drive east.", "Drive north."],
-        "5": ["Drive southwest on 5th Avenue."],
+        "4": [
+          "Drive east.",
+          "Drive north."
+        ],
+        "5": [
+          "Drive southwest on 5th Avenue."
+        ],
         "6": [
           "Drive south on North Prince Street/US 222/PA 272. Continue on US 222/PA 272."
         ],
-        "8": ["Walk east.", "Walk north."],
-        "9": ["Walk southwest on 5th Avenue.", "Walk west on the walkway"],
+        "8": [
+          "Walk east.",
+          "Walk north."
+        ],
+        "9": [
+          "Walk southwest on 5th Avenue.",
+          "Walk west on the walkway"
+        ],
         "10": [
           "Walk south on North Prince Street/US 222/PA 272. Continue on US 222/PA 272."
         ],
-        "16": ["Bike east.", "Bike north."],
+        "16": [
+          "Bike east.",
+          "Bike north."
+        ],
         "17": [
           "Bike southwest on 5th Avenue.",
           "Bike east on the cycleway",
@@ -1184,10 +1583,7 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходному переходу"
       ],
       "metric_lengths": [
         "<KILOMETERS> километров",
@@ -1204,26 +1600,74 @@
         "менее десяти футов"
       ],
       "example_phrases": {
-        "0": ["Head east.", "Head north."],
-        "1": ["Head east for a half mile.", "Head north for 1 kilometer."],
-        "2": ["Head southwest on 5th Avenue."],
-        "3": ["Head southwest on 5th Avenue for 1 tenth of a mile."],
-        "4": ["Head south on North Prince Street, U.S. 2 22."],
-        "5": ["Drive east.", "Drive north."],
-        "6": ["Drive east for a half mile.", "Drive north for 1 kilometer."],
-        "7": ["Drive southwest on 5th Avenue."],
-        "8": ["Drive southwest on 5th Avenue for 1 tenth of a mile."],
-        "9": ["Drive south on North Prince Street, U.S. 2 22."],
-        "10": ["Walk east.", "Walk north."],
-        "11": ["Walk east for a half mile.", "Walk north for 1 kilometer."],
-        "12": ["Walk southwest on 5th Avenue."],
-        "13": ["Walk southwest on 5th Avenue for 1 tenth of a mile."],
-        "14": ["Walk south on North Prince Street, U.S. 2 22."],
-        "15": ["Bike east.", "Bike north."],
-        "16": ["Bike east for a half mile.", "Bike north for 1 kilometer."],
-        "17": ["Bike southwest on 5th Avenue."],
-        "18": ["Bike southwest on 5th Avenue for 1 tenth of a mile."],
-        "19": ["Bike south on North Prince Street, U.S. 2 22."]
+        "0": [
+          "Head east.",
+          "Head north."
+        ],
+        "1": [
+          "Head east for a half mile.",
+          "Head north for 1 kilometer."
+        ],
+        "2": [
+          "Head southwest on 5th Avenue."
+        ],
+        "3": [
+          "Head southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "4": [
+          "Head south on North Prince Street, U.S. 2 22."
+        ],
+        "5": [
+          "Drive east.",
+          "Drive north."
+        ],
+        "6": [
+          "Drive east for a half mile.",
+          "Drive north for 1 kilometer."
+        ],
+        "7": [
+          "Drive southwest on 5th Avenue."
+        ],
+        "8": [
+          "Drive southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "9": [
+          "Drive south on North Prince Street, U.S. 2 22."
+        ],
+        "10": [
+          "Walk east.",
+          "Walk north."
+        ],
+        "11": [
+          "Walk east for a half mile.",
+          "Walk north for 1 kilometer."
+        ],
+        "12": [
+          "Walk southwest on 5th Avenue."
+        ],
+        "13": [
+          "Walk southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "14": [
+          "Walk south on North Prince Street, U.S. 2 22."
+        ],
+        "15": [
+          "Bike east.",
+          "Bike north."
+        ],
+        "16": [
+          "Bike east for a half mile.",
+          "Bike north for 1 kilometer."
+        ],
+        "17": [
+          "Bike southwest on 5th Avenue."
+        ],
+        "18": [
+          "Bike southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "19": [
+          "Bike south on North Prince Street, U.S. 2 22."
+        ]
       }
     },
     "transit": {
@@ -1265,9 +1709,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Exit the station."],
-        "1": ["Exit the Embarcadero Station."],
-        "2": ["Exit the 8 St - NYU Station."]
+        "0": [
+          "Exit the station."
+        ],
+        "1": [
+          "Exit the Embarcadero Station."
+        ],
+        "2": [
+          "Exit the 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_destination_verbal": {
@@ -1278,9 +1728,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Exit the station."],
-        "1": ["Exit the Embarcadero Station."],
-        "2": ["Exit the 8 St - NYU Station."]
+        "0": [
+          "Exit the station."
+        ],
+        "1": [
+          "Exit the Embarcadero Station."
+        ],
+        "2": [
+          "Exit the 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_start": {
@@ -1291,9 +1747,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Enter the station."],
-        "1": ["Enter the Embarcadero Station."],
-        "2": ["Enter the 8 St - NYU Station."]
+        "0": [
+          "Enter the station."
+        ],
+        "1": [
+          "Enter the Embarcadero Station."
+        ],
+        "2": [
+          "Enter the 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_start_verbal": {
@@ -1304,9 +1766,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Enter the station."],
-        "1": ["Enter the Embarcadero Station."],
-        "2": ["Enter the 8 St - NYU Station."]
+        "0": [
+          "Enter the station."
+        ],
+        "1": [
+          "Enter the Embarcadero Station."
+        ],
+        "2": [
+          "Enter the 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_transfer": {
@@ -1317,9 +1785,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Transfer at the station."],
-        "1": ["Transfer at the Embarcadero Station."],
-        "2": ["Transfer at the 8 St - NYU Station."]
+        "0": [
+          "Transfer at the station."
+        ],
+        "1": [
+          "Transfer at the Embarcadero Station."
+        ],
+        "2": [
+          "Transfer at the 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_transfer_verbal": {
@@ -1330,9 +1804,15 @@
       },
       "station_label": "Станция",
       "example_phrases": {
-        "0": ["Transfer at the station."],
-        "1": ["Transfer at the Embarcadero Station."],
-        "2": ["Transfer at the 8 St - NYU Station."]
+        "0": [
+          "Transfer at the station."
+        ],
+        "1": [
+          "Transfer at the Embarcadero Station."
+        ],
+        "2": [
+          "Transfer at the 8 St - NYU Station."
+        ]
       }
     },
     "transit_remain_on": {
@@ -1359,7 +1839,9 @@
           "Remain on the New Haven. (1 stop)",
           "Remain on the train. (3 stops)"
         ],
-        "1": ["Remain on the F toward JAMAICA - 179 ST. (10 stops)"]
+        "1": [
+          "Remain on the F toward JAMAICA - 179 ST. (10 stops)"
+        ]
       }
     },
     "transit_remain_on_verbal": {
@@ -1378,8 +1860,12 @@
         "фуникулере"
       ],
       "example_phrases": {
-        "0": ["Remain on the New Haven."],
-        "1": ["Remain on the F toward JAMAICA - 179 ST."]
+        "0": [
+          "Remain on the New Haven."
+        ],
+        "1": [
+          "Remain on the F toward JAMAICA - 179 ST."
+        ]
       }
     },
     "transit_transfer": {
@@ -1406,7 +1892,9 @@
           "Transfer to take the New Haven. (1 stop)",
           "Transfer to take the tram. (4 stops)"
         ],
-        "1": ["Transfer to take the F toward JAMAICA - 179 ST. (10 stops)"]
+        "1": [
+          "Transfer to take the F toward JAMAICA - 179 ST. (10 stops)"
+        ]
       }
     },
     "transit_transfer_verbal": {
@@ -1425,8 +1913,12 @@
         "фуникулер"
       ],
       "example_phrases": {
-        "0": ["Transfer to take the New Haven."],
-        "1": ["Transfer to take the F toward JAMAICA - 179 ST."]
+        "0": [
+          "Transfer to take the New Haven."
+        ],
+        "1": [
+          "Transfer to take the F toward JAMAICA - 179 ST."
+        ]
       }
     },
     "transit_verbal": {
@@ -1445,8 +1937,12 @@
         "фуникулер"
       ],
       "example_phrases": {
-        "0": ["Take the New Haven."],
-        "1": ["Take the F toward JAMAICA - 179 ST."]
+        "0": [
+          "Take the New Haven."
+        ],
+        "1": [
+          "Take the F toward JAMAICA - 179 ST."
+        ]
       }
     },
     "turn": {
@@ -1462,21 +1958,31 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Turn left."],
-        "1": ["Turn right onto Flatbush Avenue."],
+        "0": [
+          "Turn left."
+        ],
+        "1": [
+          "Turn right onto Flatbush Avenue."
+        ],
         "2": [
           "Turn left onto North Bond Street/US 1 Business/MD 924. Continue on MD 924."
         ],
-        "3": ["Turn right to stay on Sunstone Drive."],
-        "4": ["Turn right at Mannenbashi East."],
-        "5": ["Turn left toward Baltimore."]
+        "3": [
+          "Turn right to stay on Sunstone Drive."
+        ],
+        "4": [
+          "Turn right at Mannenbashi East."
+        ],
+        "5": [
+          "Turn left toward Baltimore."
+        ]
       }
     },
     "turn_verbal": {
@@ -1492,19 +1998,31 @@
         "пешеходную дорожку",
         "велосипедную дорожку",
         "дорожку для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "пешеходный переход"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Turn left."],
-        "1": ["Turn right onto Flatbush Avenue."],
-        "2": ["Turn left onto North Bond Street, U.S. 1 Business."],
-        "3": ["Turn right to stay on Sunstone Drive."],
-        "4": ["Turn right at Mannenbashi East."],
-        "5": ["Turn left toward Baltimore."]
+        "0": [
+          "Turn left."
+        ],
+        "1": [
+          "Turn right onto Flatbush Avenue."
+        ],
+        "2": [
+          "Turn left onto North Bond Street, U.S. 1 Business."
+        ],
+        "3": [
+          "Turn right to stay on Sunstone Drive."
+        ],
+        "4": [
+          "Turn right at Mannenbashi East."
+        ],
+        "5": [
+          "Turn left toward Baltimore."
+        ]
       }
     },
     "uturn": {
@@ -1522,26 +2040,37 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходном переходе"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Make a left U-turn."],
-        "1": ["Make a right U-turn onto Bunker Hill Road."],
-        "2": ["Make a left U-turn to stay on Bunker Hill Road."],
-        "3": ["Make a left U-turn at Devonshire Road."],
+        "0": [
+          "Make a left U-turn."
+        ],
+        "1": [
+          "Make a right U-turn onto Bunker Hill Road."
+        ],
+        "2": [
+          "Make a left U-turn to stay on Bunker Hill Road."
+        ],
+        "3": [
+          "Make a left U-turn at Devonshire Road."
+        ],
         "4": [
           "Make a left U-turn at Devonshire Road onto Jonestown Road/US 22."
         ],
         "5": [
           "Make a left U-turn at Devonshire Road to stay on Jonestown Road/US 22."
         ],
-        "6": ["Make a right U-turn at Mannenbashi East."],
-        "7": ["Make a left U-turn toward Baltimore."]
+        "6": [
+          "Make a right U-turn at Mannenbashi East."
+        ],
+        "7": [
+          "Make a left U-turn toward Baltimore."
+        ]
       }
     },
     "uturn_verbal": {
@@ -1559,26 +2088,37 @@
         "пешеходной дорожке",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
-        "пешеходный переход",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "пешеходном переходе"
       ],
-      "relative_directions": ["налево", "направо"],
+      "relative_directions": [
+        "налево",
+        "направо"
+      ],
       "example_phrases": {
-        "0": ["Make a left U-turn."],
-        "1": ["Make a right U-turn onto Bunker Hill Road."],
-        "2": ["Make a left U-turn to stay on Bunker Hill Road."],
-        "3": ["Make a left U-turn at Devonshire Road."],
+        "0": [
+          "Make a left U-turn."
+        ],
+        "1": [
+          "Make a right U-turn onto Bunker Hill Road."
+        ],
+        "2": [
+          "Make a left U-turn to stay on Bunker Hill Road."
+        ],
+        "3": [
+          "Make a left U-turn at Devonshire Road."
+        ],
         "4": [
           "Make a left U-turn at Devonshire Road onto Jonestown Road, U.S. 22."
         ],
         "5": [
           "Make a left U-turn at Devonshire Road to stay on Jonestown Road, U.S. 22."
         ],
-        "6": ["Make a right U-turn at Mannenbashi East."],
-        "7": ["Make a left U-turn toward Baltimore."]
+        "6": [
+          "Make a right U-turn at Mannenbashi East."
+        ],
+        "7": [
+          "Make a left U-turn toward Baltimore."
+        ]
       }
     },
     "verbal_multi_cue": {
@@ -1628,17 +2168,9 @@
         "менее десяти футов"
       ],
       "example_phrases": {
-        "0": ["In a quarter mile, Turn right onto North Gay Street."]
-      }
-    },
-    "pass": {
-      "phrases": {
-        "0": "Pass <object_label>.",
-        "1": "Pass traffic signals on <object_label>."
-      },
-      "object_labels": ["the gate", "the bollards", "ways intersection"],
-      "example_phrases": {
-        "0": ["Pass the gate."]
+        "0": [
+          "In a quarter mile, Turn right onto North Gay Street."
+        ]
       }
     },
     "elevator": {
@@ -1647,8 +2179,12 @@
         "1": "Воспользуйтесь лифтом до <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the elevator."],
-        "1": ["Take the elevator to Level 1."]
+        "0": [
+          "Take the elevator."
+        ],
+        "1": [
+          "Take the elevator to Level 1."
+        ]
       }
     },
     "steps": {
@@ -1657,8 +2193,12 @@
         "1": "Воспользуйтесь лестницей до <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the stairs."],
-        "1": ["Take the stairs to Level 2."]
+        "0": [
+          "Take the stairs."
+        ],
+        "1": [
+          "Take the stairs to Level 2."
+        ]
       }
     },
     "escalator": {
@@ -1667,8 +2207,12 @@
         "1": "Воспользуйтесь эскалатором до <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the escalator."],
-        "1": ["Take the escalator to Level 3."]
+        "0": [
+          "Take the escalator."
+        ],
+        "1": [
+          "Take the escalator to Level 3."
+        ]
       }
     },
     "enter_building": {
@@ -1680,11 +2224,15 @@
         "пешеходной дорожке",
         "велосипедную дорожку",
         "дорожка для горных велосипедов",
-        "пешеходный переход"
+        "пешеходному переходу"
       ],
       "example_phrases": {
-        "0": ["Enter the building."],
-        "1": ["Enter the building, and continue on the walkway."]
+        "0": [
+          "Enter the building."
+        ],
+        "1": [
+          "Enter the building, and continue on the walkway."
+        ]
       }
     },
     "exit_building": {
@@ -1694,19 +2242,17 @@
       },
       "empty_street_name_labels": [
         "пешеходной дорожке",
-        "велосипедную дорожку",
-        "дорожка для горных велосипедов",
-        "пешеходный переход",
-        "велосипедную дорожку",
-        "дорожка для горных велосипедов",
-        "пешеходному переходу",
         "велосипедной дорожке",
         "дорожке для горных велосипедов",
         "пешеходному переходу"
       ],
       "example_phrases": {
-        "0": ["Exit the building."],
-        "1": ["Exit the building, and continue on the walkway."]
+        "0": [
+          "Exit the building."
+        ],
+        "1": [
+          "Exit the building, and continue on the walkway."
+        ]
       }
     }
   }

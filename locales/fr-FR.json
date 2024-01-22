@@ -1,6 +1,8 @@
 {
   "posix_locale": "fr_FR.UTF-8",
-  "aliases": ["fr"],
+  "aliases": [
+    "fr"
+  ],
   "instructions": {
     "arrive": {
       "phrases": {
@@ -8,8 +10,12 @@
         "1": "Arriver : <TIME> à <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Arriver : 8:02 AM."],
-        "1": ["Arriver : 8:02 AM à 8 St - NYU."]
+        "0": [
+          "Arriver : 8:02 AM."
+        ],
+        "1": [
+          "Arriver : 8:02 AM à 8 St - NYU."
+        ]
       }
     },
     "arrive_verbal": {
@@ -18,8 +24,12 @@
         "1": "Arriver à <TIME> à <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Arriver à 8:02 AM."],
-        "1": ["Arriver à 8:02 AM à 8 St - NYU."]
+        "0": [
+          "Arriver à 8:02 AM."
+        ],
+        "1": [
+          "Arriver à 8:02 AM à 8 St - NYU."
+        ]
       }
     },
     "bear": {
@@ -35,22 +45,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Serrez à droite."],
-        "1": ["Serrez à gauche dans Arlen Road."],
+        "0": [
+          "Serrez à droite."
+        ],
+        "1": [
+          "Serrez à gauche dans Arlen Road."
+        ],
         "2": [
           "Serrez à droite dans Belair Road/US 1 Business. Continuez sur US 1 Business."
         ],
-        "3": ["Serrez à gauche pour rester sur US 15 South."],
-        "4": ["Bear right at Mannenbashi East."],
-        "5": ["Bear left toward Baltimore."]
+        "3": [
+          "Serrez à gauche pour rester sur US 15 South."
+        ],
+        "4": [
+          "Bear right at Mannenbashi East."
+        ],
+        "5": [
+          "Bear left toward Baltimore."
+        ]
       }
     },
     "bear_verbal": {
@@ -66,20 +85,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Serrez à droite."],
-        "1": ["Serrez à gauche dans Arlen Road."],
-        "2": ["Serrez à droite dans Belair Road, U.S. 1 Business."],
-        "3": ["Serrez à gauche pour rester sur U.S. 15 South."],
-        "4": ["Bear right at Mannenbashi East."],
-        "5": ["Bear left toward Baltimore."]
+        "0": [
+          "Serrez à droite."
+        ],
+        "1": [
+          "Serrez à gauche dans Arlen Road."
+        ],
+        "2": [
+          "Serrez à droite dans Belair Road, U.S. 1 Business."
+        ],
+        "3": [
+          "Serrez à gauche pour rester sur U.S. 15 South."
+        ],
+        "4": [
+          "Bear right at Mannenbashi East."
+        ],
+        "5": [
+          "Bear left toward Baltimore."
+        ]
       }
     },
     "becomes": {
@@ -87,7 +117,9 @@
         "0": "<PREVIOUS_STREET_NAMES> devient <STREET_NAMES>."
       },
       "example_phrases": {
-        "0": ["Vine Street devient Middletown Road."]
+        "0": [
+          "Vine Street devient Middletown Road."
+        ]
       }
     },
     "becomes_verbal": {
@@ -95,7 +127,9 @@
         "0": "<PREVIOUS_STREET_NAMES> devient <STREET_NAMES>."
       },
       "example_phrases": {
-        "0": ["Vine Street devient Middletown Road."]
+        "0": [
+          "Vine Street devient Middletown Road."
+        ]
       }
     },
     "continue": {
@@ -109,17 +143,21 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Continuez."],
-        "1": ["Continuez sur 10th Avenue."],
-        "2": ["Continue at Mannenbashi East."],
-        "3": ["Continue toward Baltimore."]
+        "0": [
+          "Continuez."
+        ],
+        "1": [
+          "Continuez sur 10th Avenue."
+        ],
+        "2": [
+          "Continue at Mannenbashi East."
+        ],
+        "3": [
+          "Continue toward Baltimore."
+        ]
       }
     },
     "continue_verbal": {
@@ -137,10 +175,6 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "metric_lengths": [
@@ -158,14 +192,30 @@
         "moins de 10 pieds"
       ],
       "example_phrases": {
-        "0": ["Continue."],
-        "1": ["Continue for 300 feet."],
-        "2": ["Continue on 10th Avenue."],
-        "3": ["Continue on 10th Avenue for 3 miles."],
-        "4": ["Continue at Mannenbashi East."],
-        "5": ["Continue at Mannenbashi East for 2 miles."],
-        "6": ["Continue toward Baltimore."],
-        "7": ["Continue toward Baltimore for 5 miles."]
+        "0": [
+          "Continue."
+        ],
+        "1": [
+          "Continue for 300 feet."
+        ],
+        "2": [
+          "Continue on 10th Avenue."
+        ],
+        "3": [
+          "Continue on 10th Avenue for 3 miles."
+        ],
+        "4": [
+          "Continue at Mannenbashi East."
+        ],
+        "5": [
+          "Continue at Mannenbashi East for 2 miles."
+        ],
+        "6": [
+          "Continue toward Baltimore."
+        ],
+        "7": [
+          "Continue toward Baltimore for 5 miles."
+        ]
       }
     },
     "continue_verbal_alert": {
@@ -179,17 +229,21 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Continuez."],
-        "1": ["Continuez sur 10th Avenue."],
-        "2": ["Continue at Mannenbashi East."],
-        "3": ["Continue toward Baltimore."]
+        "0": [
+          "Continuez."
+        ],
+        "1": [
+          "Continuez sur 10th Avenue."
+        ],
+        "2": [
+          "Continue at Mannenbashi East."
+        ],
+        "3": [
+          "Continue toward Baltimore."
+        ]
       }
     },
     "depart": {
@@ -198,8 +252,12 @@
         "1": "Départ : <TIME> de <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Départ : 8:02 AM."],
-        "1": ["Départ : 8:02 AM de 8 St - NYU."]
+        "0": [
+          "Départ : 8:02 AM."
+        ],
+        "1": [
+          "Départ : 8:02 AM de 8 St - NYU."
+        ]
       }
     },
     "depart_verbal": {
@@ -208,8 +266,12 @@
         "1": "Départ à <TIME> de <TRANSIT_STOP>."
       },
       "example_phrases": {
-        "0": ["Départ at 8:02 AM."],
-        "1": ["Départ at 8:02 AM from 8 St - NYU."]
+        "0": [
+          "Départ at 8:02 AM."
+        ],
+        "1": [
+          "Départ at 8:02 AM from 8 St - NYU."
+        ]
       }
     },
     "destination": {
@@ -219,15 +281,24 @@
         "2": "Votre destination est sur la <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> est sur la <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Vous êtes arrivé à votre destination."],
-        "1": ["Vous êtes arrivé à 3206 Powelton Avenue."],
+        "0": [
+          "Vous êtes arrivé à votre destination."
+        ],
+        "1": [
+          "Vous êtes arrivé à 3206 Powelton Avenue."
+        ],
         "2": [
           "Votre destination est sur la gauche.",
           "Votre destination est sur la droite."
         ],
-        "3": ["Lancaster Brewing Company est sur la gauche."]
+        "3": [
+          "Lancaster Brewing Company est sur la gauche."
+        ]
       }
     },
     "destination_verbal": {
@@ -237,15 +308,24 @@
         "2": "Votre destination est sur la <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> est sur la <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Vous êtes arrivé à votre destination."],
-        "1": ["Vous êtes arrivé à 32 o6 Powelton Avenue."],
+        "0": [
+          "Vous êtes arrivé à votre destination."
+        ],
+        "1": [
+          "Vous êtes arrivé à 32 o6 Powelton Avenue."
+        ],
         "2": [
           "Votre destination est sur la gauche.",
           "Votre destination est sur la droite."
         ],
-        "3": ["Lancaster Brewing Company est sur la gauche."]
+        "3": [
+          "Lancaster Brewing Company est sur la gauche."
+        ]
       }
     },
     "destination_verbal_alert": {
@@ -255,15 +335,24 @@
         "2": "Votre destination sera sur la <RELATIVE_DIRECTION>.",
         "3": "<DESTINATION> sera sur la <RELATIVE_DIRECTION>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Vous arriverez à votre destination."],
-        "1": ["Vous arriverez à 32 o6 Powelton Avenue."],
+        "0": [
+          "Vous arriverez à votre destination."
+        ],
+        "1": [
+          "Vous arriverez à 32 o6 Powelton Avenue."
+        ],
         "2": [
           "Votre destination sera sur la gauche.",
           "Votre destination sera sur la droite."
         ],
-        "3": ["Lancaster Brewing Company sera sur la gauche."]
+        "3": [
+          "Lancaster Brewing Company sera sur la gauche."
+        ]
       }
     },
     "enter_ferry": {
@@ -277,18 +366,22 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "ferry_label": "Ferry",
       "example_phrases": {
-        "0": ["Prenez le ferry."],
-        "1": ["Prenez Millersburg Ferry."],
-        "2": ["Prenez Bridgeport - Port Jefferson Ferry."],
-        "3": ["Take the ferry toward Cape May."]
+        "0": [
+          "Prenez le ferry."
+        ],
+        "1": [
+          "Prenez Millersburg Ferry."
+        ],
+        "2": [
+          "Prenez Bridgeport - Port Jefferson Ferry."
+        ],
+        "3": [
+          "Take the ferry toward Cape May."
+        ]
       }
     },
     "enter_ferry_verbal": {
@@ -302,18 +395,22 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "ferry_label": "Ferry",
       "example_phrases": {
-        "0": ["Prenez le ferry."],
-        "1": ["Prenez Millersburg Ferry."],
-        "2": ["Prenez Bridgeport - Port Jefferson Ferry."],
-        "3": ["Take the ferry toward Cape May."]
+        "0": [
+          "Prenez le ferry."
+        ],
+        "1": [
+          "Prenez Millersburg Ferry."
+        ],
+        "2": [
+          "Prenez Bridgeport - Port Jefferson Ferry."
+        ],
+        "3": [
+          "Take the ferry toward Cape May."
+        ]
       }
     },
     "enter_roundabout": {
@@ -351,14 +448,12 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Entrez dans le rond-point."],
+        "0": [
+          "Entrez dans le rond-point."
+        ],
         "1": [
           "Entrez dans le rond-point et prenez la 1er sortie.",
           "Entrez dans le rond-point et prenez la 2nd sortie.",
@@ -371,28 +466,48 @@
           "Entrez dans le rond-point et prenez la 9ème sortie.",
           "Entrez dans le rond-point et prenez la 10ème sortie."
         ],
-        "2": ["Enter the roundabout and take the 3rd exit onto Main Street."],
+        "2": [
+          "Enter the roundabout and take the 3rd exit onto Main Street."
+        ],
         "3": [
           "Enter the roundabout and take the 3rd exit onto US 322/Main Street. Continue on US 322."
         ],
-        "4": ["Enter the roundabout and take the 3rd exit toward Baltimore."],
-        "5": ["Enter the roundabout and take the exit onto Main Street."],
+        "4": [
+          "Enter the roundabout and take the 3rd exit toward Baltimore."
+        ],
+        "5": [
+          "Enter the roundabout and take the exit onto Main Street."
+        ],
         "6": [
           "Enter the roundabout and take the exit onto US 322/Main Street. Continue on US 322."
         ],
-        "7": ["Enter the roundabout and take the exit toward Baltimore."],
-        "8": ["Enter Dupont Circle."],
-        "9": ["Enter Dupont Circle and take the 1st exit."],
-        "10": ["Enter Dupont Circle and take the 3rd exit onto Main Street."],
+        "7": [
+          "Enter the roundabout and take the exit toward Baltimore."
+        ],
+        "8": [
+          "Enter Dupont Circle."
+        ],
+        "9": [
+          "Enter Dupont Circle and take the 1st exit."
+        ],
+        "10": [
+          "Enter Dupont Circle and take the 3rd exit onto Main Street."
+        ],
         "11": [
           "Enter Dupont Circle and take the 3rd exit onto US 322/Main Street. Continue on US 322."
         ],
-        "12": ["Enter Dupont Circle and take the 3rd exit toward Baltimore."],
-        "13": ["Enter Dupont Circle and take the exit onto Main Street."],
+        "12": [
+          "Enter Dupont Circle and take the 3rd exit toward Baltimore."
+        ],
+        "13": [
+          "Enter Dupont Circle and take the exit onto Main Street."
+        ],
         "14": [
           "Enter Dupont Circle and take the exit onto US 322/Main Street. Continue on US 322."
         ],
-        "15": ["Enter Dupont Circle and take the exit toward Baltimore."]
+        "15": [
+          "Enter Dupont Circle and take the exit toward Baltimore."
+        ]
       }
     },
     "enter_roundabout_verbal": {
@@ -430,14 +545,12 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Entrez dans le rond-point."],
+        "0": [
+          "Entrez dans le rond-point."
+        ],
         "1": [
           "Entrez dans le rond-point et prenez la 1st sortie.",
           "Entrez dans le rond-point et prenez la 2nd sortie.",
@@ -450,28 +563,48 @@
           "Entrez dans le rond-point et prenez la 9ème sortie.",
           "Entrez dans le rond-point et prenez la 10ème sortie."
         ],
-        "2": ["Enter the roundabout and take the 3rd exit onto Main Street."],
+        "2": [
+          "Enter the roundabout and take the 3rd exit onto Main Street."
+        ],
         "3": [
           "Enter the roundabout and take the 3rd exit onto U.S. 3 22/Main Street."
         ],
-        "4": ["Enter the roundabout and take the 3rd exit toward Baltimore."],
-        "5": ["Enter the roundabout and take the exit onto Main Street."],
+        "4": [
+          "Enter the roundabout and take the 3rd exit toward Baltimore."
+        ],
+        "5": [
+          "Enter the roundabout and take the exit onto Main Street."
+        ],
         "6": [
           "Enter the roundabout and take the exit onto U.S. 3 22/Main Street."
         ],
-        "7": ["Enter the roundabout and take the exit toward Baltimore."],
-        "8": ["Enter Dupont Circle."],
-        "9": ["Enter Dupont Circle and take the 1st exit."],
-        "10": ["Enter Dupont Circle and take the 3rd exit onto Main Street."],
+        "7": [
+          "Enter the roundabout and take the exit toward Baltimore."
+        ],
+        "8": [
+          "Enter Dupont Circle."
+        ],
+        "9": [
+          "Enter Dupont Circle and take the 1st exit."
+        ],
+        "10": [
+          "Enter Dupont Circle and take the 3rd exit onto Main Street."
+        ],
         "11": [
           "Enter Dupont Circle and take the 3rd exit onto U.S. 3 22/Main Street."
         ],
-        "12": ["Enter Dupont Circle and take the 3rd exit toward Baltimore."],
-        "13": ["Enter Dupont Circle and take the exit onto Main Street."],
+        "12": [
+          "Enter Dupont Circle and take the 3rd exit toward Baltimore."
+        ],
+        "13": [
+          "Enter Dupont Circle and take the exit onto Main Street."
+        ],
         "14": [
           "Enter Dupont Circle and take the exit onto U.S. 3 22/Main Street."
         ],
-        "15": ["Enter Dupont Circle and take the exit toward Baltimore."]
+        "15": [
+          "Enter Dupont Circle and take the exit toward Baltimore."
+        ]
       }
     },
     "exit": {
@@ -501,22 +634,39 @@
         "27": "Prenez la sortie <NAME_SIGN> vers <TOWARD_SIGN>.",
         "29": "Prenez la sortie <NAME_SIGN> dans <BRANCH_SIGN> vers <TOWARD_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Prenez la sortie sur la gauche.",
           "Prenez la sortie sur la droite."
         ],
-        "1": ["Prenez la sortie 67 B-A sur la droite."],
-        "2": ["Prenez la sortie US 322 West sur la droite."],
-        "3": ["Prenez la sortie 67 B-A sur la droite dans US 322 West."],
-        "4": ["Prenez la sortie sur la droite vers Lewistown."],
-        "5": ["Prenez la sortie 67 B-A sur la droite vers Lewistown."],
-        "6": ["Prenez la sortie US 322 West sur la droite vers Lewistown."],
+        "1": [
+          "Prenez la sortie 67 B-A sur la droite."
+        ],
+        "2": [
+          "Prenez la sortie US 322 West sur la droite."
+        ],
+        "3": [
+          "Prenez la sortie 67 B-A sur la droite dans US 322 West."
+        ],
+        "4": [
+          "Prenez la sortie sur la droite vers Lewistown."
+        ],
+        "5": [
+          "Prenez la sortie 67 B-A sur la droite vers Lewistown."
+        ],
+        "6": [
+          "Prenez la sortie US 322 West sur la droite vers Lewistown."
+        ],
         "7": [
           "Prenez la sortie 67 B-A sur la droite dans US 322 West vers Lewistown/State College."
         ],
-        "8": ["Prenez la sortie White Marsh Boulevard sur la gauche."],
+        "8": [
+          "Prenez la sortie White Marsh Boulevard sur la gauche."
+        ],
         "10": [
           "Prenez la sortie White Marsh Boulevard sur la gauche dans MD 43 East."
         ],
@@ -526,19 +676,39 @@
         "14": [
           "Prenez la sortie White Marsh Boulevard sur la gauche dans MD 43 East vers White Marsh."
         ],
-        "15": ["Prenez la sortie."],
-        "16": ["Prenez la sortie 67 B-A."],
-        "17": ["Prenez la sortie US 322 West."],
-        "18": ["Prenez la sortie 67 B-A dans US 322 West."],
-        "19": ["Prenez la sortie toward Lewistown."],
-        "20": ["Prenez la sortie 67 B-A toward Lewistown."],
-        "21": ["Prenez la sortie US 322 West toward Lewistown."],
+        "15": [
+          "Prenez la sortie."
+        ],
+        "16": [
+          "Prenez la sortie 67 B-A."
+        ],
+        "17": [
+          "Prenez la sortie US 322 West."
+        ],
+        "18": [
+          "Prenez la sortie 67 B-A dans US 322 West."
+        ],
+        "19": [
+          "Prenez la sortie toward Lewistown."
+        ],
+        "20": [
+          "Prenez la sortie 67 B-A toward Lewistown."
+        ],
+        "21": [
+          "Prenez la sortie US 322 West toward Lewistown."
+        ],
         "22": [
           "Prenez la sortie 67 B-A dans US 322 West toward Lewistown/State College."
         ],
-        "23": ["Prenez la sortie White Marsh Boulevard."],
-        "25": ["Prenez la sortie White Marsh Boulevard dans MD 43 East."],
-        "27": ["Prenez la sortie White Marsh Boulevard toward White Marsh."],
+        "23": [
+          "Prenez la sortie White Marsh Boulevard."
+        ],
+        "25": [
+          "Prenez la sortie White Marsh Boulevard dans MD 43 East."
+        ],
+        "27": [
+          "Prenez la sortie White Marsh Boulevard toward White Marsh."
+        ],
         "29": [
           "Prenez la sortie White Marsh Boulevard dans MD 43 East toward White Marsh."
         ]
@@ -555,19 +725,21 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Quittez le rond-point."],
-        "1": ["Quittez le rond-point dans Philadelphia Road/MD 7."],
+        "0": [
+          "Quittez le rond-point."
+        ],
+        "1": [
+          "Quittez le rond-point dans Philadelphia Road/MD 7."
+        ],
         "2": [
           "Quittez le rond-point dans Catoctin Mountain Highway/US 15. Continuez sur US 15."
         ],
-        "3": ["Exit the roundabout toward Baltimore."]
+        "3": [
+          "Exit the roundabout toward Baltimore."
+        ]
       }
     },
     "exit_roundabout_verbal": {
@@ -581,17 +753,21 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Quittez le rond-point."],
-        "1": ["Quittez le rond-point pour Philadelphia Road, Maryland 7."],
-        "2": ["Quittez le rond-point pour Catoctin Mountain Highway, U.S. 15."],
-        "3": ["Exit the roundabout toward Baltimore."]
+        "0": [
+          "Quittez le rond-point."
+        ],
+        "1": [
+          "Quittez le rond-point pour Philadelphia Road, Maryland 7."
+        ],
+        "2": [
+          "Quittez le rond-point pour Catoctin Mountain Highway, U.S. 15."
+        ],
+        "3": [
+          "Exit the roundabout toward Baltimore."
+        ]
       }
     },
     "exit_verbal": {
@@ -621,22 +797,39 @@
         "27": "Prenez la sortie <NAME_SIGN> vers <TOWARD_SIGN>.",
         "29": "Prenez la sortie <NAME_SIGN> dans <BRANCH_SIGN> vers <TOWARD_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Prenez la sortie sur la gauche.",
           "Prenez la sortie sur la droite."
         ],
-        "1": ["Prenez la sortie 67 B-A sur la droite."],
-        "2": ["Prenez la sortie U.S. 3 22 West sur la droite."],
-        "3": ["Prenez la sortie 67 B-A sur la droite dans U.S. 3 22 West."],
-        "4": ["Prenez la sortie sur la droite vers Lewistown."],
-        "5": ["Prenez la sortie 67 B-A sur la droite vers Lewistown."],
-        "6": ["Prenez la sortie U.S. 3 22 West sur la droite vers Lewistown."],
+        "1": [
+          "Prenez la sortie 67 B-A sur la droite."
+        ],
+        "2": [
+          "Prenez la sortie U.S. 3 22 West sur la droite."
+        ],
+        "3": [
+          "Prenez la sortie 67 B-A sur la droite dans U.S. 3 22 West."
+        ],
+        "4": [
+          "Prenez la sortie sur la droite vers Lewistown."
+        ],
+        "5": [
+          "Prenez la sortie 67 B-A sur la droite vers Lewistown."
+        ],
+        "6": [
+          "Prenez la sortie U.S. 3 22 West sur la droite vers Lewistown."
+        ],
         "7": [
           "Prenez la sortie 67 B-A sur la droite dans U.S. 3 22 West vers Lewistown, State College."
         ],
-        "8": ["Prenez la sortie White Marsh Boulevard sur la gauche."],
+        "8": [
+          "Prenez la sortie White Marsh Boulevard sur la gauche."
+        ],
         "10": [
           "Prenez la sortie White Marsh Boulevard sur la gauche dans Maryland 43 East."
         ],
@@ -646,19 +839,39 @@
         "14": [
           "Prenez la sortie White Marsh Boulevard sur la gauche dans Maryland 43 East vers White Marsh."
         ],
-        "15": ["Prenez la sortie."],
-        "16": ["Prenez la sortie 67 B-A."],
-        "17": ["Prenez la sortie US 322 West."],
-        "18": ["Prenez la sortie 67 B-A dans US 322 West."],
-        "19": ["Prenez la sortie vers Lewistown."],
-        "20": ["Prenez la sortie 67 B-A vers Lewistown."],
-        "21": ["Prenez la sortie US 322 West vers Lewistown."],
+        "15": [
+          "Prenez la sortie."
+        ],
+        "16": [
+          "Prenez la sortie 67 B-A."
+        ],
+        "17": [
+          "Prenez la sortie US 322 West."
+        ],
+        "18": [
+          "Prenez la sortie 67 B-A dans US 322 West."
+        ],
+        "19": [
+          "Prenez la sortie vers Lewistown."
+        ],
+        "20": [
+          "Prenez la sortie 67 B-A vers Lewistown."
+        ],
+        "21": [
+          "Prenez la sortie US 322 West vers Lewistown."
+        ],
         "22": [
           "Prenez la sortie 67 B-A dans US 322 West vers Lewistown/State College."
         ],
-        "23": ["Prenez la sortie White Marsh Boulevard."],
-        "25": ["Prenez la sortie White Marsh Boulevard dans MD 43 East."],
-        "27": ["Prenez la sortie White Marsh Boulevard vers White Marsh."],
+        "23": [
+          "Prenez la sortie White Marsh Boulevard."
+        ],
+        "25": [
+          "Prenez la sortie White Marsh Boulevard dans MD 43 East."
+        ],
+        "27": [
+          "Prenez la sortie White Marsh Boulevard vers White Marsh."
+        ],
         "29": [
           "Prenez la sortie White Marsh Boulevard dans MD 43 East vers White Marsh."
         ]
@@ -669,7 +882,9 @@
         "0": "Sortie n°<EXIT_NUMBERS>"
       },
       "example_phrases": {
-        "0": ["Sortie n°1A"]
+        "0": [
+          "Sortie n°1A"
+        ]
       }
     },
     "keep": {
@@ -687,25 +902,37 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "route", "droite"],
+      "relative_directions": [
+        "gauche",
+        "route",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Gardez la gauche à la fourche.",
           "Gardez la route à la fourche.",
           "Gardez la droite à la fourche."
         ],
-        "1": ["Gardez la droite pour prendre la sortie 62."],
-        "2": ["Gardez la droite pour prendre I 895 South."],
-        "3": ["Gardez la droite pour prendre la sortie 62 dans I 895 South."],
-        "4": ["Gardez la droite vers Annapolis."],
-        "5": ["Gardez la droite pour prendre la sortie 62 vers Annapolis."],
-        "6": ["Gardez la droite pour prendre I 895 South vers Annapolis."],
+        "1": [
+          "Gardez la droite pour prendre la sortie 62."
+        ],
+        "2": [
+          "Gardez la droite pour prendre I 895 South."
+        ],
+        "3": [
+          "Gardez la droite pour prendre la sortie 62 dans I 895 South."
+        ],
+        "4": [
+          "Gardez la droite vers Annapolis."
+        ],
+        "5": [
+          "Gardez la droite pour prendre la sortie 62 vers Annapolis."
+        ],
+        "6": [
+          "Gardez la droite pour prendre I 895 South vers Annapolis."
+        ],
         "7": [
           "Gardez la droite pour prendre la sortie 62 dans I 895 South vers Annapolis."
         ]
@@ -722,13 +949,13 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "route", "droite"],
+      "relative_directions": [
+        "gauche",
+        "route",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Gardez la gauche pour rester sur I 95 South.",
@@ -738,7 +965,9 @@
         "1": [
           "Gardez la gauche pour prendre la sortie 62 pour rester sur I 95 South."
         ],
-        "2": ["Gardez la gauche pour rester sur I 95 South vers Baltimore."],
+        "2": [
+          "Gardez la gauche pour rester sur I 95 South vers Baltimore."
+        ],
         "3": [
           "Gardez la gauche pour prendre la sortie 62 pour rester sur I 95 South vers Baltimore."
         ]
@@ -755,13 +984,13 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "route", "droite"],
+      "relative_directions": [
+        "gauche",
+        "route",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Gardez la gauche pour rester sur Interstate 95 South.",
@@ -771,7 +1000,9 @@
         "1": [
           "Gardez la gauche pour prendre la sortie 62 pour rester sur Interstate 95 South."
         ],
-        "2": ["Gardez la gauche pour rester sur I 95 South vers Baltimore."],
+        "2": [
+          "Gardez la gauche pour rester sur I 95 South vers Baltimore."
+        ],
         "3": [
           "Gardez la gauche pour prendre la sortie 62 pour rester sur Interstate 95 South vers Baltimore."
         ]
@@ -792,26 +1023,34 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "route", "droite"],
+      "relative_directions": [
+        "gauche",
+        "route",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Gardez la gauche à la fourche.",
           "Gardez la route à la fourche.",
           "Gardez la droite à la fourche."
         ],
-        "1": ["Gardez la droite pour prendre la sortie 62."],
-        "2": ["Gardez la droite pour prendre Interstate 8 95 South."],
+        "1": [
+          "Gardez la droite pour prendre la sortie 62."
+        ],
+        "2": [
+          "Gardez la droite pour prendre Interstate 8 95 South."
+        ],
         "3": [
           "Gardez la droite pour prendre la sortie 62 dans Interstate 8 95 South."
         ],
-        "4": ["Gardez la droite vers Annapolis."],
-        "5": ["Gardez la droite pour prendre la sortie 62 vers Annapolis."],
+        "4": [
+          "Gardez la droite vers Annapolis."
+        ],
+        "5": [
+          "Gardez la droite pour prendre la sortie 62 vers Annapolis."
+        ],
         "6": [
           "Gardez la droite pour prendre Interstate 8 95 South vers Annapolis."
         ],
@@ -829,24 +1068,35 @@
         "4": "Insérez-vous vers <TOWARD_SIGN>.",
         "5": "Insérez-vous à <RELATIVE_DIRECTION> vers <TOWARD_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "empty_street_name_labels": [
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Rejoignez."],
-        "1": ["Rejoignez à gauche."],
-        "2": ["Rejoignez I 76 West/Pennsylvania Turnpike."],
-        "3": ["Rejoignez à droite I 83 South."],
-        "4": ["Merge toward Baltimore."],
-        "5": ["Merge right toward Baltimore."]
+        "0": [
+          "Rejoignez."
+        ],
+        "1": [
+          "Rejoignez à gauche."
+        ],
+        "2": [
+          "Rejoignez I 76 West/Pennsylvania Turnpike."
+        ],
+        "3": [
+          "Rejoignez à droite I 83 South."
+        ],
+        "4": [
+          "Merge toward Baltimore."
+        ],
+        "5": [
+          "Merge right toward Baltimore."
+        ]
       }
     },
     "merge_verbal": {
@@ -858,24 +1108,35 @@
         "4": "Insérez-vous vers <TOWARD_SIGN>.",
         "5": "Insérez-vous à <RELATIVE_DIRECTION> vers <TOWARD_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "empty_street_name_labels": [
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Merge."],
-        "1": ["Rejoignez à gauche."],
-        "2": ["Rejoignez I 76 West/Pennsylvania Turnpike."],
-        "3": ["Rejoignez à droite I 83 South."],
-        "4": ["Merge toward Baltimore."],
-        "5": ["Merge right toward Baltimore."]
+        "0": [
+          "Merge."
+        ],
+        "1": [
+          "Rejoignez à gauche."
+        ],
+        "2": [
+          "Rejoignez I 76 West/Pennsylvania Turnpike."
+        ],
+        "3": [
+          "Rejoignez à droite I 83 South."
+        ],
+        "4": [
+          "Merge toward Baltimore."
+        ],
+        "5": [
+          "Merge right toward Baltimore."
+        ]
       }
     },
     "post_transition_transit_verbal": {
@@ -887,7 +1148,10 @@
         "other": "arrêts"
       },
       "example_phrases": {
-        "0": ["Travel 1 stop.", "Travel 3 stops."]
+        "0": [
+          "Travel 1 stop.",
+          "Travel 3 stops."
+        ]
       }
     },
     "post_transition_verbal": {
@@ -899,10 +1163,6 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "metric_lengths": [
@@ -920,7 +1180,10 @@
         "moins de 10 pieds"
       ],
       "example_phrases": {
-        "0": ["Continuez pendant 300 pieds.", "Continuez pendant 9 miles."],
+        "0": [
+          "Continuez pendant 300 pieds.",
+          "Continuez pendant 9 miles."
+        ],
         "1": [
           "Continuez sur Pennsylvania 7 43 pendant 6.2 miles.",
           "Continuez sur Main Street, Vermont 30 pendant 1 dixième de mile."
@@ -945,35 +1208,58 @@
         "13": "Prenez la bretelle <BRANCH_SIGN> vers <TOWARD_SIGN>.",
         "14": "Prenez la bretelle <NAME_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Prenez la bretelle sur la gauche.",
           "Prenez la bretelle sur la droite."
         ],
-        "1": ["Prenez la bretelle I 95 sur la droite."],
-        "2": ["Prenez la bretelle sur la gauche vers JFK."],
+        "1": [
+          "Prenez la bretelle I 95 sur la droite."
+        ],
+        "2": [
+          "Prenez la bretelle sur la gauche vers JFK."
+        ],
         "3": [
           "Prenez la bretelle South Conduit Avenue sur la gauche vers JFK."
         ],
-        "4": ["Prenez la bretelle Gettysburg Pike sur la droite."],
+        "4": [
+          "Prenez la bretelle Gettysburg Pike sur la droite."
+        ],
         "5": [
           "Tournez à gauche pour prendre la bretelle.",
           "Tournez à droite pour prendre la bretelle."
         ],
-        "6": ["Tournez à gauche pour prendre la bretelle PA 283 West."],
+        "6": [
+          "Tournez à gauche pour prendre la bretelle PA 283 West."
+        ],
         "7": [
           "Tournez à gauche pour prendre la bretelle vers Harrisburg/Harrisburg International Airport."
         ],
         "8": [
           "Tournez à gauche pour prendre la bretelle PA 283 West vers Harrisburg/Harrisburg International Airport."
         ],
-        "9": ["Tournez à droite pour prendre la bretelle Gettysburg Pike."],
-        "10": ["Prenez la bretelle."],
-        "11": ["Prenez la bretelle I 95."],
-        "12": ["Prenez la bretelle vers JFK."],
-        "13": ["Prenez la bretelle Soutch Conduit Avenue vers JFK."],
-        "14": ["Prenez la bretelle Gettysburg."]
+        "9": [
+          "Tournez à droite pour prendre la bretelle Gettysburg Pike."
+        ],
+        "10": [
+          "Prenez la bretelle."
+        ],
+        "11": [
+          "Prenez la bretelle I 95."
+        ],
+        "12": [
+          "Prenez la bretelle vers JFK."
+        ],
+        "13": [
+          "Prenez la bretelle Soutch Conduit Avenue vers JFK."
+        ],
+        "14": [
+          "Prenez la bretelle Gettysburg."
+        ]
       }
     },
     "ramp_straight": {
@@ -985,13 +1271,21 @@
         "4": "Continuez tout droit pour prendre la bretelle <NAME_SIGN>."
       },
       "example_phrases": {
-        "0": ["Continuez tout droit pour prendre la bretelle."],
-        "1": ["Continuez tout droit pour prendre la bretelle US 322 East."],
-        "2": ["Continuez tout droit pour prendre la bretelle vers Hershey."],
+        "0": [
+          "Continuez tout droit pour prendre la bretelle."
+        ],
+        "1": [
+          "Continuez tout droit pour prendre la bretelle US 322 East."
+        ],
+        "2": [
+          "Continuez tout droit pour prendre la bretelle vers Hershey."
+        ],
         "3": [
           "Continuez tout droit pour prendre la bretelle US 322 East/US 422 East/US 522 East/US 622 East vers Hershey/Palmdale/Palmyra/Campbelltown."
         ],
-        "4": ["Continuez tout droit pour prendre la bretelle Gettysburg Pike."]
+        "4": [
+          "Continuez tout droit pour prendre la bretelle Gettysburg Pike."
+        ]
       }
     },
     "ramp_straight_verbal": {
@@ -1003,13 +1297,21 @@
         "4": "Continuez tout droit pour prendre la bretelle <NAME_SIGN>."
       },
       "example_phrases": {
-        "0": ["Continuez tout droit pour prendre la bretelle."],
-        "1": ["Continuez tout droit pour prendre la bretelle US 322 East."],
-        "2": ["Continuez tout droit pour prendre la bretelle vers Hershey."],
+        "0": [
+          "Continuez tout droit pour prendre la bretelle."
+        ],
+        "1": [
+          "Continuez tout droit pour prendre la bretelle US 322 East."
+        ],
+        "2": [
+          "Continuez tout droit pour prendre la bretelle vers Hershey."
+        ],
         "3": [
           "Continuez tout droit pour prendre la bretelle US 322 East/US 422 East/US 522 East/US 622 East vers Hershey/Palmdale/Palmyra/Campbelltown."
         ],
-        "4": ["Continuez tout droit pour prendre la bretelle Gettysburg Pike."]
+        "4": [
+          "Continuez tout droit pour prendre la bretelle Gettysburg Pike."
+        ]
       }
     },
     "ramp_verbal": {
@@ -1030,18 +1332,27 @@
         "13": "Prenez la bretelle <BRANCH_SIGN> vers <TOWARD_SIGN>.",
         "14": "Prenez la bretelle <NAME_SIGN>."
       },
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
         "0": [
           "Prenez la bretelle sur la gauche.",
           "Prenez la bretelle sur la droite."
         ],
-        "1": ["Prenez la bretelle Interstate 95 sur la droite."],
-        "2": ["Prenez la bretelle sur la gauche vers JFK."],
+        "1": [
+          "Prenez la bretelle Interstate 95 sur la droite."
+        ],
+        "2": [
+          "Prenez la bretelle sur la gauche vers JFK."
+        ],
         "3": [
           "Prenez la bretelle South Conduit Avenue sur la gauche vers JFK."
         ],
-        "4": ["Prenez la bretelle Gettysburg Pike sur la droite."],
+        "4": [
+          "Prenez la bretelle Gettysburg Pike sur la droite."
+        ],
         "5": [
           "Tournez à gauche pour prendre la bretelle.",
           "Tournez à droite pour prendre la bretelle."
@@ -1055,12 +1366,24 @@
         "8": [
           "Tournez à gauche pour prendre la bretelle Pennsylvania 2 83 West vers Harrisburg, Harrisburg International Airport."
         ],
-        "9": ["Tournez à droite pour prendre la bretelle Gettysburg Pike."],
-        "10": ["Prenez la bretelle."],
-        "11": ["Prenez la bretelle Interstate 95."],
-        "12": ["Prenez la bretelle vers JFK."],
-        "13": ["Prenez la bretelle South Conduit Avenue vers JFK."],
-        "14": ["Prenez la bretelle Gettysburg Pike."]
+        "9": [
+          "Tournez à droite pour prendre la bretelle Gettysburg Pike."
+        ],
+        "10": [
+          "Prenez la bretelle."
+        ],
+        "11": [
+          "Prenez la bretelle Interstate 95."
+        ],
+        "12": [
+          "Prenez la bretelle vers JFK."
+        ],
+        "13": [
+          "Prenez la bretelle South Conduit Avenue vers JFK."
+        ],
+        "14": [
+          "Prenez la bretelle Gettysburg Pike."
+        ]
       }
     },
     "sharp": {
@@ -1076,24 +1399,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Tournez à tout de suite à gauche."],
-        "1": ["Tournez à tout de suite à droite dans Flatbush Avenue."],
+        "0": [
+          "Tournez à tout de suite à gauche."
+        ],
+        "1": [
+          "Tournez à tout de suite à droite dans Flatbush Avenue."
+        ],
         "2": [
           "Tournez à tout de suite à gauche dans North Bond Street/US 1 Business/MD 924. Continuez sur MD 924."
         ],
         "3": [
           "Tournez à tout de suite à droite pour rester sur Sunstone Drive."
         ],
-        "4": ["Make a sharp right at Mannenbashi East."],
-        "5": ["Make a sharp left toward Baltimore."]
+        "4": [
+          "Make a sharp right at Mannenbashi East."
+        ],
+        "5": [
+          "Make a sharp left toward Baltimore."
+        ]
       }
     },
     "sharp_verbal": {
@@ -1109,24 +1439,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Tournez à tout de suite à gauche."],
-        "1": ["Tournez à tout de suite à droite dans Flatbush Avenue."],
+        "0": [
+          "Tournez à tout de suite à gauche."
+        ],
+        "1": [
+          "Tournez à tout de suite à droite dans Flatbush Avenue."
+        ],
         "2": [
           "Tournez à tout de suite à gauche dans North Bond Street, U.S. 1 Business."
         ],
         "3": [
           "Tournez à tout de suite à droite pour rester sur Sunstone Drive."
         ],
-        "4": ["Make a sharp right at Mannenbashi East."],
-        "5": ["Make a sharp left toward Baltimore."]
+        "4": [
+          "Make a sharp right at Mannenbashi East."
+        ],
+        "5": [
+          "Make a sharp left toward Baltimore."
+        ]
       }
     },
     "start": {
@@ -1158,14 +1495,13 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Allez vers l'est.", "Allez vers le nord."],
+        "0": [
+          "Allez vers l'est.",
+          "Allez vers le nord."
+        ],
         "1": [
           "Allez vers le sud-est sur la 5th Avenue.",
           "Allez vers l'ouest sur l'allée",
@@ -1175,12 +1511,20 @@
         "2": [
           "Allez vers le sud sur North Prince Street/US 222/PA 272. Continuez sur US 222/PA 272."
         ],
-        "4": ["Conduisez vers l'est.", "Conduisez vers le nord."],
-        "5": ["Conduisez vers le sud-est sur 5th Avenue."],
+        "4": [
+          "Conduisez vers l'est.",
+          "Conduisez vers le nord."
+        ],
+        "5": [
+          "Conduisez vers le sud-est sur 5th Avenue."
+        ],
         "6": [
           "Conduisez vers le sud sur North Prince Street/US 222/PA 272. Continuez sur US 222/PA 272."
         ],
-        "8": ["Marchez vers l'est.", "Marchez vers le nord."],
+        "8": [
+          "Marchez vers l'est.",
+          "Marchez vers le nord."
+        ],
         "9": [
           "Marchez vers le sud-est sur 5th Avenue.",
           "Marchez vers l'ouest sur l'allée"
@@ -1188,7 +1532,10 @@
         "10": [
           "Marchez vers le sud sur North Prince Street/US 222/PA 272. Continuez sur US 222/PA 272."
         ],
-        "16": ["Pédalez vers l'est.", "Pédalez vers le nord."],
+        "16": [
+          "Pédalez vers l'est.",
+          "Pédalez vers le nord."
+        ],
         "17": [
           "Pédalez vers le sud-est sur 5th Avenue.",
           "Pédalez vers l'est sur la piste cyclable",
@@ -1236,10 +1583,6 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
       "metric_lengths": [
@@ -1257,26 +1600,74 @@
         "moins de 10 pieds"
       ],
       "example_phrases": {
-        "0": ["Head east.", "Head north."],
-        "1": ["Head east for a half mile.", "Head north for 1 kilometer."],
-        "2": ["Head southwest on 5th Avenue."],
-        "3": ["Head southwest on 5th Avenue for 1 tenth of a mile."],
-        "4": ["Head south on North Prince Street, U.S. 2 22."],
-        "5": ["Drive east.", "Drive north."],
-        "6": ["Drive east for a half mile.", "Drive north for 1 kilometer."],
-        "7": ["Drive southwest on 5th Avenue."],
-        "8": ["Drive southwest on 5th Avenue for 1 tenth of a mile."],
-        "9": ["Drive south on North Prince Street, U.S. 2 22."],
-        "10": ["Walk east.", "Walk north."],
-        "11": ["Walk east for a half mile.", "Walk north for 1 kilometer."],
-        "12": ["Walk southwest on 5th Avenue."],
-        "13": ["Walk southwest on 5th Avenue for 1 tenth of a mile."],
-        "14": ["Walk south on North Prince Street, U.S. 2 22."],
-        "15": ["Bike east.", "Bike north."],
-        "16": ["Bike east for a half mile.", "Bike north for 1 kilometer."],
-        "17": ["Bike southwest on 5th Avenue."],
-        "18": ["Bike southwest on 5th Avenue for 1 tenth of a mile."],
-        "19": ["Bike south on North Prince Street, U.S. 2 22."]
+        "0": [
+          "Head east.",
+          "Head north."
+        ],
+        "1": [
+          "Head east for a half mile.",
+          "Head north for 1 kilometer."
+        ],
+        "2": [
+          "Head southwest on 5th Avenue."
+        ],
+        "3": [
+          "Head southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "4": [
+          "Head south on North Prince Street, U.S. 2 22."
+        ],
+        "5": [
+          "Drive east.",
+          "Drive north."
+        ],
+        "6": [
+          "Drive east for a half mile.",
+          "Drive north for 1 kilometer."
+        ],
+        "7": [
+          "Drive southwest on 5th Avenue."
+        ],
+        "8": [
+          "Drive southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "9": [
+          "Drive south on North Prince Street, U.S. 2 22."
+        ],
+        "10": [
+          "Walk east.",
+          "Walk north."
+        ],
+        "11": [
+          "Walk east for a half mile.",
+          "Walk north for 1 kilometer."
+        ],
+        "12": [
+          "Walk southwest on 5th Avenue."
+        ],
+        "13": [
+          "Walk southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "14": [
+          "Walk south on North Prince Street, U.S. 2 22."
+        ],
+        "15": [
+          "Bike east.",
+          "Bike north."
+        ],
+        "16": [
+          "Bike east for a half mile.",
+          "Bike north for 1 kilometer."
+        ],
+        "17": [
+          "Bike southwest on 5th Avenue."
+        ],
+        "18": [
+          "Bike southwest on 5th Avenue for 1 tenth of a mile."
+        ],
+        "19": [
+          "Bike south on North Prince Street, U.S. 2 22."
+        ]
       }
     },
     "transit": {
@@ -1318,9 +1709,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Sortez de la station."],
-        "1": ["Sortez de Embarcadero Station."],
-        "2": ["Sortez de 8 St - NYU Station."]
+        "0": [
+          "Sortez de la station."
+        ],
+        "1": [
+          "Sortez de Embarcadero Station."
+        ],
+        "2": [
+          "Sortez de 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_destination_verbal": {
@@ -1331,9 +1728,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Sortez de la station."],
-        "1": ["Sortez de Embarcadero Station."],
-        "2": ["Sortez de 8 St - NYU Station."]
+        "0": [
+          "Sortez de la station."
+        ],
+        "1": [
+          "Sortez de Embarcadero Station."
+        ],
+        "2": [
+          "Sortez de 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_start": {
@@ -1344,9 +1747,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Entez dans la station."],
-        "1": ["Entez dans Embarcadero Station."],
-        "2": ["Entez dans 8 St - NYU Station."]
+        "0": [
+          "Entez dans la station."
+        ],
+        "1": [
+          "Entez dans Embarcadero Station."
+        ],
+        "2": [
+          "Entez dans 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_start_verbal": {
@@ -1357,9 +1766,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Entez dans la station."],
-        "1": ["Entez dans Embarcadero Station."],
-        "2": ["Entez dans 8 St - NYU Station."]
+        "0": [
+          "Entez dans la station."
+        ],
+        "1": [
+          "Entez dans Embarcadero Station."
+        ],
+        "2": [
+          "Entez dans 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_transfer": {
@@ -1370,9 +1785,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Changez à station."],
-        "1": ["Changez à Embarcadero Station."],
-        "2": ["Changez à 8 St - NYU Station."]
+        "0": [
+          "Changez à station."
+        ],
+        "1": [
+          "Changez à Embarcadero Station."
+        ],
+        "2": [
+          "Changez à 8 St - NYU Station."
+        ]
       }
     },
     "transit_connection_transfer_verbal": {
@@ -1383,9 +1804,15 @@
       },
       "station_label": "Station",
       "example_phrases": {
-        "0": ["Changez à station."],
-        "1": ["Changez à Embarcadero Station."],
-        "2": ["Changez à 8 St - NYU Station."]
+        "0": [
+          "Changez à station."
+        ],
+        "1": [
+          "Changez à Embarcadero Station."
+        ],
+        "2": [
+          "Changez à 8 St - NYU Station."
+        ]
       }
     },
     "transit_remain_on": {
@@ -1412,7 +1839,9 @@
           "Restez sur New Haven. (1 arrêt)",
           "Restez sur le train. (3 arrêts)"
         ],
-        "1": ["Restez sur F vers JAMAICA - 179 ST. (10 arrêts)"]
+        "1": [
+          "Restez sur F vers JAMAICA - 179 ST. (10 arrêts)"
+        ]
       }
     },
     "transit_remain_on_verbal": {
@@ -1431,8 +1860,12 @@
         "le funiculaire"
       ],
       "example_phrases": {
-        "0": ["Restez sur New Haven."],
-        "1": ["Restez sur F vers JAMAICA - 179 ST."]
+        "0": [
+          "Restez sur New Haven."
+        ],
+        "1": [
+          "Restez sur F vers JAMAICA - 179 ST."
+        ]
       }
     },
     "transit_transfer": {
@@ -1459,7 +1892,9 @@
           "Changez pour prendre New Haven. (1 arrêt)",
           "Changez pour prendre le tram. (4 arrêts)"
         ],
-        "1": ["Changez pour prendre F vers JAMAICA - 179 ST. (10 arrêts)"]
+        "1": [
+          "Changez pour prendre F vers JAMAICA - 179 ST. (10 arrêts)"
+        ]
       }
     },
     "transit_transfer_verbal": {
@@ -1478,8 +1913,12 @@
         "le funiculaire"
       ],
       "example_phrases": {
-        "0": ["Changez pour prendre New Haven."],
-        "1": ["Changez pour prendre F vers JAMAICA - 179 ST."]
+        "0": [
+          "Changez pour prendre New Haven."
+        ],
+        "1": [
+          "Changez pour prendre F vers JAMAICA - 179 ST."
+        ]
       }
     },
     "transit_verbal": {
@@ -1498,8 +1937,12 @@
         "le funiculaire"
       ],
       "example_phrases": {
-        "0": ["Prenez New Haven."],
-        "1": ["Prenez F vers JAMAICA - 179 ST."]
+        "0": [
+          "Prenez New Haven."
+        ],
+        "1": [
+          "Prenez F vers JAMAICA - 179 ST."
+        ]
       }
     },
     "turn": {
@@ -1515,22 +1958,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Tournez à gauche."],
-        "1": ["Tournez à droite dans Flatbush Avenue."],
+        "0": [
+          "Tournez à gauche."
+        ],
+        "1": [
+          "Tournez à droite dans Flatbush Avenue."
+        ],
         "2": [
           "Tournez à gauche dans North Bond Street/US 1 Business/MD 924. Continuez sur MD 924."
         ],
-        "3": ["Tournez à droite pour rester sur Sunstone Drive."],
-        "4": ["Turn right at Mannenbashi East."],
-        "5": ["Turn left toward Baltimore."]
+        "3": [
+          "Tournez à droite pour rester sur Sunstone Drive."
+        ],
+        "4": [
+          "Turn right at Mannenbashi East."
+        ],
+        "5": [
+          "Turn left toward Baltimore."
+        ]
       }
     },
     "turn_verbal": {
@@ -1546,20 +1998,31 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Turn left."],
-        "1": ["Tournez à droite dans Flatbush Avenue."],
-        "2": ["Tournez à gauche dans North Bond Street, U.S. 1 Business."],
-        "3": ["Tournez à droite pour rester sur Sunstone Drive."],
-        "4": ["Turn right at Mannenbashi East."],
-        "5": ["Turn left toward Baltimore."]
+        "0": [
+          "Turn left."
+        ],
+        "1": [
+          "Tournez à droite dans Flatbush Avenue."
+        ],
+        "2": [
+          "Tournez à gauche dans North Bond Street, U.S. 1 Business."
+        ],
+        "3": [
+          "Tournez à droite pour rester sur Sunstone Drive."
+        ],
+        "4": [
+          "Turn right at Mannenbashi East."
+        ],
+        "5": [
+          "Turn left toward Baltimore."
+        ]
       }
     },
     "uturn": {
@@ -1577,26 +2040,37 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Faites demi-tour à gauche un demi-tour."],
-        "1": ["Faites demi-tour à droite dans Bunker Hill Road."],
-        "2": ["Faites demi-tour à gauche pour rester sur Bunker Hill Road."],
-        "3": ["Faites demi-tour à gauche à Devonshire Road."],
+        "0": [
+          "Faites demi-tour à gauche un demi-tour."
+        ],
+        "1": [
+          "Faites demi-tour à droite dans Bunker Hill Road."
+        ],
+        "2": [
+          "Faites demi-tour à gauche pour rester sur Bunker Hill Road."
+        ],
+        "3": [
+          "Faites demi-tour à gauche à Devonshire Road."
+        ],
         "4": [
           "Faites demi-tour à gauche à Devonshire Road dans Jonestown Road/US 22."
         ],
         "5": [
           "Faites demi-tour à gauche à Devonshire Road pour rester sur Jonestown Road/US 22."
         ],
-        "6": ["Make a right U-turn at Mannenbashi East."],
-        "7": ["Make a left U-turn toward Baltimore."]
+        "6": [
+          "Make a right U-turn at Mannenbashi East."
+        ],
+        "7": [
+          "Make a left U-turn toward Baltimore."
+        ]
       }
     },
     "uturn_verbal": {
@@ -1614,26 +2088,37 @@
         "l'allée",
         "la piste cyclable",
         "la piste de vélo de montagne",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel",
         "le passage protégé"
       ],
-      "relative_directions": ["gauche", "droite"],
+      "relative_directions": [
+        "gauche",
+        "droite"
+      ],
       "example_phrases": {
-        "0": ["Faites demi-tour à gauche un demi-tour."],
-        "1": ["Faites demi-tour à droite dans Bunker Hill Road."],
-        "2": ["Faites demi-tour à gauche pour rester sur Bunker Hill Road."],
-        "3": ["Faites demi-tour à gauche à Devonshire Road."],
+        "0": [
+          "Faites demi-tour à gauche un demi-tour."
+        ],
+        "1": [
+          "Faites demi-tour à droite dans Bunker Hill Road."
+        ],
+        "2": [
+          "Faites demi-tour à gauche pour rester sur Bunker Hill Road."
+        ],
+        "3": [
+          "Faites demi-tour à gauche à Devonshire Road."
+        ],
         "4": [
           "Faites demi-tour à gauche à Devonshire Road dans Jonestown Road, U.S. 22."
         ],
         "5": [
           "Faites demi-tour à gauche à Devonshire Road pour rester sur Jonestown Road, U.S. 22."
         ],
-        "6": ["Make a right U-turn at Mannenbashi East."],
-        "7": ["Make a left U-turn toward Baltimore."]
+        "6": [
+          "Make a right U-turn at Mannenbashi East."
+        ],
+        "7": [
+          "Make a left U-turn toward Baltimore."
+        ]
       }
     },
     "verbal_multi_cue": {
@@ -1683,17 +2168,9 @@
         "moins de 10 pieds"
       ],
       "example_phrases": {
-        "0": ["In a quarter mile, Turn right onto North Gay Street."]
-      }
-    },
-    "pass": {
-      "phrases": {
-        "0": "Pass <object_label>.",
-        "1": "Pass traffic signals on <object_label>."
-      },
-      "object_labels": ["the gate", "the bollards", "ways intersection"],
-      "example_phrases": {
-        "0": ["Pass the gate."]
+        "0": [
+          "In a quarter mile, Turn right onto North Gay Street."
+        ]
       }
     },
     "elevator": {
@@ -1702,8 +2179,12 @@
         "1": "Prenez l'ascenseur jusqu'au niveau <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the elevator."],
-        "1": ["Take the elevator to Level 1."]
+        "0": [
+          "Take the elevator."
+        ],
+        "1": [
+          "Take the elevator to Level 1."
+        ]
       }
     },
     "steps": {
@@ -1712,8 +2193,12 @@
         "1": "Prenez les escaliers jusqu'au niveau <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the stairs."],
-        "1": ["Take the stairs to Level 2."]
+        "0": [
+          "Take the stairs."
+        ],
+        "1": [
+          "Take the stairs to Level 2."
+        ]
       }
     },
     "escalator": {
@@ -1722,8 +2207,12 @@
         "1": "Prenez l'escalator jusqu'au niveau <LEVEL>."
       },
       "example_phrases": {
-        "0": ["Take the escalator."],
-        "1": ["Take the escalator to Level 3."]
+        "0": [
+          "Take the escalator."
+        ],
+        "1": [
+          "Take the escalator to Level 3."
+        ]
       }
     },
     "enter_building": {
@@ -1738,8 +2227,12 @@
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Enter the building."],
-        "1": ["Enter the building, and continue on the walkway."]
+        "0": [
+          "Enter the building."
+        ],
+        "1": [
+          "Enter the building, and continue on the walkway."
+        ]
       }
     },
     "exit_building": {
@@ -1754,8 +2247,12 @@
         "le passage protégé"
       ],
       "example_phrases": {
-        "0": ["Exit the building."],
-        "1": ["Exit the building, and continue on the walkway."]
+        "0": [
+          "Exit the building."
+        ],
+        "1": [
+          "Exit the building, and continue on the walkway."
+        ]
       }
     }
   }

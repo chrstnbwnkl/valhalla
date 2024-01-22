@@ -45,10 +45,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -88,10 +85,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -149,10 +143,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -184,10 +175,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "metric_lengths": [
         "<KILOMETERS> किलोमीटर",
@@ -241,10 +229,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -381,10 +366,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "ferry_label": "Ferry",
       "example_phrases": {
@@ -413,10 +395,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "ferry_label": "Ferry",
       "example_phrases": {
@@ -469,10 +448,7 @@
         "the walkway",
         "the cycleway",
         "the mountain bike trail",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -569,10 +545,7 @@
         "the walkway",
         "the cycleway",
         "the mountain bike trail",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -752,10 +725,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -783,10 +753,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -935,10 +902,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -985,10 +949,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -1023,10 +984,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -1065,10 +1023,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -1121,10 +1076,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -1164,10 +1116,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -1214,10 +1163,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "metric_lengths": [
         "<KILOMETERS> किलोमीटर",
@@ -1453,10 +1399,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -1496,10 +1439,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -1555,10 +1495,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "example_phrases": {
         "0": [
@@ -1646,10 +1583,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "metric_lengths": [
         "<KILOMETERS> किलोमीटर",
@@ -2024,10 +1958,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -2067,10 +1998,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -2112,10 +2040,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -2163,10 +2088,7 @@
         "रास्ते",
         "साइकिल रास्ते",
         "माउंटेन साइकिल पगडंडी",
-        "the crosswalk",
-        "the stairs",
-        "the bridge",
-        "the tunnel"
+        "the crosswalk"
       ],
       "relative_directions": [
         "बाएं",
@@ -2248,22 +2170,6 @@
       "example_phrases": {
         "0": [
           "In a quarter mile, Turn right onto North Gay Street."
-        ]
-      }
-    },
-    "pass": {
-      "phrases": {
-        "0": "Pass <object_label>.",
-        "1": "Pass traffic signals on <object_label>."
-      },
-      "object_labels": [
-        "the gate",
-        "the bollards",
-        "ways intersection"
-      ],
-      "example_phrases": {
-        "0": [
-          "Pass the gate."
         ]
       }
     },
