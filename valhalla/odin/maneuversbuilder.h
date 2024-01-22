@@ -328,6 +328,7 @@ protected:
   void AddLandmarksFromTripLegToManeuvers(std::list<Maneuver>& maneuvers);
 
   const Options& options_;
+  const bool blind_mode_;
   EnhancedTripLeg* trip_path_;
 };
 

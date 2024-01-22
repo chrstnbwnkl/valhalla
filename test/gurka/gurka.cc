@@ -121,6 +121,10 @@ std::string build_valhalla_request(const std::vector<std::string>& location_type
 
   // we do this last so that options are additive/overwrite
   for (const auto& kv : options) {
+    if (kv.first.find("/blind_user_mode") != std::string::npos) {
+      doc.AddMember("blind_user_mode", kv.second == "true", allocator);
+      continue;
+    }
     rapidjson::Pointer(kv.first).Set(doc, kv.second);
   }
 
