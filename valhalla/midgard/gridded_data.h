@@ -61,6 +61,14 @@ public:
     }
   }
 
+  const std::vector<value_type>& getData() const {
+    return data_;
+  }
+
+  float MaxValue(size_t metrix_idx) const {
+    return max_value_[metrix_idx];
+  }
+
   using contour_t = std::list<PointLL>;
   using feature_t = std::list<contour_t>;
   using contours_t = std::vector<std::list<feature_t>>;
@@ -365,7 +373,6 @@ public:
     }
 
     // some info about the area the image covers
-    auto c = this->TileBounds().Center();
     auto h = this->tilesize_ / 2;
     // for each contour
     for (auto& collection : contours) {
@@ -412,6 +419,21 @@ public:
     }
 
     return contours;
+  }
+
+  const std::array<int32_t, 4> GetMinSpanningBox() {
+    int32_t box[4] = {this->ncolumns_ / 2, this->nrows_ / 2, this->ncolumns_ /, this->nrows_ / 2};
+
+    // go through rows from top to find first column where value != maxvalue
+    size_t rows_from_top = 0;
+    size_t rows_from_bottom = this->nrows_;
+    for (size_t i = 0; i < this->nrows_; ++i) {
+      bool found = false;
+      for (size_t j = 0; j < this->columns_; ++j) {
+        auto cur_val = data_[this->TileId(j, i)];
+        if (max_value_[0] >)
+      }
+    }
   }
 
 protected:

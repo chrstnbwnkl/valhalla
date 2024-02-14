@@ -5,6 +5,7 @@
 #include "tyr/serializers.h"
 
 #include <cmath>
+#include <gdal_priv.h>
 #include <sstream>
 #include <utility>
 
@@ -21,6 +22,7 @@ using feature_t = std::list<contour_t>;               // rings per interval
 using contours_t = std::vector<std::list<feature_t>>; // all rings
 using contour_group_t = std::vector<const contour_t*>;
 using grouped_contours_t = std::vector<contour_group_t>;
+// dimension, value (seconds/meters), name (time/distance), color
 using contour_interval_t = std::tuple<size_t, float, std::string, std::string>;
 
 grouped_contours_t GroupContours(const bool polygons, const feature_t& contours) {
@@ -132,6 +134,108 @@ void addLocations(Api& request, valhalla::baldr::json::ArrayPtr& features) {
     idx++;
   }
 }
+
+#ifdef ENABLE_GDAL
+// get a temporary file name suffix for GDAL's virtual file system
+std::string GenerateTmpFName() {
+  std::stringstream ss;
+  ss << "/vsimem/" << std::this_thread::get_id() << "_"
+     << std::chrono::high_resolution_clock::now().time_since_epoch().count();
+  return ss.str();
+}
+
+GDALColorTable getColorTable(std::vector<contour_interval_t> intervals, size_t metric_index) {
+
+  GDALColorTable colorTable;
+
+  for (size_t i = 0; i < intervals.size(); ++i) {
+    // collect  requested interval values for a given metric
+    auto interval = intervals[i];
+    if (std::get<0>(interval) != metric_index)
+      continue;
+
+    auto h = i * (150.f / intervals.size());
+    auto c = .5f;
+    auto x = c * (1 - std::abs(std::fmod(h / 60.f, 2.f) - 1));
+    auto m = .25f;
+    rgba_t color = h < 60 ? rgba_t{m + c, m + x, m}
+                          : (h < 120 ? rgba_t{m + x, m + c, m} : rgba_t{m, m + c, m + x});
+    GDALColorEntry colorEntry;
+    colorEntry.c1 = std::get<0>(color); // r
+    colorEntry.c2 = std::get<1>(color); // g
+    colorEntry.c3 = std::get<2>(color); // b
+    colorEntry.c4 = 255;                // a
+
+    colorTable.SetColorEntry(i, &colorEntry);
+  }
+
+  return colorTable;
+}
+
+std::string serializeGeoTIFF(Api& request,
+                             std::vector<contour_interval_t> intervals,
+                             std::shared_ptr<const GriddedData<2>> isogrid) {
+  // time, distance
+  std::vector<bool> metrics{false, false};
+  for (auto& contour : request.options().contours()) {
+    metrics[0] = metrics[0] || contour.has_time_case();
+    metrics[1] = metrics[1] || contour.has_distance_case();
+  }
+
+  // for GDALs virtual fs
+  std::string name = GenerateTmpFName();
+
+  // TODO: instantiate driver once, and possibly call GDALDestroyDriverManager() where appropriate
+  auto driver_geo_tiff = GetGDALDriverManager()->GetDriverByName("GTiff");
+  auto nbands = std::count(metrics.begin(), metrics.end(), true);
+  char** geotiff_options = NULL;
+  geotiff_options = CSLSetNameValue(geotiff_options, "COMPRESS", "PACKBITS");
+
+  auto geotiff_dataset = driver_geo_tiff->Create(name.c_str(), isogrid->ncolumns(), isogrid->nrows(),
+                                                 nbands, GDT_UInt16, geotiff_options);
+
+  OGRSpatialReference spatial_ref;
+  spatial_ref.SetWellKnownGeogCS("EPSG:4326");
+  double geo_transform[6] = {isogrid->TileBounds().minx(),
+                             isogrid->TileSize(),
+                             0,
+                             isogrid->TileBounds().miny(),
+                             0,
+                             isogrid->TileSize()};
+
+  geotiff_dataset->SetGeoTransform(geo_transform);
+  geotiff_dataset->SetSpatialRef(const_cast<OGRSpatialReference*>(&spatial_ref));
+
+  for (size_t i = 0; i < metrics.size(); ++i) {
+    if (!metrics[i])
+      continue;
+    uint16_t dataArray[isogrid->nrows() * isogrid->ncolumns()];
+    for (size_t j = 0; j < isogrid->getData().size(); ++j) {
+      dataArray[j] = static_cast<uint16_t>(isogrid->getData()[j][i]);
+    }
+    auto band = geotiff_dataset->GetRasterBand(i + 1);
+    band->SetNoDataValue(static_cast<uint16_t>(isogrid->MaxValue(i)));
+    band->SetDescription(i == 0 ? "Time (minutes)" : "Distance (km)");
+    band->SetStatistics(0, isogrid->MaxValue(i), 0, 0);
+    auto colorTable = getColorTable(intervals, i);
+    band->SetColorTable(&colorTable);
+    CPLErr err = band->RasterIO(GF_Write, 0, 0, isogrid->ncolumns(), isogrid->nrows(), dataArray,
+                                isogrid->ncolumns(), isogrid->nrows(), GDT_UInt16, 0, 0);
+    if (err != CE_None) {
+      LOG_ERROR("Could not write GeoTIFF");
+      return "";
+    }
+  }
+
+  GDALClose(geotiff_dataset);
+  vsi_l_offset bufferlength;
+  GByte* bytes = VSIGetMemFileBuffer(name.c_str(), &bufferlength, TRUE);
+  // Copy contents
+  std::string data(reinterpret_cast<char*>(bytes), bufferlength);
+
+  return data;
+};
+#endif
 
 std::string serializeIsochroneJson(Api& request,
                                    std::vector<contour_interval_t>& intervals,
@@ -266,15 +370,27 @@ namespace tyr {
 
 std::string serializeIsochrones(Api& request,
                                 std::vector<midgard::GriddedData<2>::contour_interval_t>& intervals,
-                                midgard::GriddedData<2>::contours_t& contours,
-                                bool polygons,
-                                bool show_locations) {
+                                std::shared_ptr<const midgard::GriddedData<2>> isogrid) {
 
+  if (request.options().format() == Options_Format_geotiff) {
+#ifdef ENABLE_GDAL
+    return serializeGeoTIFF(request, intervals, isogrid); // blah
+#else
+    throw valhalla_exception_t{504};
+#endif
+  }
+  // we have parallel vectors of contour properties and the actual geojson features
+  // this method sorts the contour specifications by metric (time or distance) and then by value
+  // with the largest values coming first. eg (60min, 30min, 10min, 40km, 10km)
+  auto contours =
+      isogrid->GenerateContours(intervals, request.options().polygons(), request.options().denoise(),
+                                request.options().generalize());
   switch (request.options().format()) {
     case Options_Format_pbf:
       return serializeIsochronePbf(request, intervals, contours);
     case Options_Format_json:
-      return serializeIsochroneJson(request, intervals, contours, show_locations, polygons);
+      return serializeIsochroneJson(request, intervals, contours, request.options().show_locations(),
+                                    request.options().polygons());
     default:
       throw;
   }
