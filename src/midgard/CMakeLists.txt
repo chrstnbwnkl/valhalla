@@ -26,6 +26,4 @@ valhalla_module(NAME midgard
     PRIVATE
       ${robinhoodhashing_include_dir}
   DEPENDS
-    Boost::boost
-    $<$<BOOL:${ENABLE_GDAL}>:GDAL::GDAL>
-    )
+    Boost::boost)

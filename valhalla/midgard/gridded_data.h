@@ -61,8 +61,8 @@ public:
     }
   }
 
-  const std::vector<value_type>& getData() const {
-    return data_;
+  float getData(size_t tileid, size_t metricid) const {
+    return data_[tileid][metricid];
   }
 
   float MaxValue(size_t metrix_idx) const {
@@ -421,19 +421,31 @@ public:
     return contours;
   }
 
-  const std::array<int32_t, 4> GetMinSpanningBox() {
-    int32_t box[4] = {this->ncolumns_ / 2, this->nrows_ / 2, this->ncolumns_ /, this->nrows_ / 2};
+  /**
+   * Determine the smallest subgrid that contains all valid (i.e. non-max) values
 
-    // go through rows from top to find first column where value != maxvalue
-    size_t rows_from_top = 0;
-    size_t rows_from_bottom = this->nrows_;
-    for (size_t i = 0; i < this->nrows_; ++i) {
-      bool found = false;
-      for (size_t j = 0; j < this->columns_; ++j) {
-        auto cur_val = data_[this->TileId(j, i)];
-        if (max_value_[0] >)
+   * @return array with 4 elements: minimum column, mininum row, maximum column, maximum row
+   */
+  const std::array<int32_t, 4> MinExtent() const {
+    // minx, miny, maxx, maxy
+    std::array<int32_t, 4> box = {this->ncolumns_ / 2, this->nrows_ / 2, this->ncolumns_ / 2,
+                                  this->nrows_ / 2};
+
+    for (int32_t i = 0; i < this->nrows_; ++i) {
+      for (int32_t j = 0; j < this->ncolumns_; ++j) {
+        if (data_[this->TileId(j, i)][0] < max_value_[0] ||
+            data_[this->TileId(j, i)][1] < max_value_[1]) {
+          // pad by 1 row/column as a sanity check
+          box[0] = std::min(std::max(j - 1, 0), box[0]);
+          box[1] = std::min(std::max(i - 1, 0), box[1]);
+          // +1 extra because range is exclusive
+          box[2] = std::max(std::min(j + 2, this->ncolumns_ - 1), box[2]);
+          box[3] = std::max(std::min(i + 2, this->ncolumns_ - 1), box[3]);
+        }
       }
     }
+
+    return box;
   }
 
 protected:

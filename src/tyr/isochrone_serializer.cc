@@ -2,6 +2,7 @@
 #include "baldr/json.h"
 #include "midgard/point2.h"
 #include "midgard/pointll.h"
+#include "thor/worker.h"
 #include "tyr/serializers.h"
 
 #include <cmath>
@@ -145,37 +146,10 @@ std::string GenerateTmpFName() {
   return ss.str();
 }
 
-GDALColorTable getColorTable(std::vector<contour_interval_t> intervals, size_t metric_index) {
-
-  GDALColorTable colorTable;
-
-  for (size_t i = 0; i < intervals.size(); ++i) {
-    // collect  requested interval values for a given metric
-    auto interval = intervals[i];
-    if (std::get<0>(interval) != metric_index)
-      continue;
-
-    auto h = i * (150.f / intervals.size());
-    auto c = .5f;
-    auto x = c * (1 - std::abs(std::fmod(h / 60.f, 2.f) - 1));
-    auto m = .25f;
-    rgba_t color = h < 60 ? rgba_t{m + c, m + x, m}
-                          : (h < 120 ? rgba_t{m + x, m + c, m} : rgba_t{m, m + c, m + x});
-    GDALColorEntry colorEntry;
-    colorEntry.c1 = std::get<0>(color); // r
-    colorEntry.c2 = std::get<1>(color); // g
-    colorEntry.c3 = std::get<2>(color); // b
-    colorEntry.c4 = 255;                // a
-
-    colorTable.SetColorEntry(i, &colorEntry);
-  }
-
-  return colorTable;
-}
-
 std::string serializeGeoTIFF(Api& request,
                              std::vector<contour_interval_t> intervals,
-                             std::shared_ptr<const GriddedData<2>> isogrid) {
+                             std::shared_ptr<const GriddedData<2>> isogrid,
+                             valhalla::thor::geotiff_driver_t geotiff_driver) {
   // time, distance
   std::vector<bool> metrics{false, false};
   for (auto& contour : request.options().contours()) {
@@ -183,55 +157,61 @@ std::string serializeGeoTIFF(Api& request,
     metrics[1] = metrics[1] || contour.has_distance_case();
   }
 
+  auto box = isogrid->MinExtent();
+  int32_t ext_x = box[2] - box[0];
+  int32_t ext_y = box[3] - box[1];
+
   // for GDALs virtual fs
   std::string name = GenerateTmpFName();
 
-  // TODO: instantiate driver once, and possibly call GDALDestroyDriverManager() where appropriate
-  auto driver_geo_tiff = GetGDALDriverManager()->GetDriverByName("GTiff");
   auto nbands = std::count(metrics.begin(), metrics.end(), true);
   char** geotiff_options = NULL;
   geotiff_options = CSLSetNameValue(geotiff_options, "COMPRESS", "PACKBITS");
 
-  auto geotiff_dataset = driver_geo_tiff->Create(name.c_str(), isogrid->ncolumns(), isogrid->nrows(),
-                                                 nbands, GDT_UInt16, geotiff_options);
+  auto geotiff_dataset =
+      geotiff_driver->Create(name.c_str(), ext_x, ext_y, nbands, GDT_UInt16, geotiff_options);
 
   OGRSpatialReference spatial_ref;
   spatial_ref.SetWellKnownGeogCS("EPSG:4326");
-  double geo_transform[6] = {isogrid->TileBounds().minx(),
+  double geo_transform[6] = {isogrid->TileBounds(isogrid->TileId(box[0], box[1])).minx(), // minx
                              isogrid->TileSize(),
                              0,
-                             isogrid->TileBounds().miny(),
+                             isogrid->TileBounds(isogrid->TileId(box[0], box[1])).miny(), // miny
                              0,
                              isogrid->TileSize()};
 
   geotiff_dataset->SetGeoTransform(geo_transform);
   geotiff_dataset->SetSpatialRef(const_cast<OGRSpatialReference*>(&spatial_ref));
 
-  for (size_t i = 0; i < metrics.size(); ++i) {
-    if (!metrics[i])
-      continue;
-    uint16_t dataArray[isogrid->nrows() * isogrid->ncolumns()];
-    for (size_t j = 0; j < isogrid->getData().size(); ++j) {
-      dataArray[j] = static_cast<uint16_t>(isogrid->getData()[j][i]);
+  for (size_t metric_idx = 0; metric_idx < metrics.size(); ++metric_idx) {
+    if (!metrics[metric_idx])
+      continue; // only create bands for requested metrics
+    uint16_t dataArray[ext_x * ext_y];
+
+    // seconds or 10 meter steps
+    float scale_factor = metric_idx == 0 ? 3600 : 100;
+    for (int32_t i = 0; i < ext_y; ++i) {
+      for (int32_t j = 0; j < ext_x; ++j) {
+        auto tileid = isogrid->TileId(j + box[0], i + box[1]);
+        dataArray[i * ext_x + j] =
+            static_cast<uint16_t>(isogrid->getData(tileid, metric_idx) * scale_factor);
+      }
     }
-    auto band = geotiff_dataset->GetRasterBand(i + 1);
-    band->SetNoDataValue(static_cast<uint16_t>(isogrid->MaxValue(i)));
-    band->SetDescription(i == 0 ? "Time (minutes)" : "Distance (km)");
-    band->SetStatistics(0, isogrid->MaxValue(i), 0, 0);
-    auto colorTable = getColorTable(intervals, i);
-    band->SetColorTable(&colorTable);
-    CPLErr err = band->RasterIO(GF_Write, 0, 0, isogrid->ncolumns(), isogrid->nrows(), dataArray,
-                                isogrid->ncolumns(), isogrid->nrows(), GDT_UInt16, 0, 0);
+    auto band = geotiff_dataset->GetRasterBand(nbands == 2 ? (metric_idx + 1) : 1);
+    band->SetDescription(metric_idx == 0 ? "Time (seconds)" : "Distance (10m)");
+
+    CPLErr err =
+        band->RasterIO(GF_Write, 0, 0, ext_x, ext_y, dataArray, ext_x, ext_y, GDT_UInt16, 0, 0);
     if (err != CE_None) {
-      LOG_ERROR("Could not write GeoTIFF");
-      return "";
+      throw valhalla_exception_t{599, "Unknown error when writing GeoTIFF."};
     }
   }
 
   GDALClose(geotiff_dataset);
   vsi_l_offset bufferlength;
   GByte* bytes = VSIGetMemFileBuffer(name.c_str(), &bufferlength, TRUE);
-  // Copy contents
+
+  // TODO: there must be a way to do this without copying
   std::string data(reinterpret_cast<char*>(bytes), bufferlength);
 
   return data;
@@ -371,27 +351,36 @@ namespace tyr {
 
 std::string serializeIsochrones(Api& request,
                                 std::vector<midgard::GriddedData<2>::contour_interval_t>& intervals,
-                                std::shared_ptr<const midgard::GriddedData<2>> isogrid) {
-
-  if (request.options().format() == Options_Format_geotiff) {
+                                std::shared_ptr<const midgard::GriddedData<2>> isogrid
 #ifdef ENABLE_GDAL
-    return serializeGeoTIFF(request, intervals, isogrid); // blah
+                                ,
+                                valhalla::thor::geotiff_driver_t geotiff_driver) {
 #else
-    throw valhalla_exception_t{504};
+) {
 #endif
-  }
-  // we have parallel vectors of contour properties and the actual geojson features
-  // this method sorts the contour specifications by metric (time or distance) and then by value
-  // with the largest values coming first. eg (60min, 30min, 10min, 40km, 10km)
-  auto contours =
-      isogrid->GenerateContours(intervals, request.options().polygons(), request.options().denoise(),
-                                request.options().generalize());
+
+  // only generate if json or pbf output is requested
+  contours_t contours;
+
   switch (request.options().format()) {
     case Options_Format_pbf:
-      return serializeIsochronePbf(request, intervals, contours);
     case Options_Format_json:
-      return serializeIsochroneJson(request, intervals, contours, request.options().show_locations(),
-                                    request.options().polygons());
+      // we have parallel vectors of contour properties and the actual geojson features
+      // this method sorts the contour specifications by metric (time or distance) and then by value
+      // with the largest values coming first. eg (60min, 30min, 10min, 40km, 10km)
+      contours =
+          isogrid->GenerateContours(intervals, request.options().polygons(),
+                                    request.options().denoise(), request.options().generalize());
+      return request.options().format() == Options_Format_json
+                 ? serializeIsochroneJson(request, intervals, contours,
+                                          request.options().show_locations(),
+                                          request.options().polygons())
+                 : serializeIsochronePbf(request, intervals, contours);
+
+#ifdef ENABLE_GDAL
+    case Options_Format_geotiff:
+      return serializeGeoTIFF(request, intervals, isogrid, geotiff_driver);
+#endif
     default:
       throw;
   }

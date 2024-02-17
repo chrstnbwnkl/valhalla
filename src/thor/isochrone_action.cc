@@ -43,8 +43,12 @@ std::string thor_worker_t::isochrones(Api& request) {
   if (options.action() == Options_Action_expansion)
     return "";
 
-  // make the final output (pbf or json)
+// make the final output (pbf or json)
+#ifdef ENABLE_GDAL
+  std::string ret = tyr::serializeIsochrones(request, intervals, grid, geotiff_driver);
+#else
   std::string ret = tyr::serializeIsochrones(request, intervals, grid);
+#endif
 
   return ret;
 }
