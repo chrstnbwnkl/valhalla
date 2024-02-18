@@ -205,9 +205,11 @@ if(ENABLE_SERVICES)
 endif()
 
 # gdal
+set(gdal_target "")
 if (ENABLE_GDAL)
   find_package(GDAL REQUIRED)
   add_compile_definitions(ENABLE_GDAL)
+  set(gdal_target GDAL::GDAL)
 endif()
 
 

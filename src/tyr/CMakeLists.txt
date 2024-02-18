@@ -20,10 +20,6 @@ set(system_includes
   ${date_include_dir}
   $<$<BOOL:${WIN32}>:${dirent_include_dir}>)
 
-set(gdal_target "")
-if(ENABLE_GDAL)
-  set(gdal_target GDAL::GDAL)
-endif()
 
 
 valhalla_module(NAME tyr

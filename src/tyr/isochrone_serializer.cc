@@ -6,9 +6,12 @@
 #include "tyr/serializers.h"
 
 #include <cmath>
-#include <gdal_priv.h>
 #include <sstream>
 #include <utility>
+
+#ifdef ENABLE_GDAL
+#include <gdal_priv.h>
+#endif
 
 using namespace valhalla::baldr::json;
 
