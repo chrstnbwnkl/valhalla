@@ -120,6 +120,9 @@ thor_worker_t::thor_worker_t(const boost::property_tree::ptree& config,
 }
 
 thor_worker_t::~thor_worker_t() {
+#ifdef ENABLE_GDAL
+  GDALDestroyDriverManager();
+#endif
 }
 
 #ifdef ENABLE_SERVICES

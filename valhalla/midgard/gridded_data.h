@@ -424,7 +424,7 @@ public:
   /**
    * Determine the smallest subgrid that contains all valid (i.e. non-max) values
 
-   * @return array with 4 elements: minimum column, mininum row, maximum column, maximum row
+   * @return array with 4 elements: minimum column, minimum row, maximum column, maximum row
    */
   const std::array<int32_t, 4> MinExtent() const {
     // minx, miny, maxx, maxy
