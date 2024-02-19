@@ -205,6 +205,10 @@ std::string serializeGeoTIFF(Api& request,
 
     CPLErr err =
         band->RasterIO(GF_Write, 0, 0, ext_x, ext_y, dataArray, ext_x, ext_y, GDT_UInt16, 0, 0);
+
+    // free some memory
+    delete[] geotiff_options;
+
     if (err != CE_None) {
       throw valhalla_exception_t{599, "Unknown error when writing GeoTIFF."};
     }
