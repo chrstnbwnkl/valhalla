@@ -557,6 +557,16 @@ void legs(const valhalla::Api& api, int route_index, rapidjson::writer_wrapper_t
 
     writer("shape", directions_leg.shape());
 
+    // are there any level changes along the leg
+    if (directions_leg.level_changes_size() > 0) {
+      writer.start_array("level_changes");
+      for (auto& level_change : directions_leg.level_changes()) {
+        writer.start_array();
+        writer(static_cast<int64_t>(level_change.shape_index()));
+        writer(static_cast<int64_t>(level_change.level()));
+      }
+    }
+
     writer.end_object(); // leg
   }
   writer.end_array(); // legs

@@ -182,6 +182,7 @@ message TripLeg {
     repeated float elevation = 57;
     bool country_crossing = 58;
     bool forward = 59;
+    repeated int32 levels = 60;
   }
 
   message IntersectingEdge {
@@ -289,6 +290,7 @@ message TripLeg {
   repeated string algorithms = 12;
   repeated Closure closures = 13;
   Summary summary = 14;
+  repeated LevelChange level_changes = 15;
 }
 
 message TripRoute {

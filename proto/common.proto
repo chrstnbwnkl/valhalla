@@ -408,3 +408,9 @@ message Summary {
   bool has_ferry = 6;
   bool has_highway = 7;
 }
+
+message LevelChange {
+  uint32 shape_index = 1;
+  int32 level = 2; 
+}
+

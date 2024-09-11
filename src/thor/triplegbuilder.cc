@@ -38,6 +38,7 @@ using LinguisticMap = std::unordered_map<uint8_t, std::tuple<uint8_t, uint8_t, s
 constexpr uint8_t kNotTagged = 0;
 constexpr uint8_t kTunnelTag = static_cast<uint8_t>(baldr::TaggedValue::kTunnel);
 constexpr uint8_t kBridgeTag = static_cast<uint8_t>(baldr::TaggedValue::kBridge);
+constexpr int32_t kMinLevel = std::numeric_limits<int32_t>::min();
 
 uint32_t
 GetAdminIndex(const AdminInfo& admin_info,
@@ -1072,7 +1073,10 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
                           const graph_tile_ptr& start_tile,
                           const uint8_t restrictions_idx,
                           float elapsed_secs,
-                          bool blind_instructions) {
+                          bool blind_instructions,
+                          int32_t& prev_level,
+                          TripLeg& trip,
+                          const uint32_t shape_index) {
 
   // Index of the directed edge within the tile
   uint32_t idx = edge.id();
@@ -1209,6 +1213,20 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
   // Set forward if requested
   if (controller(kEdgeForward)) {
     trip_edge->set_forward(directededge->forward());
+  }
+
+  auto levels = edgeinfo.level();
+  if (levels.size() == 1) {
+    auto& lvl = levels[0];
+    if (lvl != prev_level) {
+      auto* change = trip.add_level_changes();
+      change->set_level(lvl);
+      change->set_shape_index(shape_index);
+      prev_level = lvl;
+    }
+  }
+  if (controller(kEdgeLevels)) {
+    trip_edge->mutable_levels()->Assign(levels.begin(), levels.end());
   }
 
   uint8_t kAccess = 0;
@@ -1758,6 +1776,9 @@ void TripLegBuilder::Build(
   // prepare to make some edges!
   trip_path.mutable_node()->Reserve((path_end - path_begin) + 1);
 
+  // collect the level changes
+  int32_t prev_level = kMinLevel;
+
   // we track the intermediate locations while we iterate so we can update their shape index
   // from the edge index that we assigned to them earlier in route_action
   auto intermediate_itr = trip_path.mutable_location()->begin() + 1;
@@ -1860,20 +1881,22 @@ void TripLegBuilder::Build(
     multimodal_builder.Build(trip_node, edge_itr->trip_id, node, startnode, directededge, edge,
                              start_tile, graphtile, mode_costing, controller, graphreader);
 
+    uint32_t begin_index = is_first_edge ? 0 : trip_shape.size() - 1;
+
     // Add edge to the trip node and set its attributes
     TripLeg_Edge* trip_edge =
         AddTripEdge(controller, edge, edge_itr->trip_id, multimodal_builder.block_id, mode,
                     travel_type, costing, directededge, node->drive_on_right(), trip_node, graphtile,
                     time_info, startnode.id(), node->named_intersection(), start_tile,
                     edge_itr->restriction_index, edge_itr->elapsed_cost.secs,
-                    travel_type == PedestrianType::kBlind && mode == sif::TravelMode::kPedestrian);
+                    travel_type == PedestrianType::kBlind && mode == sif::TravelMode::kPedestrian,
+                    prev_level, trip_path, begin_index);
 
     // some information regarding shape/length trimming
     float trim_start_pct = is_first_edge ? start_pct : 0;
     float trim_end_pct = is_last_edge ? end_pct : 1;
 
     // Some edges at the beginning and end of the path and at intermediate locations will need trimmed
-    uint32_t begin_index = is_first_edge ? 0 : trip_shape.size() - 1;
     auto edgeinfo = graphtile->edgeinfo(directededge);
     auto trimming = edge_trimming.end();
     if (!edge_trimming.empty() &&
