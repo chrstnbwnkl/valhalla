@@ -1054,7 +1054,10 @@ void ProcessTunnelBridgeTaggedValue(valhalla::StreetName* trip_edge_name,
  * @param  has_junction_name  True if named junction exists, false otherwise
  * @param  start_tile         The start tile of the start node
  * @param  blind_instructions Whether instructions should be generated for blind users
- *
+ * @param  prev_level         The previous level the path is on. Gets updated if the new edge is
+ *                            on a different level.
+ * @param  trip               The trip path
+ * @param  shape_index        The index of the edges first point into the final leg shape
  */
 TripLeg_Edge* AddTripEdge(const AttributesController& controller,
                           const GraphId& edge,
