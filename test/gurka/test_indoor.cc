@@ -73,6 +73,28 @@ gurka::map Indoor::map = {};
 std::string Indoor::ascii_map = {};
 gurka::nodelayout Indoor::layout = {};
 
+/**
+ * Convenience function to make sure that
+ *   a) the JSON response has a "level_changes" member and
+ *   b) that it indicates level changes as expected
+ */
+void check_level_changes(rapidjson::Document& doc,
+                         const std::vector<std::vector<int64_t>>& expected) {
+  EXPECT_TRUE(doc["trip"]["legs"][0].HasMember("level_changes"));
+  auto level_changes = doc["trip"]["legs"][0]["level_changes"].GetArray();
+  EXPECT_EQ(level_changes.Size(), expected.size());
+  for (int i = 0; i < expected.size(); ++i) {
+    auto expected_entry = expected[i];
+    auto change_entry = level_changes[i].GetArray();
+    EXPECT_EQ(change_entry.Size(), expected_entry.size());
+    for (int j = 0; j < expected_entry.size(); ++j) {
+      auto expected_value = expected_entry[j];
+      auto change_value = change_entry[j].GetInt64();
+      EXPECT_EQ(change_value, expected_value);
+    }
+  }
+}
+
 /*************************************************************/
 
 TEST_F(Indoor, NodeInfo) {
@@ -283,4 +305,41 @@ TEST_F(Indoor, CombineStepsManeuvers) {
   gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index,
                                                             "Take the stairs to Level 3.", "", "", "",
                                                             "");
+}
+
+TEST_F(Indoor, StepsLevelChanges) {
+  // get a route via steps and check the level changelog
+  std::string route_json;
+  auto result =
+      gurka::do_action(valhalla::Options::route, map, {"A", "J"}, "pedestrian",
+                       {{"/costing_options/pedestrian/elevator_penalty", "3600"}}, {}, &route_json);
+  gurka::assert::raw::expect_path(result, {"AB", "BC", "Cx", "xy", "yJ"});
+  rapidjson::Document doc;
+  doc.Parse(route_json.c_str());
+
+  check_level_changes(doc, {{0, 0}, {4, 3}});
+}
+
+TEST_F(Indoor, EdgeElevatorLevelChanges) {
+  // get a route via an edge-modeled elevator and check the level changelog
+  std::string route_json;
+  auto result =
+      gurka::do_action(valhalla::Options::route, map, {"F", "I"}, "pedestrian", {}, {}, &route_json);
+  gurka::assert::raw::expect_path(result, {"FG", "GH", "HI"});
+  rapidjson::Document doc;
+  doc.Parse(route_json.c_str());
+
+  check_level_changes(doc, {{0, 1}, {2, 2}});
+}
+
+TEST_F(Indoor, NodeElevatorLevelChanges) {
+  // get a route via a node-modeled elevator and check the level changelog
+  std::string route_json;
+  auto result =
+      gurka::do_action(valhalla::Options::route, map, {"H", "J"}, "pedestrian", {}, {}, &route_json);
+  gurka::assert::raw::expect_path(result, {"HI", "IJ"});
+  rapidjson::Document doc;
+  doc.Parse(route_json.c_str());
+
+  check_level_changes(doc, {{0, 2}, {1, 3}});
 }
