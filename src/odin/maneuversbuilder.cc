@@ -307,7 +307,7 @@ std::list<Maneuver> ManeuversBuilder::Produce() {
       UpdateManeuver(maneuvers.front(), i);
     } else {
       // Finalize current maneuver
-      FinalizeManeuver(maneuvers.front(), i);
+      FinalizeManeuver(maneuvers.front(), i, maneuvers);
 
       // Initialize new maneuver
       maneuvers.emplace_front();
@@ -336,7 +336,7 @@ std::list<Maneuver> ManeuversBuilder::Produce() {
 #endif
 
   // Process the Start maneuver
-  CreateStartManeuver(maneuvers.front());
+  CreateStartManeuver(maneuvers.front(), maneuvers);
 
   return maneuvers;
 }
@@ -1116,7 +1116,7 @@ void ManeuversBuilder::CreateDestinationManeuver(Maneuver& maneuver) {
                                          trip_path_->GetStateCode(node_index)));
 }
 
-void ManeuversBuilder::CreateStartManeuver(Maneuver& maneuver) {
+void ManeuversBuilder::CreateStartManeuver(Maneuver& maneuver, std::list<Maneuver>& maneuvers) {
   int node_index = 0;
 
   // Determine if the origin has a side of street
@@ -1138,7 +1138,7 @@ void ManeuversBuilder::CreateStartManeuver(Maneuver& maneuver) {
     }
   }
 
-  FinalizeManeuver(maneuver, node_index);
+  FinalizeManeuver(maneuver, node_index, maneuvers);
 }
 
 void ManeuversBuilder::InitializeManeuver(Maneuver& maneuver, int node_index) {
@@ -1429,7 +1429,9 @@ void ManeuversBuilder::UpdateManeuver(Maneuver& maneuver, int node_index) {
   }
 }
 
-void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver, int node_index) {
+void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver,
+                                        int node_index,
+                                        std::list<Maneuver>& maneuvers) {
   auto prev_edge = trip_path_->GetPrevEdge(node_index);
   auto curr_edge = trip_path_->GetCurrEdge(node_index);
   auto node = trip_path_->GetEnhancedNode(node_index);
@@ -1453,15 +1455,9 @@ void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver, int node_index) {
 
   // Set elevator
   if (node->IsElevator()) {
-    maneuver.set_elevator(true);
-    // Set the end level ref
-    if (curr_edge && !curr_edge->GetLevelRef().empty()) {
-      if (curr_edge->GetLevelRef().size() > 1) {
-        maneuver.set_end_level_ref("");
-      } else {
-        maneuver.set_end_level_ref(curr_edge->GetLevelRef()[0]);
-      }
-    }
+    // insert new maneuver before this one
+    // is there a case where we would need to insert this after?
+    CreateElevatorManeuver(maneuvers.emplace_front(), node_index, curr_edge);
   }
 
   // Set enter/exit building
@@ -4030,6 +4026,54 @@ void ManeuversBuilder::AddLandmarksFromTripLegToManeuvers(std::list<Maneuver>& m
         // accumulate the distance from maneuver to the curr edge we are working on
         distance_from_begin_to_curr_edge += curr_edge->length_km() * kMetersPerKm;
       }
+    }
+  }
+}
+
+void ManeuversBuilder::CreateElevatorManeuver(
+    Maneuver& maneuver,
+    int node_index,
+    std::unique_ptr<odin::EnhancedTripLeg_Edge>& curr_edge) const {
+
+  // Travel mode
+  maneuver.set_travel_mode(curr_edge->travel_mode());
+
+  // Vehicle type
+  if (curr_edge->has_vehicle_type()) {
+    maneuver.set_vehicle_type(curr_edge->vehicle_type());
+  }
+
+  // Pedestrian type
+  if (curr_edge->has_pedestrian_type()) {
+    maneuver.set_pedestrian_type(curr_edge->pedestrian_type());
+  }
+
+  // Bicycle type
+  if (curr_edge->has_bicycle_type()) {
+    maneuver.set_bicycle_type(curr_edge->bicycle_type());
+  }
+
+  // Transit type
+  if (curr_edge->has_transit_type()) {
+    maneuver.set_transit_type(curr_edge->transit_type());
+  }
+
+  // Set the verbal text formatter
+  maneuver.set_verbal_formatter(
+      VerbalTextFormatterFactory::Create(trip_path_->GetCountryCode(node_index),
+                                         trip_path_->GetStateCode(node_index)));
+  maneuver.set_begin_node_index(node_index);
+  maneuver.set_end_node_index(node_index);
+  maneuver.set_elevator(true);
+  maneuver.set_length(0);
+  maneuver.set_begin_shape_index(curr_edge->begin_shape_index());
+  maneuver.set_end_shape_index(curr_edge->begin_shape_index());
+  // Set the end level ref
+  if (curr_edge && !curr_edge->GetLevelRef().empty()) {
+    if (curr_edge->GetLevelRef().size() > 1) {
+      maneuver.set_end_level_ref("");
+    } else {
+      maneuver.set_end_level_ref(curr_edge->GetLevelRef()[0]);
     }
   }
 }
