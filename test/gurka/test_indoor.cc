@@ -9,6 +9,11 @@
 using namespace valhalla;
 const std::unordered_map<std::string, std::string> build_config{{}};
 
+struct Waypoint {
+  std::string node;
+  int16_t level;
+};
+
 class Indoor : public ::testing::Test {
 protected:
   static gurka::map map;
@@ -25,7 +30,7 @@ protected:
               |
               C---------x--------y
               |                  |
-    D----E----F----G----H----I---J
+    D----E----F----G----H---vIu--J
     |         |
     N         K
     |         |
@@ -67,6 +72,19 @@ protected:
 
     layout = gurka::detail::map_to_coordinates(ascii_map, gridsize_metres);
     map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_indoor", build_config);
+  }
+
+  valhalla::Api Route(const std::vector<Waypoint>& waypoints, std::string* request_json = nullptr) {
+    std::vector<std::string> nodes;
+    std::unordered_map<std::string, std::string> options;
+    for (size_t index = 0; index < waypoints.size(); ++index) {
+      const auto& wp = waypoints[index];
+      nodes.emplace_back(wp.node);
+      options["/locations/" + std::to_string(index) + "/search_filter/level"] =
+          std::to_string(wp.level);
+    }
+    return gurka::do_action(valhalla::Options::route, map, nodes, "pedestrian", options, {},
+                            request_json);
   }
 };
 gurka::map Indoor::map = {};
@@ -343,4 +361,20 @@ TEST_F(Indoor, NodeElevatorLevelChanges) {
   doc.Parse(route_json.c_str());
 
   check_level_changes(doc, {{0, 2}, {1, 3}});
+}
+
+TEST_F(Indoor, NodeShortElevatorRoute) {
+  std::string route_json;
+  auto result = Route({{"v", 2}, {"u", 3}}, &route_json);
+  rapidjson::Document doc;
+  doc.Parse(route_json.c_str());
+  check_level_changes(doc, {{0, 2}, {1, 3}});
+}
+
+TEST_F(Indoor, NodeSnappedElevatorRoute) {
+  std::string route_json;
+  auto result = Route({{"I", 2}, {"I", 3}}, &route_json);
+  // TODO: this should ideally be a route with no shape but an elevator instruction
+  // for some reason, it goes around the stairs, even with elevator_penalty set to 0
+  // and step penalty set to a high value
 }
