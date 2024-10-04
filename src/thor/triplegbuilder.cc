@@ -13,6 +13,7 @@
 #include "baldr/signinfo.h"
 #include "baldr/tilehierarchy.h"
 #include "baldr/time_info.h"
+#include "baldr/timedomain.h"
 #include "meili/match_result.h"
 #include "midgard/elevation_encoding.h"
 #include "midgard/encoded.h"
@@ -38,7 +39,6 @@ using LinguisticMap = std::unordered_map<uint8_t, std::tuple<uint8_t, uint8_t, s
 constexpr uint8_t kNotTagged = 0;
 constexpr uint8_t kTunnelTag = static_cast<uint8_t>(baldr::TaggedValue::kTunnel);
 constexpr uint8_t kBridgeTag = static_cast<uint8_t>(baldr::TaggedValue::kBridge);
-constexpr int32_t kMinLevel = std::numeric_limits<int32_t>::min();
 
 uint32_t
 GetAdminIndex(const AdminInfo& admin_info,
@@ -507,42 +507,40 @@ void AddLandmarks(const EdgeInfo& edgeinfo,
     return;
   }
 
-  for (const auto& tag : edgeinfo.GetTags()) {
-    // get landmarks from tagged values in the edge info
-    if (tag.first == baldr::TaggedValue::kLandmark) {
-      Landmark lan(tag.second);
-      PointLL landmark_point = {lan.lng, lan.lat};
+  const auto landmark_range = edgeinfo.GetTags().equal_range(baldr::TaggedValue::kLandmark);
+  for (auto it = landmark_range.first; it != landmark_range.second; ++it) {
+    Landmark lan(it->second);
+    PointLL landmark_point = {lan.lng, lan.lat};
 
-      // find the closed point on edge to the landmark
-      auto closest = landmark_point.ClosestPoint(shape, begin_index);
-      // TODO: in the future maybe we could allow a request option to have a tighter threshold on
-      // how far landmarks should be away from an edge
+    // find the closed point on edge to the landmark
+    auto closest = landmark_point.ClosestPoint(shape, begin_index);
+    // TODO: in the future maybe we could allow a request option to have a tighter threshold on
+    // how far landmarks should be away from an edge
 
-      // add the landmark to trip leg
-      auto* landmark = trip_edge->mutable_landmarks()->Add();
-      landmark->set_name(lan.name);
-      landmark->set_type(static_cast<valhalla::RouteLandmark::Type>(lan.type));
-      landmark->mutable_lat_lng()->set_lng(lan.lng);
-      landmark->mutable_lat_lng()->set_lat(lan.lat);
+    // add the landmark to trip leg
+    auto* landmark = trip_edge->mutable_landmarks()->Add();
+    landmark->set_name(lan.name);
+    landmark->set_type(static_cast<valhalla::RouteLandmark::Type>(lan.type));
+    landmark->mutable_lat_lng()->set_lng(lan.lng);
+    landmark->mutable_lat_lng()->set_lat(lan.lat);
 
-      // calculate the landmark's distance along the edge
-      // that is to accumulate distance from the begin point to the closest point to it on the edge
-      int closest_idx = std::get<2>(closest);
-      double distance_along_edge = 0;
-      for (int idx = begin_index + 1; idx <= closest_idx; ++idx) {
-        distance_along_edge += shape[idx].Distance(shape[idx - 1]);
-      }
-      distance_along_edge += shape[closest_idx].Distance(std::get<0>(closest));
-      // the overall distance shouldn't be larger than edge length
-      distance_along_edge = std::min(distance_along_edge, static_cast<double>(edge->length()));
-      landmark->set_distance(distance_along_edge);
-      // check which side of the edge the landmark is on
-      // quirks of the ClosestPoint function
-      bool is_right = closest_idx == (int)shape.size() - 1
-                          ? landmark_point.IsLeft(shape[closest_idx - 1], shape[closest_idx]) < 0
-                          : landmark_point.IsLeft(shape[closest_idx], shape[closest_idx + 1]) < 0;
-      landmark->set_right(is_right);
+    // calculate the landmark's distance along the edge
+    // that is to accumulate distance from the begin point to the closest point to it on the edge
+    int closest_idx = std::get<2>(closest);
+    double distance_along_edge = 0;
+    for (int idx = begin_index + 1; idx <= closest_idx; ++idx) {
+      distance_along_edge += shape[idx].Distance(shape[idx - 1]);
     }
+    distance_along_edge += shape[closest_idx].Distance(std::get<0>(closest));
+    // the overall distance shouldn't be larger than edge length
+    distance_along_edge = std::min(distance_along_edge, static_cast<double>(edge->length()));
+    landmark->set_distance(distance_along_edge);
+    // check which side of the edge the landmark is on
+    // quirks of the ClosestPoint function
+    bool is_right = closest_idx == (int)shape.size() - 1
+                        ? landmark_point.IsLeft(shape[closest_idx - 1], shape[closest_idx]) < 0
+                        : landmark_point.IsLeft(shape[closest_idx], shape[closest_idx + 1]) < 0;
+    landmark->set_right(is_right);
   }
 }
 
@@ -1077,7 +1075,7 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
                           const uint8_t restrictions_idx,
                           float elapsed_secs,
                           bool blind_instructions,
-                          int32_t& prev_level,
+                          float prev_level,
                           TripLeg& trip,
                           const uint32_t shape_index) {
 
@@ -1218,18 +1216,26 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
     trip_edge->set_forward(directededge->forward());
   }
 
-  auto levels = edgeinfo.level();
-  if (levels.size() == 1) {
-    auto& lvl = levels[0];
+  std::vector<std::pair<float, float>> levels;
+  uint32_t precision;
+  std::tie(levels, precision) = edgeinfo.levels();
+  if (levels.size() == 1 && levels[0].first == levels[0].second) {
+    auto& lvl = levels[0].first;
     if (lvl != prev_level) {
       auto* change = trip.add_level_changes();
       change->set_level(lvl);
       change->set_shape_index(shape_index);
+      change->set_precision(precision);
       prev_level = lvl;
     }
   }
   if (controller(kEdgeLevels)) {
-    trip_edge->mutable_levels()->Assign(levels.begin(), levels.end());
+    for (const auto& level : levels) {
+      auto proto_level = trip_edge->mutable_levels()->Add();
+      proto_level->set_start(level.first);
+      proto_level->set_end(level.second);
+    }
+    // trip_edge->mutable_levels()->Assign(levels.begin(), levels.end());
   }
 
   uint8_t kAccess = 0;
@@ -1463,6 +1469,38 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
 
   if (controller(kEdgeSpeedLimit)) {
     trip_edge->set_speed_limit(edgeinfo.speed_limit());
+  }
+
+  if (controller(kEdgeConditionalSpeedLimits)) {
+    auto conditional_limits = edgeinfo.conditional_speed_limits();
+    trip_edge->mutable_conditional_speed_limits()->Reserve(conditional_limits.size());
+    for (const auto& limit : conditional_limits) {
+      auto proto = trip_edge->mutable_conditional_speed_limits()->Add();
+      proto->set_speed_limit(limit.speed_);
+
+      auto* condition = proto->mutable_condition();
+
+      switch (limit.td_.type()) {
+        case kYMD:
+          condition->set_day_dow_type(TripLeg_TimeDomain_DayDowType_kDayOfMonth);
+          break;
+        case kNthDow:
+          condition->set_day_dow_type(TripLeg_TimeDomain_DayDowType_kNthDayOfWeek);
+          break;
+      }
+
+      condition->set_dow_mask(limit.td_.dow());
+      condition->set_begin_hrs(limit.td_.begin_hrs());
+      condition->set_begin_mins(limit.td_.begin_mins());
+      condition->set_begin_month(limit.td_.begin_month());
+      condition->set_begin_day_dow(limit.td_.begin_day_dow());
+      condition->set_begin_week(limit.td_.begin_week());
+      condition->set_end_hrs(limit.td_.end_hrs());
+      condition->set_end_mins(limit.td_.end_mins());
+      condition->set_end_month(limit.td_.end_month());
+      condition->set_end_day_dow(limit.td_.end_day_dow());
+      condition->set_end_week(limit.td_.end_week());
+    }
   }
 
   if (controller(kEdgeDefaultSpeed)) {
@@ -1780,7 +1818,7 @@ void TripLegBuilder::Build(
   trip_path.mutable_node()->Reserve((path_end - path_begin) + 1);
 
   // collect the level changes
-  int32_t prev_level = kMinLevel;
+  float prev_level = kMinLevel;
 
   // we track the intermediate locations while we iterate so we can update their shape index
   // from the edge index that we assigned to them earlier in route_action

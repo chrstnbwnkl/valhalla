@@ -368,7 +368,7 @@ public:
     return mutable_edge_->indoor();
   }
 
-  const ::google::protobuf::RepeatedField<int>& levels() const {
+  const google::protobuf::RepeatedPtrField<valhalla::TripLeg_Edge_Level>& levels() const {
     return mutable_edge_->levels();
   }
 
