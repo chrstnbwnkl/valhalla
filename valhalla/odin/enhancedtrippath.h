@@ -774,6 +774,7 @@ public:
   bool IsSumpBuster() const;
   bool IsBuildingEntrance() const;
   bool IsElevator() const;
+  bool IsSteps() const;
 
   std::string ToString() const;
 

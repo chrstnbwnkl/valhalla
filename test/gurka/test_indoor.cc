@@ -48,6 +48,12 @@ protected:
     O         L
               |
               M
+              |
+              P
+              |
+              Q
+              |
+              R
     )";
 
     const gurka::ways ways = {
@@ -74,11 +80,15 @@ protected:
         {"Cx", {{"highway", "steps"}, {"indoor", "yes"}, {"level", "-1;0-2"}}},
         {"xy", {{"highway", "steps"}, {"indoor", "yes"}, {"level", "2;3"}}},
         {"yJ", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "3"}}},
+        {"MP", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "3"}}},
+        {"PQ", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "4"}}},
+        {"QR", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "4"}}},
     };
 
     const gurka::nodes nodes = {
         {"E", {{"entrance", "yes"}, {"indoor", "yes"}}},
         {"I", {{"highway", "elevator"}, {"indoor", "yes"}, {"level", "2;3"}}},
+        {"P", {{"highway", "steps"}, {"indoor", "yes"}, {"level", "3;4"}}},
     };
 
     layout = gurka::detail::map_to_coordinates(ascii_map, gridsize_metres);
@@ -215,6 +225,36 @@ TEST_F(Indoor, ElevatorManeuver) {
   gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index,
                                                             "Take the elevator to Level 3.", "", "",
                                                             "", "");
+}
+
+TEST_F(Indoor, NodeStepsManeuver) {
+  auto result = gurka::do_action(valhalla::Options::route, map, {"M", "R"}, "pedestrian");
+  gurka::assert::raw::expect_path(result, {"MP", "PQ", "QR"});
+
+  // Verify maneuver types
+  gurka::assert::raw::expect_maneuvers(result, {DirectionsLeg_Maneuver_Type_kStart,
+                                                DirectionsLeg_Maneuver_Type_kStepsEnter,
+                                                DirectionsLeg_Maneuver_Type_kContinue,
+                                                DirectionsLeg_Maneuver_Type_kDestination});
+
+  // Verify single maneuver prior to steps
+  int maneuver_index = 0;
+  gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index,
+                                                            "Walk south on MP.", "Walk south.", "",
+                                                            "Walk south on MP.",
+                                                            "Continue for 200 meters.");
+
+  // Verify steps as a node instructions
+  maneuver_index += 1;
+  gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index,
+                                                            "Take the stairs to Level 4.", "", "", "",
+                                                            "");
+
+  // Verify walking maneuver after stairs
+  maneuver_index += 1;
+  gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index, "Continue on PQ.",
+                                                            "", "Continue on PQ.", "Continue on PQ.",
+                                                            "Continue for 400 meters.");
 }
 
 TEST_F(Indoor, IndoorStepsManeuver) {

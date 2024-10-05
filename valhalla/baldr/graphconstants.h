@@ -237,6 +237,7 @@ enum class NodeType : uint8_t {
   kSumpBuster = 12,             // Sump Buster
   kBuildingEntrance = 13,       // Building entrance
   kElevator = 14,               // Elevator
+  kSteps = 15,                  // Stairs
 };
 inline std::string to_string(NodeType n) {
   static const std::unordered_map<uint8_t, std::string> NodeTypeStrings =

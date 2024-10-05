@@ -2089,7 +2089,7 @@ public:
         n.set_minor(tag.second == "minor");
       } else if (use_urban_tag_ && tag.first == "urban") {
         n.set_urban(tag.second == "true");
-      } else if (tag.first == "level:height") {
+      } else if (tag.first == "height:level") {
         n.set_height(stof(tag.second));
       } else if (tag.first == "exit_to" && is_highway_junction && hasTag) {
         // Add the name to the unique node names list and store its index in the OSM node
@@ -2163,6 +2163,10 @@ public:
         osmdata_.edge_count += !intersection;
         intersection = true;
         n.set_type(NodeType::kElevator);
+      } else if (tag.first == "steps" && tag.second == "true") {
+        osmdata_.edge_count += !intersection;
+        intersection = true;
+        n.set_type(NodeType::kSteps);
       } else if (tag.first == "access_mask") {
         n.set_access(std::stoi(tag.second));
       } else if (tag.first == "tagged_access") {

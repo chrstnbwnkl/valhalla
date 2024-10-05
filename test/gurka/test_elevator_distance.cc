@@ -19,14 +19,14 @@ protected:
 
     ascii_map = R"(
     A--B---C---D--E
-    |
-    F
-    |
-    G
-    |
-    H
-    |
-    I
+    |             | 
+    F             J 
+    |             | 
+    G             K 
+    |             | 
+    H             L 
+    |             | 
+    I             M 
     )";
 
     ways = {
@@ -40,12 +40,18 @@ protected:
         {"FG", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "0"}}},
         {"GH", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "7"}, {"level:ref", "Lobby"}}},
         {"HI", {{"highway", "footway"}, {"level", "1"}}},
+        {"EJ",
+         {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "0"}, {"level:ref", "Parking"}}},
+        {"JK", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "0"}}},
+        {"KL", {{"highway", "corridor"}, {"indoor", "yes"}, {"level", "-3"}, {"level:ref", "Lobby"}}},
+        {"LM", {{"highway", "footway"}, {"level", "-3"}}},
     };
 
     nodes = {
         {"C",
-         {{"highway", "elevator"}, {"indoor", "yes"}, {"level", "0;1"}, {"level:height", "4.5"}}},
+         {{"highway", "elevator"}, {"indoor", "yes"}, {"level", "0;1"}, {"height:level", "4.5"}}},
         {"G", {{"highway", "elevator"}, {"indoor", "yes"}, {"level", "0;7"}}},
+        {"G", {{"highway", "steps"}, {"indoor", "yes"}, {"level", "-3;0"}, {"height:level", "2.5"}}},
     };
 
     layout = gurka::detail::map_to_coordinates(ascii_map, gridsize_metres);

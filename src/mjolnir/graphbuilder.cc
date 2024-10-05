@@ -1162,7 +1162,7 @@ void BuildTileSet(const std::string& ways_file,
 
         // Set admin index
         graphtile.nodes().back().set_admin_index(admin_index);
-        if (node.type() == NodeType::kElevator)
+        if (node.type() == NodeType::kElevator || node.type() == NodeType::kSteps)
           graphtile.nodes().back().set_elevation(node.height() ? static_cast<float>(node.height()) /
                                                                      kLevelHeightPrecision
                                                                : kDefaultLevelHeight);

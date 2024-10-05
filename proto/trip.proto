@@ -258,6 +258,7 @@ message TripLeg {
       kSumpBuster = 12;             // Sump Buster
       kBuildingEntrance = 13;       // Building Entrance
       kElevator = 14;               // Elevator
+      kSteps = 15;                  // Steps
     }
     Edge edge = 1;
     repeated IntersectingEdge intersecting_edge = 2;

@@ -3312,6 +3312,13 @@
       "description": "Steps under construction."
     },
     {
+      "key": "height:level",
+      "description": "The per level height of the elevator or steps.",
+      "object_types": [
+        "node"
+      ]
+    },
+    {
       "key": "hour_off",
       "object_types": [
         "relation"

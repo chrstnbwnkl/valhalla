@@ -120,6 +120,8 @@ inline TripLeg_Node_Type GetTripLegNodeType(const baldr::NodeType node_type) {
       return TripLeg_Node_Type_kBuildingEntrance;
     case baldr::NodeType::kElevator:
       return TripLeg_Node_Type_kElevator;
+    case baldr::NodeType::kSteps:
+      return TripLeg_Node_Type_kSteps;
   }
   auto num = static_cast<uint8_t>(node_type);
   throw std::runtime_error(std::string(__FILE__) + ":" + std::to_string(__LINE__) +

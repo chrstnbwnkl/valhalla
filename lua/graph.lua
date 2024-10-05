@@ -2135,10 +2135,12 @@ function nodes_proc (kv, nokeys)
     kv["building_entrance"] = "true"
   elseif kv["highway"] == "elevator" then
     kv["elevator"] = "true"
+  elseif kv["highway"] == "steps" then
+    kv["steps"] = "true"
   end
 
-  if kv["level:height"] ~= nil then 
-    kv["level:height"] = normalize_measurement(kv["level:height"])
+  if kv["height:level"] ~= nil then 
+    kv["height:level"] = normalize_measurement(kv["height:level"])
   end  
 
   if kv["amenity"] == "bicycle_rental" or (kv["shop"] == "bicycle" and kv["service:bicycle:rental"] == "yes") then

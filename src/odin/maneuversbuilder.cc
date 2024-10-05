@@ -1468,11 +1468,12 @@ void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver,
   maneuver.set_time(trip_path_->node(maneuver.end_node_index()).cost().elapsed_cost().seconds() -
                     trip_path_->node(maneuver.begin_node_index()).cost().elapsed_cost().seconds());
 
-  // Set elevator
-  if (node->IsElevator()) {
+  // Create level change maneuver
+  if (node->IsElevator() || node->IsSteps()) {
     // insert new maneuver before this one
     // is there a case where we would need to insert this after?
-    CreateElevatorManeuver(maneuvers.emplace_front(), node_index, prev_edge, curr_edge);
+    CreateLevelChangeManeuver(maneuvers.emplace_front(), node_index, prev_edge, curr_edge,
+                              node->IsElevator());
   }
 
   // Set enter/exit building
@@ -2218,6 +2219,9 @@ bool ManeuversBuilder::CanManeuverIncludePrevEdge(Maneuver& maneuver, int node_i
   }
   if (maneuver.indoor_steps() && prev_edge->IsStepsUse() && prev_edge->indoor()) {
     return true;
+  }
+  if (node->IsSteps()) {
+    return false;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -4045,11 +4049,12 @@ void ManeuversBuilder::AddLandmarksFromTripLegToManeuvers(std::list<Maneuver>& m
   }
 }
 
-void ManeuversBuilder::CreateElevatorManeuver(
+void ManeuversBuilder::CreateLevelChangeManeuver(
     Maneuver& maneuver,
     int node_index,
     std::unique_ptr<odin::EnhancedTripLeg_Edge>& prev_edge,
-    std::unique_ptr<odin::EnhancedTripLeg_Edge>& curr_edge) const {
+    std::unique_ptr<odin::EnhancedTripLeg_Edge>& curr_edge,
+    const bool elevator) const {
 
   const auto node = trip_path_->node(node_index);
 
@@ -4076,10 +4081,6 @@ void ManeuversBuilder::CreateElevatorManeuver(
     if (prev_edge->has_transit_type()) {
       maneuver.set_transit_type(prev_edge->transit_type());
     }
-  }
-
-  if (curr_edge) {
-    LOG_ERROR("found one");
   }
 
   float start_level = kMinLevel;
@@ -4110,7 +4111,16 @@ void ManeuversBuilder::CreateElevatorManeuver(
                                          trip_path_->GetStateCode(node_index)));
   maneuver.set_begin_node_index(node_index);
   maneuver.set_end_node_index(node_index);
-  maneuver.set_elevator(true);
+
+  if (elevator)
+    maneuver.set_elevator(true);
+  else {
+    if (prev_edge && prev_edge->indoor())
+      maneuver.set_indoor_steps(true);
+    else
+      maneuver.set_steps(true);
+  }
+
   maneuver.set_begin_shape_index(prev_edge ? prev_edge->begin_shape_index() : 0);
   maneuver.set_end_shape_index(prev_edge ? prev_edge->begin_shape_index() : 0);
 

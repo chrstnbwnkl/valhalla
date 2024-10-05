@@ -2005,6 +2005,10 @@ bool EnhancedTripLeg_Node::IsElevator() const {
   return (type() == TripLeg_Node_Type_kElevator);
 }
 
+bool EnhancedTripLeg_Node::IsSteps() const {
+  return (type() == TripLeg_Node_Type_kSteps);
+}
+
 std::string EnhancedTripLeg_Node::ToString() const {
   std::string str;
   str.reserve(256);
