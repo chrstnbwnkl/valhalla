@@ -142,6 +142,7 @@ protected:
 
   void CreateElevatorManeuver(Maneuver& maneuver,
                               int node_index,
+                              std::unique_ptr<odin::EnhancedTripLeg_Edge>& prev_edge,
                               std::unique_ptr<odin::EnhancedTripLeg_Edge>& curr_edge) const;
   /**
    * Returns the speed based on the specified travel mode.

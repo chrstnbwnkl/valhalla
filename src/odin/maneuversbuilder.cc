@@ -77,6 +77,10 @@ std::vector<std::string> split(const std::string& source, char delimiter) {
 bool is_pair(const std::vector<std::string>& tokens) {
   return (tokens.size() == 2);
 }
+
+bool is_single_level_edge(std::unique_ptr<EnhancedTripLeg_Edge>& edge) {
+  return edge->levels().size() == 1 && edge->levels().Get(0).start() == edge->levels().Get(0).end();
+}
 } // namespace
 
 namespace valhalla {
@@ -1164,6 +1168,16 @@ void ManeuversBuilder::InitializeManeuver(Maneuver& maneuver, int node_index) {
     }
   }
 
+  // Set start end end level information
+  if (prev_edge && !prev_edge->mutable_levels()->empty() &&
+      prev_edge->mutable_levels()->size() == 1) {
+    maneuver.set_start_level(prev_edge->levels().Get(0).start());
+  }
+  if (curr_edge && !curr_edge->mutable_levels()->empty() &&
+      curr_edge->mutable_levels()->size() == 1) {
+    maneuver.set_end_level(curr_edge->levels().Get(0).start());
+  }
+
   // Elevator
   if (prev_edge->IsElevatorUse()) {
     maneuver.set_elevator(true);
@@ -1434,6 +1448,7 @@ void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver,
                                         std::list<Maneuver>& maneuvers) {
   auto prev_edge = trip_path_->GetPrevEdge(node_index);
   auto curr_edge = trip_path_->GetCurrEdge(node_index);
+  auto next_edge = trip_path_->GetNextEdge(node_index);
   auto node = trip_path_->GetEnhancedNode(node_index);
 
   // Set begin cardinal direction
@@ -1457,7 +1472,7 @@ void ManeuversBuilder::FinalizeManeuver(Maneuver& maneuver,
   if (node->IsElevator()) {
     // insert new maneuver before this one
     // is there a case where we would need to insert this after?
-    CreateElevatorManeuver(maneuvers.emplace_front(), node_index, curr_edge);
+    CreateElevatorManeuver(maneuvers.emplace_front(), node_index, prev_edge, curr_edge);
   }
 
   // Set enter/exit building
@@ -4033,30 +4048,61 @@ void ManeuversBuilder::AddLandmarksFromTripLegToManeuvers(std::list<Maneuver>& m
 void ManeuversBuilder::CreateElevatorManeuver(
     Maneuver& maneuver,
     int node_index,
+    std::unique_ptr<odin::EnhancedTripLeg_Edge>& prev_edge,
     std::unique_ptr<odin::EnhancedTripLeg_Edge>& curr_edge) const {
 
-  // Travel mode
-  maneuver.set_travel_mode(curr_edge->travel_mode());
+  const auto node = trip_path_->node(node_index);
 
-  // Vehicle type
-  if (curr_edge->has_vehicle_type()) {
-    maneuver.set_vehicle_type(curr_edge->vehicle_type());
+  if (prev_edge) {
+    // Travel mode
+    maneuver.set_travel_mode(prev_edge->travel_mode());
+
+    // Vehicle type
+    if (prev_edge->has_vehicle_type()) {
+      maneuver.set_vehicle_type(prev_edge->vehicle_type());
+    }
+
+    // Pedestrian type
+    if (prev_edge->has_pedestrian_type()) {
+      maneuver.set_pedestrian_type(prev_edge->pedestrian_type());
+    }
+
+    // Bicycle type
+    if (prev_edge->has_bicycle_type()) {
+      maneuver.set_bicycle_type(prev_edge->bicycle_type());
+    }
+
+    // Transit type
+    if (prev_edge->has_transit_type()) {
+      maneuver.set_transit_type(prev_edge->transit_type());
+    }
   }
 
-  // Pedestrian type
-  if (curr_edge->has_pedestrian_type()) {
-    maneuver.set_pedestrian_type(curr_edge->pedestrian_type());
+  if (curr_edge) {
+    LOG_ERROR("found one");
   }
 
-  // Bicycle type
-  if (curr_edge->has_bicycle_type()) {
-    maneuver.set_bicycle_type(curr_edge->bicycle_type());
+  float start_level = kMinLevel;
+  float end_level = kMinLevel;
+  float traversed_levels = 0;
+  if (prev_edge && is_single_level_edge(prev_edge)) {
+    start_level = prev_edge->levels().Get(0).start();
+  } else if (trip_path_->GetOrigin().has_search_filter() &&
+             trip_path_->GetOrigin().search_filter().has_level()) {
+    start_level = trip_path_->GetOrigin().search_filter().level();
+  }
+  if (curr_edge && is_single_level_edge(curr_edge)) {
+    end_level = curr_edge->levels().Get(0).end();
+  } else if (trip_path_->GetDestination().has_search_filter() &&
+             trip_path_->GetDestination().search_filter().has_level()) {
+    end_level = trip_path_->GetDestination().search_filter().level();
   }
 
-  // Transit type
-  if (curr_edge->has_transit_type()) {
-    maneuver.set_transit_type(curr_edge->transit_type());
-  }
+  if (start_level != kMinLevel && end_level != kMinLevel)
+    traversed_levels = end_level - start_level;
+
+  maneuver.set_traversed_levels(traversed_levels);
+  maneuver.set_length(traversed_levels * node.level_height());
 
   // Set the verbal text formatter
   maneuver.set_verbal_formatter(
@@ -4065,9 +4111,9 @@ void ManeuversBuilder::CreateElevatorManeuver(
   maneuver.set_begin_node_index(node_index);
   maneuver.set_end_node_index(node_index);
   maneuver.set_elevator(true);
-  maneuver.set_length(0);
-  maneuver.set_begin_shape_index(curr_edge->begin_shape_index());
-  maneuver.set_end_shape_index(curr_edge->begin_shape_index());
+  maneuver.set_begin_shape_index(prev_edge ? prev_edge->begin_shape_index() : 0);
+  maneuver.set_end_shape_index(prev_edge ? prev_edge->begin_shape_index() : 0);
+
   // Set the end level ref
   if (curr_edge && !curr_edge->GetLevelRef().empty()) {
     if (curr_edge->GetLevelRef().size() > 1) {

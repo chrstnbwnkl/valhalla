@@ -372,6 +372,10 @@ public:
     return mutable_edge_->levels();
   }
 
+  google::protobuf::RepeatedPtrField<valhalla::TripLeg_Edge_Level>* mutable_levels() const {
+    return mutable_edge_->mutable_levels();
+  }
+
   bool IsUnnamed() const;
 
   // Use

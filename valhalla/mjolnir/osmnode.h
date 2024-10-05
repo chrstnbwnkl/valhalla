@@ -38,7 +38,8 @@ struct OSMNode {
   uint64_t backward_yield_ : 1;
   uint64_t minor_ : 1;
   uint64_t direction_ : 1;
-  uint64_t spare_ : 11;
+  uint64_t height_ : 10;
+  uint64_t spare_ : 1;
 
   uint32_t access_ : 12;
   uint32_t type_ : 4;
@@ -562,6 +563,22 @@ struct OSMNode {
    */
   uint32_t linguistic_info_index() const {
     return linguistic_info_index_;
+  }
+
+  /**
+   * Sets the per level height.
+   * @param height the level height in meters
+   */
+  void set_height(const float height) {
+    height_ = static_cast<uint32_t>(height * valhalla::baldr::kLevelHeightPrecision);
+  }
+
+  /**
+   * Get the per level height.
+   * @return  Returns the per level height in meters.
+   */
+  uint32_t height() const {
+    return height_;
   }
 };
 

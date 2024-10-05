@@ -1886,6 +1886,11 @@ void TripLegBuilder::Build(
       }
     }
 
+    // TODO: add controllable attribute
+    if (node->type() == NodeType::kElevator && node->elevation()) {
+      trip_node->set_level_height(node->elevation());
+    }
+
     // Assign the elapsed time from the start of the leg
     if (controller(kNodeElapsedTime)) {
       if (edge_itr == path_begin) {

@@ -215,6 +215,10 @@ constexpr float kLevelRangeSeparator = 1048575.0f;
 constexpr float kMinLevel = std::numeric_limits<float>::min();
 constexpr float kMaxLevel = std::numeric_limits<float>::max();
 
+// Precision with which per level height is stored
+constexpr uint32_t kLevelHeightPrecision = 10;
+
+constexpr float kDefaultLevelHeight = 3.f;
 // Node types.
 enum class NodeType : uint8_t {
   kStreetIntersection = 0, // Regular intersection of 2 roads

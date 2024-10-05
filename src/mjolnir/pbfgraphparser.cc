@@ -2089,6 +2089,8 @@ public:
         n.set_minor(tag.second == "minor");
       } else if (use_urban_tag_ && tag.first == "urban") {
         n.set_urban(tag.second == "true");
+      } else if (tag.first == "level:height") {
+        n.set_height(stof(tag.second));
       } else if (tag.first == "exit_to" && is_highway_junction && hasTag) {
         // Add the name to the unique node names list and store its index in the OSM node
         n.set_exit_to_index(osmdata_.node_names.index(tag.second));
@@ -4118,7 +4120,7 @@ public:
                   return; // should not make it here; has to be bad data.
                 }
               } // else
-            }   // if (condition.empty())
+            } // if (condition.empty())
 
             std::vector<std::string> conditions = GetTagTokens(condition, ';');
 
@@ -4145,7 +4147,7 @@ public:
             }
             return;
           } // if (isConditional)
-        }   // end turning into complex restriction
+        } // end turning into complex restriction
 
         restriction.set_modes(modes);
 

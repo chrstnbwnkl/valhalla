@@ -204,8 +204,14 @@ TEST_F(Indoor, ElevatorManeuver) {
                                                             "Take the elevator to Level 2.", "", "",
                                                             "", "");
 
+  // Verify walking maneuver between elevators
+  maneuver_index += 1;
+  gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index, "Continue on HI.",
+                                                            "", "Continue on HI.", "Continue on HI.",
+                                                            "Continue for 500 meters.");
+
   // Verify elevator as a node instructions
-  maneuver_index += 2;
+  maneuver_index += 1;
   gurka::assert::raw::expect_instructions_at_maneuver_index(result, maneuver_index,
                                                             "Take the elevator to Level 3.", "", "",
                                                             "", "");
@@ -342,8 +348,7 @@ TEST_F(Indoor, EdgeElevatorLevelChanges) {
 TEST_F(Indoor, NodeElevatorLevelChanges) {
   // get a route via a node-modeled elevator and check the level changelog
   std::string route_json;
-  auto result =
-      gurka::do_action(valhalla::Options::route, map, {"H", "J"}, "pedestrian", {}, {}, &route_json);
+  auto result = Route({{"H", 2}, {"J", 3}}, &route_json);
   gurka::assert::raw::expect_path(result, {"HI", "IJ"});
   rapidjson::Document doc;
   doc.Parse(route_json.c_str());
@@ -365,6 +370,7 @@ TEST_F(Indoor, NodeSnappedElevatorRoute) {
   // TODO: this should ideally be a route with no shape but an elevator instruction
   // for some reason, it goes around the stairs, even with elevator_penalty set to 0
   // and step penalty set to a high value
+  // Related to failing tests in elevator distance tests
   rapidjson::Document doc;
   doc.Parse(route_json.c_str());
   check_level_changes(doc, {{0.f, 2.f}, {1.f, 3.f}});
