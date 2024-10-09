@@ -158,12 +158,13 @@ const std::unordered_map<int, std::string> warning_codes = {
   {205, R"("disable_hierarchy_pruning" exceeded the max distance, ignoring disable_hierarchy_pruning)"},
   {206, R"(CostMatrix does not consider "targets" with "date_time" set, ignoring date_time)"},
   {207, R"(TimeDistanceMatrix does not consider "shape_format", ignoring shape_format)"},
-  // 3xx is used when costing options were specified but we had to change them internally for some reason
+  // 3xx is used when costing or location options were specified but we had to change them internally for some reason
   {300, R"(Many:Many CostMatrix was requested, but server only allows 1:Many TimeDistanceMatrix)"},
   {301, R"(1:Many TimeDistanceMatrix was requested, but server only allows Many:Many CostMatrix)"},
+  {302, R"("search_filter.level" was specified without a custom "search_cutoff", setting default default cutoff to )"},
+  {303, R"("search_cutoff" exceeds maximum allowed value due to "search_filter.level" being specified, clamping cutoff to )"},
   // 4xx is used when we do sneaky important things the user should be aware of
-  {400, R"(CostMatrix turned off destination-only on a second pass for connections: )"},
-  {401, R"("search_filter.level" was specified without a custom "search_cutoff", lowering default default cutoff to )"}
+  {400, R"(CostMatrix turned off destination-only on a second pass for connections: )"}
 };
 // clang-format on
 
@@ -409,8 +410,10 @@ void parse_location(valhalla::Location* location,
     // search_filter.exclude_ramp
     location->mutable_search_filter()->set_exclude_ramp(
         rapidjson::get<bool>(*search_filter, "/exclude_ramp", false));
-    location->mutable_search_filter()->set_level(
-        rapidjson::get<float>(*search_filter, "/level", static_cast<float>(baldr::kMaxLevel)));
+    auto level =
+        rapidjson::get<float>(*search_filter, "/level", static_cast<float>(baldr::kMaxLevel));
+    if (level != baldr::kMaxLevel)
+      location->mutable_search_filter()->set_level(level);
     // search_filter.exclude_closures
     exclude_closures = rapidjson::get_optional<bool>(*search_filter, "/exclude_closures");
   } // or is it pbf
