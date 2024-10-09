@@ -21,7 +21,7 @@ struct Waypoint {
 
 } // namespace
 
-class MultiLevelLoki : public ::testing::Test {
+class MultiLayerLoki : public ::testing::Test {
 protected:
   static gurka::map map;
   static std::string ascii_map;
@@ -34,7 +34,7 @@ protected:
                           H
                           |
                           |
-                          B-------E        
+                          B-------E
                           |       |
                           |       |
                           I       |
@@ -58,7 +58,7 @@ protected:
     };
 
     layout = gurka::detail::map_to_coordinates(ascii_map, gridsize_metres);
-    map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_multi_level_loki", build_config);
+    map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_multi_layer_loki", build_config);
   }
 
   valhalla::Api Route(const std::vector<Waypoint>& waypoints) {
@@ -76,11 +76,11 @@ protected:
     return gurka::do_action(valhalla::Options::route, map, nodes, "auto", options);
   }
 };
-gurka::map MultiLevelLoki::map = {};
-std::string MultiLevelLoki::ascii_map = {};
-gurka::nodelayout MultiLevelLoki::layout = {};
+gurka::map MultiLayerLoki::map = {};
+std::string MultiLayerLoki::ascii_map = {};
+gurka::nodelayout MultiLayerLoki::layout = {};
 
-TEST_F(MultiLevelLoki, test_multilevel_loki) {
+TEST_F(MultiLayerLoki, test_multilevel_loki) {
   auto result = Route({{"B", -1}, {"G"}});
   gurka::assert::osrm::expect_steps(result, std::vector<std::string>({"HI"}));
 
@@ -90,7 +90,7 @@ TEST_F(MultiLevelLoki, test_multilevel_loki) {
   gurka::assert::osrm::expect_steps(result, std::vector<std::string>({"HI"}));
 }
 
-TEST_F(MultiLevelLoki, test_no_matching_layer) {
+TEST_F(MultiLayerLoki, test_no_matching_layer) {
   auto result = Route({{"E", -1}, {"G"}});
   gurka::assert::osrm::expect_steps(result, std::vector<std::string>({"EF", "FD", "DG"}));
 }
