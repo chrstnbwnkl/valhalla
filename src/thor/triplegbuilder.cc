@@ -1219,8 +1219,11 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
   std::vector<std::pair<float, float>> levels;
   uint32_t precision;
   std::tie(levels, precision) = edgeinfo.levels();
+  // for the level changes, only consider edges on a single level
   if (levels.size() == 1 && levels[0].first == levels[0].second) {
     auto& lvl = levels[0].first;
+    // if this edge is on a different level than the previous one,
+    // add a level change
     if (lvl != prev_level) {
       auto* change = trip.add_level_changes();
       change->set_level(lvl);
