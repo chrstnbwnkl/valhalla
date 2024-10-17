@@ -61,6 +61,10 @@ message SearchFilter {
   oneof has_exclude_closures {
     bool exclude_closures = 6;// whether to exclude roads marked as closed due to traffic [default = true]
   }
+
+  oneof has_level {
+    float level = 7; // level to filter edges by
+  }
 }
 
 message PathEdge {
@@ -344,6 +348,8 @@ message TaggedValue {
     kLevel = 4;
     kLevelRef = 5;
     kLandmark = 6;
+    kConditionalSpeedLimits = 7;
+    kLevels = 8;
     kTunnel = 49;
     kBridge = 50;
   }
