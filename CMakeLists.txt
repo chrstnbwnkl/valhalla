@@ -265,7 +265,7 @@ set(valhalla_programs valhalla_run_map_match valhalla_benchmark_loki valhalla_be
 set(valhalla_data_tools valhalla_build_statistics valhalla_ways_to_edges valhalla_validate_transit
   valhalla_benchmark_admins valhalla_build_connectivity	valhalla_build_tiles valhalla_build_admins
   valhalla_convert_transit valhalla_ingest_transit valhalla_query_transit valhalla_add_predicted_traffic
-  valhalla_assign_speeds valhalla_add_elevation valhalla_build_landmarks valhalla_add_landmarks valhalla_bin_stats)
+  valhalla_assign_speeds valhalla_add_elevation valhalla_build_landmarks valhalla_add_landmarks valhalla_density valhalla_bin_stats valhalla_min_bounding_circles)
 
 ## Valhalla services
 set(valhalla_services valhalla_loki_worker valhalla_odin_worker valhalla_thor_worker)
@@ -300,6 +300,8 @@ if(ENABLE_DATA_TOOLS)
   # Target-specific dependencies
   pkg_check_modules(GEOS REQUIRED IMPORTED_TARGET geos)
   target_link_libraries(valhalla_build_admins PkgConfig::GEOS)
+  target_link_libraries(valhalla_bin_stats PkgConfig::GEOS)
+  target_link_libraries(valhalla_min_bounding_circles PkgConfig::GEOS)
   target_sources(valhalla_build_statistics
     PUBLIC
       ${VALHALLA_SOURCE_DIR}/src/mjolnir/statistics.cc
