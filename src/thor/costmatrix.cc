@@ -55,9 +55,9 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       max_reserved_locations_count_(
           config.get<uint32_t>("max_reserved_locations_costmatrix", kMaxLocationReservation)),
       check_reverse_connections_(config.get<bool>("costmatrix_check_reverse_connection", false)),
-      access_mode_(kAutoAccess),
-      mode_(travel_mode_t::kDrive), locs_count_{0, 0}, locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap}, sources_{new ReachedMap} {
+      access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
+      locs_remaining_{0, 0}, current_pathdist_threshold_(0), targets_{new ReachedMap},
+      sources_{new ReachedMap} {
 }
 
 CostMatrix::~CostMatrix() {
@@ -267,17 +267,19 @@ bool CostMatrix::SourceToTarget(Api& request,
 
     float time = best_connection.cost.secs;
     if (time < kMaxCost) {
-      auto dt_info =
-          DateTime::offset_date(source_location_list[source_idx].date_time(),
-                                time_infos[source_idx].timezone_index,
-                                graphreader.GetTimezoneFromEdge(edgelabel_[MATRIX_REV][target_idx]
-                                                                    .front()
-                                                                    .edgeid(),
-                                                                tile),
-                                time);
-      *matrix.mutable_date_times(connection_idx) = dt_info.date_time;
-      *matrix.mutable_time_zone_offsets(connection_idx) = dt_info.time_zone_offset;
-      *matrix.mutable_time_zone_names(connection_idx) = dt_info.time_zone_name;
+      try {
+        auto edge_id = edgelabel_[MATRIX_REV][target_idx].front().edgeid();
+        auto dt_info = DateTime::offset_date(source_location_list[source_idx].date_time(),
+                                             time_infos[source_idx].timezone_index,
+                                             graphreader.GetTimezoneFromEdge(edge_id, tile), time);
+        *matrix.mutable_date_times(connection_idx) = dt_info.date_time;
+        *matrix.mutable_time_zone_offsets(connection_idx) = dt_info.time_zone_offset;
+        *matrix.mutable_time_zone_names(connection_idx) = dt_info.time_zone_name;
+      } catch (...) {
+        LOG_ERROR("Unexpected empty edge labels for target " + std::to_string(target_idx) +
+                  ". Edgelabels empty=" + std::to_string(edgelabel_[MATRIX_REV][target_idx].empty()) +
+                  "| Pass: " + std::to_string(costing_->pass()));
+      }
     } else {
       // let's try a second pass for this connection
       matrix.mutable_second_pass()->Set(connection_idx, true);
