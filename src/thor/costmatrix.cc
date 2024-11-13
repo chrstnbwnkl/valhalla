@@ -267,7 +267,7 @@ bool CostMatrix::SourceToTarget(Api& request,
 
     float time = best_connection.cost.secs;
     if (time < kMaxCost) {
-      try {
+      if (!edgelabel_[MATRIX_REV][target_idx].empty()) {
         auto edge_id = edgelabel_[MATRIX_REV][target_idx].front().edgeid();
         auto dt_info = DateTime::offset_date(source_location_list[source_idx].date_time(),
                                              time_infos[source_idx].timezone_index,
@@ -275,7 +275,7 @@ bool CostMatrix::SourceToTarget(Api& request,
         *matrix.mutable_date_times(connection_idx) = dt_info.date_time;
         *matrix.mutable_time_zone_offsets(connection_idx) = dt_info.time_zone_offset;
         *matrix.mutable_time_zone_names(connection_idx) = dt_info.time_zone_name;
-      } catch (...) {
+      } else {
         LOG_ERROR("Unexpected empty edge labels for target " + std::to_string(target_idx) +
                   ". Edgelabels empty=" + std::to_string(edgelabel_[MATRIX_REV][target_idx].empty()) +
                   "| Pass: " + std::to_string(costing_->pass()));
