@@ -127,22 +127,16 @@ jobs:
       - name: Test Executable
         shell: bash
         run: |
-          set PATH=$PATH:${{ github.workspace }}/build/vcpkg_installed/$BUILD_TYPE/bin
           ./build/$BUILD_TYPE/valhalla_build_tiles.exe -c ./test/win/valhalla.json ./test/data/utrecht_netherlands.osm.pbf
           ./build/$BUILD_TYPE/valhalla_run_isochrone.exe --config ./test/win/valhalla.json -j "{\"locations\": [{\"lat\": 52.10205, \"lon\": 5.114651}], \"costing\": \"auto\", \"contours\":[{\"time\":15,\"color\":\"ff0000\"}]}"
-          ./build/$BUILD_TYPE/valhalla_service.exe ./test/win/valhalla.json isochrone "{\"locations\": [{\"lat\": 52.10205, \"lon\": 5.114651}], \"costing\": \"auto\", \"contours\":[{\"time\":15,\"color\":\"ff0000\"}]}"
 
       - name: Upload valhalla_service executable
         uses: actions/upload-artifact@v4
         with:
           name: valhalla_service
-          path: ./build/$BUILD_TYPE/valhalla_service.exe
-
-      - name: Upload libvalhalla
-        uses: actions/upload-artifact@v4
-        with:
-          name: valhalla_service
-          path: ./build/$BUILD_TYPE/src/libvalhalla.dll
+          path: |
+            ./build/$BUILD_TYPE/valhalla_service.exe
+            ./build/$BUILD_TYPE/*.dll
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
