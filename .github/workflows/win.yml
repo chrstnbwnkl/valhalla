@@ -134,14 +134,12 @@ jobs:
 
       - name: Upload valhalla_service executable
         uses: actions/upload-artifact@v4
-        shell: bash
         with:
           name: valhalla_service
           path: ./build/$BUILD_TYPE/valhalla_service.exe
 
       - name: Upload libvalhalla
         uses: actions/upload-artifact@v4
-        shell: bash
         with:
           name: valhalla_service
           path: ./build/$BUILD_TYPE/src/libvalhalla.dll
