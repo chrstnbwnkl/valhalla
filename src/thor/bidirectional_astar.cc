@@ -561,6 +561,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
 
     // Terminate if the iterations threshold has been exceeded.
     if ((edgelabels_reverse_.size() + edgelabels_forward_.size()) > iterations_threshold_) {
+      LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
       return FormPath(graphreader, options, origin, destination, forward_time_info);
     }
 
@@ -575,6 +576,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
 
         // Terminate if the cost threshold has been exceeded.
         if (fwd_pred.sortcost() + cost_diff_ > cost_threshold_) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return FormPath(graphreader, options, origin, destination, forward_time_info);
         }
 
@@ -593,6 +595,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
       } else {
         // Search is exhausted. If a connection has been found, return it
         if (!best_connections_.empty()) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return FormPath(graphreader, options, origin, destination, forward_time_info);
         }
         LOG_ERROR("Forward search exhausted: n = " + std::to_string(edgelabels_forward_.size()) +
@@ -608,6 +611,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
         // ensures that most impossible route will fail fast provided one of the locations didn't
         // start from a not_thru/closed edge
         if (!extended_search_ || !pruning_disabled_at_destination_) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return {};
         }
         LOG_DEBUG("Extending search in reverse direction. Destination pruning disabled? " +
@@ -624,6 +628,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
 
         // Terminate if the cost threshold has been exceeded.
         if (rev_pred.sortcost() > cost_threshold_) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return FormPath(graphreader, options, origin, destination, forward_time_info);
         }
 
@@ -642,6 +647,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
       } else {
         // Search is exhausted. If a connection has been found, return it
         if (!best_connections_.empty()) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return FormPath(graphreader, options, origin, destination, forward_time_info);
         }
         LOG_ERROR("Reverse search exhausted: n = " + std::to_string(edgelabels_reverse_.size()) +
@@ -657,6 +663,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
         // ensures that most impossible route will fail fast provided one of the locations didn't end
         // on a not_thru/closed edge
         if (!extended_search_ || !pruning_disabled_at_origin_) {
+          LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
           return {};
         }
         LOG_DEBUG("Extending search in forward direction. Origin pruning disabled? " +
@@ -671,6 +678,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
       LOG_ERROR("Bi-directional route failure - search exhausted: n = " +
                 std::to_string(edgelabels_forward_.size()) + "," +
                 std::to_string(edgelabels_reverse_.size()));
+      LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
       return {};
     }
 
@@ -806,6 +814,7 @@ BidirectionalAStar::GetBestPath(valhalla::Location& origin,
                                      opp_pred_edge, reverse_time_info, invariant);
     }
   }
+  LOG_DEBUG("BDirA* iterations: n = " + std::to_string(n));
   return {}; // If we are here the route failed
 }
 
