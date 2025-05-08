@@ -88,7 +88,7 @@ json::MapPtr get_full_road_segment(const DirectedEdge* de,
     return json::map({});
   auto opp_edge = get_opposing_edge(de, reader);
 
-  if (de->shortcut() || de->use() >= baldr::Use::kAlley) {
+  if (de->shortcut()) {
     return json::map({});
   }
   auto node_id = opp_edge->endnode();
@@ -120,7 +120,12 @@ json::MapPtr get_full_road_segment(const DirectedEdge* de,
                             sif::kDisallowShortcut) ||
            costing->Allowed(outgoing_edge, reader.GetGraphTile(node_id), sif::kDisallowShortcut)) &&
           !(costing->ExcludePrivate() && ei.private_access()) &&
-          (incoming_edge->use() <= search_filter.min_use_)) {
+          (incoming_edge->use() <= search_filter.min_use_) &&
+          (incoming_edge->use() >= search_filter.max_use_) &&
+          (static_cast<uint32_t>(incoming_edge->classification()) <=
+           static_cast<uint32_t>(search_filter.min_road_class_)) &&
+          (static_cast<uint32_t>(incoming_edge->classification()) >=
+           static_cast<uint32_t>(search_filter.max_road_class_))) {
 
         allowed_cnt++;
         outgoing_pred = outgoing_edge;
@@ -148,7 +153,12 @@ json::MapPtr get_full_road_segment(const DirectedEdge* de,
                               sif::kDisallowShortcut) ||
              costing->Allowed(outgoing_edge, reader.GetGraphTile(node_id), sif::kDisallowShortcut)) &&
             !(costing->ExcludePrivate() && ei.private_access()) &&
-            (incoming_edge->use() <= search_filter.min_use_)) {
+            (incoming_edge->use() <= search_filter.min_use_) &&
+            (incoming_edge->use() >= search_filter.max_use_) &&
+            (static_cast<uint32_t>(incoming_edge->classification()) <=
+             static_cast<uint32_t>(search_filter.min_road_class_)) &&
+            (static_cast<uint32_t>(incoming_edge->classification()) >=
+             static_cast<uint32_t>(search_filter.max_road_class_))) {
 
           allowed_cnt++;
           incoming_pred = incoming_edge;
@@ -225,7 +235,12 @@ json::MapPtr get_full_road_segment(const DirectedEdge* de,
            costing->Allowed(opp_candidate_edge, reader.GetGraphTile(candidate_edge->endnode()),
                             sif::kDisallowShortcut)) &&
           !(costing->ExcludePrivate() && ei.private_access()) &&
-          (candidate_edge->use() <= search_filter.min_use_)) {
+          (candidate_edge->use() <= search_filter.min_use_) &&
+          (candidate_edge->use() >= search_filter.max_use_) &&
+          (static_cast<uint32_t>(candidate_edge->classification()) <=
+           static_cast<uint32_t>(search_filter.min_road_class_)) &&
+          (static_cast<uint32_t>(candidate_edge->classification()) >=
+           static_cast<uint32_t>(search_filter.max_road_class_))) {
         allowed_cnt++;
         possible_next = candidate_edge;
       }
@@ -247,7 +262,12 @@ json::MapPtr get_full_road_segment(const DirectedEdge* de,
              costing->Allowed(opp_candidate_edge, reader.GetGraphTile(candidate_edge->endnode()),
                               sif::kDisallowShortcut)) &&
             !(costing->ExcludePrivate() && ei.private_access()) &&
-            (candidate_edge->use() <= search_filter.min_use_)) {
+            (candidate_edge->use() <= search_filter.min_use_) &&
+            (candidate_edge->use() >= search_filter.max_use_) &&
+            (static_cast<uint32_t>(candidate_edge->classification()) <=
+             static_cast<uint32_t>(search_filter.min_road_class_)) &&
+            (static_cast<uint32_t>(candidate_edge->classification()) >=
+             static_cast<uint32_t>(search_filter.max_road_class_))) {
           allowed_cnt++;
           possible_next = candidate_edge;
         }

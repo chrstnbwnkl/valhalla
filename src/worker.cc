@@ -405,7 +405,7 @@ void parse_location(valhalla::Location* location,
       location->mutable_search_filter()->set_max_road_class(max_rc);
     }
     // search_filter.min_use
-    auto min_use = rapidjson::get<std::string>(*search_filter, "/min_use", "transit_connection");
+    auto min_use = rapidjson::get<std::string>(*search_filter, "/min_use", "transitconnection");
     valhalla::TripLeg_Use minu;
     if (valhalla::Use_Enum_parse(min_use, &minu)) {
       location->mutable_search_filter()->set_min_use(static_cast<valhalla::RoadUse>(minu));
@@ -413,7 +413,7 @@ void parse_location(valhalla::Location* location,
     // search_filter.max_use
     auto max_use = rapidjson::get<std::string>(*search_filter, "/max_use", "road");
     valhalla::TripLeg_Use maxu;
-    if (valhalla::Use_Enum_parse(max_road_class, &maxu)) {
+    if (valhalla::Use_Enum_parse(max_use, &maxu)) {
       location->mutable_search_filter()->set_max_use(static_cast<valhalla::RoadUse>(maxu));
     }
 
