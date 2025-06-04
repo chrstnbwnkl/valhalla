@@ -1,6 +1,8 @@
 #ifndef VALHALLA_BALDR_PATHLOCATION_H_
 #define VALHALLA_BALDR_PATHLOCATION_H_
 
+#include "midgard/logging.h"
+#include "proto_conversions.h"
 #include <vector>
 
 #include <valhalla/baldr/graphid.h>
@@ -125,6 +127,10 @@ public:
     l->set_street_side_cutoff(pl.street_side_cutoff_);
     l->mutable_search_filter()->set_min_road_class(pl.search_filter_.min_road_class_);
     l->mutable_search_filter()->set_max_road_class(pl.search_filter_.max_road_class_);
+    l->mutable_search_filter()->set_min_use(
+        static_cast<valhalla::RoadUse>(pl.search_filter_.min_use_));
+    l->mutable_search_filter()->set_max_use(
+        static_cast<valhalla::RoadUse>(pl.search_filter_.max_use_));
     l->mutable_search_filter()->set_exclude_tunnel(pl.search_filter_.exclude_tunnel_);
     l->mutable_search_filter()->set_exclude_bridge(pl.search_filter_.exclude_bridge_);
     l->mutable_search_filter()->set_exclude_toll(pl.search_filter_.exclude_toll_);

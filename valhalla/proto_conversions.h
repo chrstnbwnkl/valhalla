@@ -8,6 +8,7 @@
 
 namespace valhalla {
 
+bool Use_Reverse_Enum_parse(std::string& use_str, valhalla::TripLeg_Use use);
 bool Use_Enum_parse(const std::string& use_name, valhalla::TripLeg_Use* use);
 
 // Associate RoadClass values to TripLeg proto

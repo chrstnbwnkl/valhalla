@@ -407,6 +407,52 @@ bool Use_Enum_parse(const std::string& use_name, valhalla::TripLeg_Use* use) {
   return true;
 }
 
+bool Use_Reverse_Enum_parse(std::string& use_str, valhalla::TripLeg_Use use) {
+  static const std::unordered_map<valhalla::TripLeg_Use,std::string> types{
+
+      {valhalla::TripLeg_Use_kRoadUse, "road"},
+      {valhalla::TripLeg_Use_kRampUse, "ramp"},
+      {valhalla::TripLeg_Use_kTurnChannelUse, "turnchannel"},
+      {valhalla::TripLeg_Use_kTrackUse, "track"},
+      {valhalla::TripLeg_Use_kDrivewayUse, "driveway"},
+      {valhalla::TripLeg_Use_kAlleyUse, "alley"},
+      {valhalla::TripLeg_Use_kParkingAisleUse, "parkingaisle"},
+      {valhalla::TripLeg_Use_kEmergencyAccessUse, "emergencyaccess"},
+      {valhalla::TripLeg_Use_kDriveThruUse, "drivethru"},
+      {valhalla::TripLeg_Use_kCuldesacUse, "culdesac"},
+      {valhalla::TripLeg_Use_kLivingStreetUse, "livingstreet"},
+      {valhalla::TripLeg_Use_kServiceRoadUse, "serviceroad"},
+      {valhalla::TripLeg_Use_kCyclewayUse, "cycleway"},
+      {valhalla::TripLeg_Use_kMountainBikeUse, "mountainbike"},
+      {valhalla::TripLeg_Use_kSidewalkUse, "sidewalk"},
+      {valhalla::TripLeg_Use_kFootwayUse, "footway"},
+      {valhalla::TripLeg_Use_kStepsUse, "steps"},
+      {valhalla::TripLeg_Use_kPathUse, "path"},
+      {valhalla::TripLeg_Use_kPedestrianUse, "pedestrian"},
+      {valhalla::TripLeg_Use_kBridlewayUse, "bridleway"},
+      {valhalla::TripLeg_Use_kPedestrianCrossingUse, "pedestriancrossing"},
+      {valhalla::TripLeg_Use_kElevatorUse, "elevator"},
+      {valhalla::TripLeg_Use_kEscalatorUse, "escalator"},
+      {valhalla::TripLeg_Use_kPlatformUse, "platform"},
+      {valhalla::TripLeg_Use_kRestAreaUse, "restarea"},
+      {valhalla::TripLeg_Use_kServiceAreaUse, "servicearea"},
+      {valhalla::TripLeg_Use_kOtherUse, "other"},
+      {valhalla::TripLeg_Use_kFerryUse, "ferry"},
+      {valhalla::TripLeg_Use_kRailFerryUse, "railferry"},
+      {valhalla::TripLeg_Use_kConstructionUse, "construction"},
+      {valhalla::TripLeg_Use_kRailUse, "rail"},
+      {valhalla::TripLeg_Use_kBusUse, "bus"},
+      {valhalla::TripLeg_Use_kEgressConnectionUse, "egressconnection"},
+      {valhalla::TripLeg_Use_kPlatformConnectionUse, "platformconnection"},
+      {valhalla::TripLeg_Use_kTransitConnectionUse, "transitconnection"},
+  };
+  auto i = types.find(use);
+  if (i == types.cend())
+    return false;
+  use_str = i->second;
+  return true;
+}
+
 bool Options_ExpansionProperties_Enum_Parse(const std::string& prop,
                                             Options::ExpansionProperties* a) {
   static const std::unordered_map<std::string, Options::ExpansionProperties>

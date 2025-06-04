@@ -462,6 +462,12 @@ void parse_location(valhalla::Location* location,
   if (!location->search_filter().has_max_road_class_case()) {
     location->mutable_search_filter()->set_max_road_class(valhalla::kMotorway);
   }
+  if (!location->search_filter().has_min_use()) {
+    location->mutable_search_filter()->set_min_use(valhalla::RoadUse::kTransitConnectionUse);
+  }
+  if (!location->search_filter().has_max_use()) {
+    location->mutable_search_filter()->set_max_use(valhalla::RoadUse::kRoadUse);
+  }
   if (!location->search_filter().has_level_case())
     location->mutable_search_filter()->set_level(baldr::kMaxLevel);
 
