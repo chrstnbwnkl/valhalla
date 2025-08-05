@@ -118,13 +118,6 @@ const DirectedEdge* get_opposing_edge(const DirectedEdge* de, GraphReader& reade
   return tile->directededge(end_node->edge_index() + opp);
 }
 
-std::string get_edge_shape(const DirectedEdge* de, GraphReader& reader) {
-  auto tile = reader.GetGraphTile(de->endnode());
-  auto edge_info = tile->edgeinfo(de);
-
-  return midgard::encode(edge_info.shape());
-}
-
 void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
                            const DirectedEdge* de,
                            const std::shared_ptr<sif::DynamicCost>& costing,
@@ -359,7 +352,6 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
 
   double length = 0;
   double percent_along_total = 0;
-  bool past_correlated_edge = false;
   std::function<double(const PointLL&, const PointLL)> segment_length;
   segment_length = [&](const PointLL& from, const PointLL to) { return from.Distance(to); };
   // assemble the shape
