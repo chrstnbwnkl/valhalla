@@ -4,10 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <cstring>
-#include <stdint.h>
-
-#include <valhalla/midgard/util.h>
+#include <string>
 
 namespace valhalla {
 namespace baldr {
