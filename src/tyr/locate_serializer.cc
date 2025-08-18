@@ -440,6 +440,8 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
   writer("deadend", forward_deadend);
   writer.end_object(); // end_node
 
+  writer.end_object(); // intersections
+
   writer.set_precision(6);
   writer.start_object("mid_point");
   writer("lat", mid.lat());
@@ -448,8 +450,6 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
 
   writer.set_precision(5);
   writer("percent_along", percent_along_total / length);
-
-  writer.end_object(); // intersections
 
   writer.set_precision(tyr::kDefaultPrecision);
 }
