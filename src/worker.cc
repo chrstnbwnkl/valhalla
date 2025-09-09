@@ -435,17 +435,43 @@ void parse_location(valhalla::Location* location,
     if (RoadClass_Enum_Parse(max_road_class, &max_rc)) {
       location->mutable_search_filter()->set_max_road_class(max_rc);
     }
-    // search_filter.min_use
-    auto min_use = rapidjson::get<std::string>(*search_filter, "/min_use", "transitconnection");
-    valhalla::TripLeg_Use minu;
-    if (valhalla::Use_Enum_parse(min_use, &minu)) {
-      location->mutable_search_filter()->set_min_use(static_cast<valhalla::RoadUse>(minu));
-    }
-    // search_filter.max_use
-    auto max_use = rapidjson::get<std::string>(*search_filter, "/max_use", "road");
-    valhalla::TripLeg_Use maxu;
-    if (valhalla::Use_Enum_parse(max_use, &maxu)) {
-      location->mutable_search_filter()->set_max_use(static_cast<valhalla::RoadUse>(maxu));
+
+    // search_filter.use
+    auto use_list = rapidjson::get_optional<rapidjson::Value::ConstArray>(*search_filter, "/use");
+    if (use_list) {
+      uint64_t use = 0;
+      for (const auto& use_name : *use_list) {
+        if (!use_name.IsString()) {
+          continue;
+        }
+        valhalla::TripLeg_Use u;
+        if (valhalla::Use_Enum_parse(use_name.GetString(), &u)) {
+          use |= 1ull << static_cast<uint64_t>(u);
+        }
+      }
+      if (use != 0) {
+        location->mutable_search_filter()->set_use(use);
+      }
+    } else { // fallback to min_use/max_use
+      // search_filter.min_use
+      auto min_use = rapidjson::get<std::string>(*search_filter, "/min_use", "transitconnection");
+      valhalla::TripLeg_Use minu;
+      if (!valhalla::Use_Enum_parse(min_use, &minu)) {
+        minu = TripLeg_Use_kTransitConnectionUse;
+      }
+      // search_filter.max_use
+      auto max_use = rapidjson::get<std::string>(*search_filter, "/max_use", "road");
+      valhalla::TripLeg_Use maxu;
+      if (!valhalla::Use_Enum_parse(max_use, &maxu)) {
+        maxu = TripLeg_Use_kRoadUse;
+      }
+      uint64_t use = 0;
+      for (int i = maxu; i <= minu; ++i) {
+        use |= 1ull << i;
+      }
+      if (use != 0) {
+        location->mutable_search_filter()->set_use(use);
+      }
     }
 
     // search_filter.exclude_tunnel
@@ -493,11 +519,8 @@ void parse_location(valhalla::Location* location,
   if (!location->search_filter().has_max_road_class_case()) {
     location->mutable_search_filter()->set_max_road_class(valhalla::kMotorway);
   }
-  if (!location->search_filter().has_min_use()) {
-    location->mutable_search_filter()->set_min_use(valhalla::RoadUse::kTransitConnectionUse);
-  }
-  if (!location->search_filter().has_max_use()) {
-    location->mutable_search_filter()->set_max_use(valhalla::RoadUse::kRoadUse);
+  if (!location->search_filter().has_use()) {
+    location->mutable_search_filter()->set_use(std::numeric_limits<uint64_t>::max());
   }
   if (!location->search_filter().has_level_case())
     location->mutable_search_filter()->set_level(baldr::kMaxLevel);

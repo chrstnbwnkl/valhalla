@@ -162,8 +162,7 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
                             sif::kDisallowShortcut) ||
            costing->Allowed(outgoing_edge, reader.GetGraphTile(node_id), sif::kDisallowShortcut)) &&
           !(costing->ExcludePrivate() && ei.private_access()) &&
-          (incoming_edge->use() <= search_filter.min_use_) &&
-          (incoming_edge->use() >= search_filter.max_use_) &&
+          (1ull << static_cast<int>(incoming_edge->use()) & search_filter.use_) &&
           (static_cast<uint32_t>(incoming_edge->classification()) <=
            static_cast<uint32_t>(search_filter.min_road_class_)) &&
           (static_cast<uint32_t>(incoming_edge->classification()) >=
@@ -195,8 +194,7 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
                               sif::kDisallowShortcut) ||
              costing->Allowed(outgoing_edge, reader.GetGraphTile(node_id), sif::kDisallowShortcut)) &&
             !(costing->ExcludePrivate() && ei.private_access()) &&
-            (incoming_edge->use() <= search_filter.min_use_) &&
-            (incoming_edge->use() >= search_filter.max_use_) &&
+            (1ull << static_cast<int>(incoming_edge->use()) & search_filter.use_) &&
             (static_cast<uint32_t>(incoming_edge->classification()) <=
              static_cast<uint32_t>(search_filter.min_road_class_)) &&
             (static_cast<uint32_t>(incoming_edge->classification()) >=
@@ -277,8 +275,7 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
            costing->Allowed(opp_candidate_edge, reader.GetGraphTile(candidate_edge->endnode()),
                             sif::kDisallowShortcut)) &&
           !(costing->ExcludePrivate() && ei.private_access()) &&
-          (candidate_edge->use() <= search_filter.min_use_) &&
-          (candidate_edge->use() >= search_filter.max_use_) &&
+          (1ull << static_cast<int>(candidate_edge->use()) & search_filter.use_) &&
           (static_cast<uint32_t>(candidate_edge->classification()) <=
            static_cast<uint32_t>(search_filter.min_road_class_)) &&
           (static_cast<uint32_t>(candidate_edge->classification()) >=
@@ -304,8 +301,7 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
              costing->Allowed(opp_candidate_edge, reader.GetGraphTile(candidate_edge->endnode()),
                               sif::kDisallowShortcut)) &&
             !(costing->ExcludePrivate() && ei.private_access()) &&
-            (candidate_edge->use() <= search_filter.min_use_) &&
-            (candidate_edge->use() >= search_filter.max_use_) &&
+            (1ull << static_cast<int>(candidate_edge->use()) & search_filter.use_) &&
             (static_cast<uint32_t>(candidate_edge->classification()) <=
              static_cast<uint32_t>(search_filter.min_road_class_)) &&
             (static_cast<uint32_t>(candidate_edge->classification()) >=

@@ -6,8 +6,7 @@ namespace baldr {
 
 Location::SearchFilter::SearchFilter(valhalla::RoadClass min_road_class,
                                      valhalla::RoadClass max_road_class,
-                                     valhalla::baldr::Use min_use,
-                                     valhalla::baldr::Use max_use,
+                                     uint64_t use,
                                      bool exclude_tunnel,
                                      bool exclude_bridge,
                                      bool exclude_toll,
@@ -15,10 +14,10 @@ Location::SearchFilter::SearchFilter(valhalla::RoadClass min_road_class,
                                      bool exclude_ferry,
                                      bool exclude_closures,
                                      float level)
-    : min_road_class_(min_road_class), max_road_class_(max_road_class), min_use_(min_use),
-      max_use_(max_use), exclude_tunnel_(exclude_tunnel), exclude_bridge_(exclude_bridge),
-      exclude_toll_(exclude_toll), exclude_ramp_(exclude_ramp), exclude_ferry_(exclude_ferry),
-      exclude_closures_(exclude_closures), level_(level) {
+    : min_road_class_(min_road_class), max_road_class_(max_road_class), use_(use),
+      exclude_tunnel_(exclude_tunnel), exclude_bridge_(exclude_bridge), exclude_toll_(exclude_toll),
+      exclude_ramp_(exclude_ramp), exclude_ferry_(exclude_ferry), exclude_closures_(exclude_closures),
+      level_(level) {
 }
 
 // TODO: get defaults from config singleton

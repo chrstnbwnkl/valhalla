@@ -128,10 +128,7 @@ public:
     l->set_street_side_cutoff(pl.street_side_cutoff_);
     l->mutable_search_filter()->set_min_road_class(pl.search_filter_.min_road_class_);
     l->mutable_search_filter()->set_max_road_class(pl.search_filter_.max_road_class_);
-    l->mutable_search_filter()->set_min_use(
-        static_cast<valhalla::RoadUse>(pl.search_filter_.min_use_));
-    l->mutable_search_filter()->set_max_use(
-        static_cast<valhalla::RoadUse>(pl.search_filter_.max_use_));
+    l->mutable_search_filter()->set_use(pl.search_filter_.use_);
     l->mutable_search_filter()->set_exclude_tunnel(pl.search_filter_.exclude_tunnel_);
     l->mutable_search_filter()->set_exclude_bridge(pl.search_filter_.exclude_bridge_);
     l->mutable_search_filter()->set_exclude_toll(pl.search_filter_.exclude_toll_);
@@ -235,8 +232,7 @@ public:
     if (loc.has_search_filter()) {
       l.search_filter_.min_road_class_ = loc.search_filter().min_road_class();
       l.search_filter_.max_road_class_ = loc.search_filter().max_road_class();
-      l.search_filter_.min_use_ = static_cast<valhalla::baldr::Use>(loc.search_filter().min_use());
-      l.search_filter_.max_use_ = static_cast<valhalla::baldr::Use>(loc.search_filter().max_use());
+      l.search_filter_.use_ = loc.search_filter().use();
       l.search_filter_.exclude_tunnel_ = loc.search_filter().exclude_tunnel();
       l.search_filter_.exclude_bridge_ = loc.search_filter().exclude_bridge();
       l.search_filter_.exclude_toll_ = loc.search_filter().exclude_toll();

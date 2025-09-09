@@ -69,11 +69,8 @@ message SearchFilter {
   }
 
   // use
-  oneof has_min_use {
-    RoadUse min_use = 10;
-  }
-  oneof has_max_use {
-    RoadUse max_use = 11;
+  oneof has_use {
+    int64 use = 10;
   }
 }
 

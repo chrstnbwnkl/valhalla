@@ -30,14 +30,12 @@ bool search_filter(const DirectedEdge* edge,
   uint32_t use = static_cast<uint32_t>(edge->use());
   uint32_t min_road_class = static_cast<uint32_t>(filter.min_road_class_);
   uint32_t max_road_class = static_cast<uint32_t>(filter.max_road_class_);
-  uint32_t min_use = static_cast<uint32_t>(filter.min_use_);
-  uint32_t max_use = static_cast<uint32_t>(filter.max_use_);
 
   // Note that min_ and max_road_class are integers where, by default, max_road_class
   // is 0 and min_road_class is 7. This filter rejects roads where the functional
   // road class is outside of the min to max range.
   return (road_class > min_road_class || road_class < max_road_class) ||
-         (use > min_use || use < max_use) || (filter.exclude_tunnel_ && edge->tunnel()) ||
+         (filter.use_ & 1ull << use) == 0 || (filter.exclude_tunnel_ && edge->tunnel()) ||
          (filter.exclude_bridge_ && edge->bridge()) || (filter.exclude_toll_ && edge->toll()) ||
          (filter.exclude_ramp_ && (edge->use() == Use::kRamp)) ||
          (filter.exclude_ferry_ && (edge->use() == Use::kFerry || edge->use() == Use::kRailFerry)) ||
