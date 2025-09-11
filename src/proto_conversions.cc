@@ -363,42 +363,55 @@ bool RoadClass_Enum_Parse(const std::string& rc_name, valhalla::RoadClass* rc) {
 
 bool Use_Enum_parse(const std::string& use_name, valhalla::TripLeg_Use* use) {
   static const std::unordered_map<std::string, valhalla::TripLeg_Use> types{
-
       {"road", valhalla::TripLeg_Use_kRoadUse},
       {"ramp", valhalla::TripLeg_Use_kRampUse},
-      {"turnchannel", valhalla::TripLeg_Use_kTurnChannelUse},
+      {"turn_channel", valhalla::TripLeg_Use_kTurnChannelUse},
+      {"turnchannel", valhalla::TripLeg_Use_kTurnChannelUse}, // Deprecated
       {"track", valhalla::TripLeg_Use_kTrackUse},
       {"driveway", valhalla::TripLeg_Use_kDrivewayUse},
       {"alley", valhalla::TripLeg_Use_kAlleyUse},
-      {"parkingaisle", valhalla::TripLeg_Use_kParkingAisleUse},
-      {"emergencyaccess", valhalla::TripLeg_Use_kEmergencyAccessUse},
-      {"drivethru", valhalla::TripLeg_Use_kDriveThruUse},
+      {"parking_aisle", valhalla::TripLeg_Use_kParkingAisleUse},
+      {"emergency_access", valhalla::TripLeg_Use_kEmergencyAccessUse},
+      {"drive_through", valhalla::TripLeg_Use_kDriveThruUse},
+      {"parkingaisle", valhalla::TripLeg_Use_kParkingAisleUse},       // Deprecated
+      {"emergencyaccess", valhalla::TripLeg_Use_kEmergencyAccessUse}, // Deprecated
+      {"drivethru", valhalla::TripLeg_Use_kDriveThruUse},             // Deprecated
       {"culdesac", valhalla::TripLeg_Use_kCuldesacUse},
-      {"livingstreet", valhalla::TripLeg_Use_kLivingStreetUse},
+      {"living_street", valhalla::TripLeg_Use_kLivingStreetUse},
+      {"livingstreet", valhalla::TripLeg_Use_kLivingStreetUse}, // Deprecated
+      {"service_road", valhalla::TripLeg_Use_kServiceRoadUse},  // Deprecated
       {"serviceroad", valhalla::TripLeg_Use_kServiceRoadUse},
       {"cycleway", valhalla::TripLeg_Use_kCyclewayUse},
-      {"mountainbike", valhalla::TripLeg_Use_kMountainBikeUse},
+      {"mountain_bike", valhalla::TripLeg_Use_kMountainBikeUse},
+      {"mountainbike", valhalla::TripLeg_Use_kMountainBikeUse}, // Deprecated
       {"sidewalk", valhalla::TripLeg_Use_kSidewalkUse},
       {"footway", valhalla::TripLeg_Use_kFootwayUse},
       {"steps", valhalla::TripLeg_Use_kStepsUse},
       {"path", valhalla::TripLeg_Use_kPathUse},
       {"pedestrian", valhalla::TripLeg_Use_kPedestrianUse},
       {"bridleway", valhalla::TripLeg_Use_kBridlewayUse},
-      {"pedestriancrossing", valhalla::TripLeg_Use_kPedestrianCrossingUse},
+      {"pedestrian_crossing", valhalla::TripLeg_Use_kPedestrianCrossingUse},
+      {"pedestriancrossing", valhalla::TripLeg_Use_kPedestrianCrossingUse}, // Deprecated
       {"elevator", valhalla::TripLeg_Use_kElevatorUse},
       {"escalator", valhalla::TripLeg_Use_kEscalatorUse},
       {"platform", valhalla::TripLeg_Use_kPlatformUse},
-      {"restarea", valhalla::TripLeg_Use_kRestAreaUse},
-      {"servicearea", valhalla::TripLeg_Use_kServiceAreaUse},
+      {"rest_area", valhalla::TripLeg_Use_kRestAreaUse},
+      {"restarea", valhalla::TripLeg_Use_kRestAreaUse}, // Deprecated
+      {"service_area", valhalla::TripLeg_Use_kServiceAreaUse},
+      {"servicearea", valhalla::TripLeg_Use_kServiceAreaUse}, // Deprecated
       {"other", valhalla::TripLeg_Use_kOtherUse},
       {"ferry", valhalla::TripLeg_Use_kFerryUse},
-      {"railferry", valhalla::TripLeg_Use_kRailFerryUse},
+      {"rail-ferry", valhalla::TripLeg_Use_kRailFerryUse},
+      {"railferry", valhalla::TripLeg_Use_kRailFerryUse}, // Deprecated
       {"construction", valhalla::TripLeg_Use_kConstructionUse},
       {"rail", valhalla::TripLeg_Use_kRailUse},
       {"bus", valhalla::TripLeg_Use_kBusUse},
-      {"egressconnection", valhalla::TripLeg_Use_kEgressConnectionUse},
-      {"platformconnection", valhalla::TripLeg_Use_kPlatformConnectionUse},
-      {"transitconnection", valhalla::TripLeg_Use_kTransitConnectionUse},
+      {"egress_connection", valhalla::TripLeg_Use_kEgressConnectionUse},
+      {"egressconnection", valhalla::TripLeg_Use_kEgressConnectionUse}, // Deprecated
+      {"platform_connection", valhalla::TripLeg_Use_kPlatformConnectionUse},
+      {"platformconnection", valhalla::TripLeg_Use_kPlatformConnectionUse}, // Deprecated
+      {"transit_connection", valhalla::TripLeg_Use_kTransitConnectionUse},
+      {"transitconnection", valhalla::TripLeg_Use_kTransitConnectionUse}, // Deprecated
   };
   auto i = types.find(use_name);
   if (i == types.cend())
@@ -408,43 +421,42 @@ bool Use_Enum_parse(const std::string& use_name, valhalla::TripLeg_Use* use) {
 }
 
 bool Use_Reverse_Enum_parse(std::string& use_str, valhalla::TripLeg_Use use) {
-  static const std::unordered_map<valhalla::TripLeg_Use,std::string> types{
-
+  static const std::unordered_map<valhalla::TripLeg_Use, std::string> types{
       {valhalla::TripLeg_Use_kRoadUse, "road"},
       {valhalla::TripLeg_Use_kRampUse, "ramp"},
-      {valhalla::TripLeg_Use_kTurnChannelUse, "turnchannel"},
+      {valhalla::TripLeg_Use_kTurnChannelUse, "turn_channel"},
       {valhalla::TripLeg_Use_kTrackUse, "track"},
       {valhalla::TripLeg_Use_kDrivewayUse, "driveway"},
       {valhalla::TripLeg_Use_kAlleyUse, "alley"},
-      {valhalla::TripLeg_Use_kParkingAisleUse, "parkingaisle"},
-      {valhalla::TripLeg_Use_kEmergencyAccessUse, "emergencyaccess"},
-      {valhalla::TripLeg_Use_kDriveThruUse, "drivethru"},
+      {valhalla::TripLeg_Use_kParkingAisleUse, "parking_aisle"},
+      {valhalla::TripLeg_Use_kEmergencyAccessUse, "emergency_access"},
+      {valhalla::TripLeg_Use_kDriveThruUse, "drive_through"},
       {valhalla::TripLeg_Use_kCuldesacUse, "culdesac"},
-      {valhalla::TripLeg_Use_kLivingStreetUse, "livingstreet"},
-      {valhalla::TripLeg_Use_kServiceRoadUse, "serviceroad"},
+      {valhalla::TripLeg_Use_kLivingStreetUse, "living_street"},
+      {valhalla::TripLeg_Use_kServiceRoadUse, "service_road"},
       {valhalla::TripLeg_Use_kCyclewayUse, "cycleway"},
-      {valhalla::TripLeg_Use_kMountainBikeUse, "mountainbike"},
+      {valhalla::TripLeg_Use_kMountainBikeUse, "mountain_bike"},
       {valhalla::TripLeg_Use_kSidewalkUse, "sidewalk"},
       {valhalla::TripLeg_Use_kFootwayUse, "footway"},
       {valhalla::TripLeg_Use_kStepsUse, "steps"},
       {valhalla::TripLeg_Use_kPathUse, "path"},
       {valhalla::TripLeg_Use_kPedestrianUse, "pedestrian"},
       {valhalla::TripLeg_Use_kBridlewayUse, "bridleway"},
-      {valhalla::TripLeg_Use_kPedestrianCrossingUse, "pedestriancrossing"},
+      {valhalla::TripLeg_Use_kPedestrianCrossingUse, "pedestrian_crossing"},
       {valhalla::TripLeg_Use_kElevatorUse, "elevator"},
       {valhalla::TripLeg_Use_kEscalatorUse, "escalator"},
       {valhalla::TripLeg_Use_kPlatformUse, "platform"},
-      {valhalla::TripLeg_Use_kRestAreaUse, "restarea"},
-      {valhalla::TripLeg_Use_kServiceAreaUse, "servicearea"},
+      {valhalla::TripLeg_Use_kRestAreaUse, "rest_area"},
+      {valhalla::TripLeg_Use_kServiceAreaUse, "service_area"},
       {valhalla::TripLeg_Use_kOtherUse, "other"},
       {valhalla::TripLeg_Use_kFerryUse, "ferry"},
-      {valhalla::TripLeg_Use_kRailFerryUse, "railferry"},
+      {valhalla::TripLeg_Use_kRailFerryUse, "rail-ferry"},
       {valhalla::TripLeg_Use_kConstructionUse, "construction"},
       {valhalla::TripLeg_Use_kRailUse, "rail"},
       {valhalla::TripLeg_Use_kBusUse, "bus"},
-      {valhalla::TripLeg_Use_kEgressConnectionUse, "egressconnection"},
-      {valhalla::TripLeg_Use_kPlatformConnectionUse, "platformconnection"},
-      {valhalla::TripLeg_Use_kTransitConnectionUse, "transitconnection"},
+      {valhalla::TripLeg_Use_kEgressConnectionUse, "egress_connection"},
+      {valhalla::TripLeg_Use_kPlatformConnectionUse, "platform_connection"},
+      {valhalla::TripLeg_Use_kTransitConnectionUse, "transit_connection"},
   };
   auto i = types.find(use);
   if (i == types.cend())
