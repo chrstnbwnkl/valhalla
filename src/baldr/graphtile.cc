@@ -273,7 +273,10 @@ void GraphTile::Initialize(const GraphId& graphid) {
                              " vs raw tile data size = " + std::to_string(tile_size) +
                              ". Tile file might me corrupted");
 
-  // TODO check version
+  if (int current_version = header_->version()[0] - '0'; current_version != VALHALLA_VERSION_MAJOR) {
+    LOG_WARN("Tiles were built with version " + std::to_string(current_version) +
+             ", current process runs version " + std::to_string(VALHALLA_VERSION_MAJOR));
+  }
 
   // Set a pointer to the node list
   nodes_ = reinterpret_cast<NodeInfo*>(ptr);
@@ -598,17 +601,17 @@ AABB2<PointLL> GraphTile::BoundingBox() const {
   return tiles.TileBounds(header_->graphid().tileid());
 }
 
-iterable_t<const DirectedEdge> GraphTile::GetDirectedEdges(const NodeInfo* node) const {
+std::span<const DirectedEdge> GraphTile::GetDirectedEdges(const NodeInfo* node) const {
   if (node < nodes_ || node >= nodes_ + header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
         " GraphTile NodeInfo out of bounds: " + std::to_string(header_->graphid()));
   }
   const auto* edge = directededges_ + node->edge_index();
-  return iterable_t<const DirectedEdge>{edge, node->edge_count()};
+  return std::span<const DirectedEdge>{edge, node->edge_count()};
 }
 
-iterable_t<const DirectedEdge> GraphTile::GetDirectedEdges(const GraphId& node) const {
+std::span<const DirectedEdge> GraphTile::GetDirectedEdges(const GraphId& node) const {
   if (node.Tile_Base() != header_->graphid() || node.id() >= header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
@@ -620,7 +623,7 @@ iterable_t<const DirectedEdge> GraphTile::GetDirectedEdges(const GraphId& node) 
   return GetDirectedEdges(nodeinfo);
 }
 
-iterable_t<const DirectedEdge> GraphTile::GetDirectedEdges(const size_t idx) const {
+std::span<const DirectedEdge> GraphTile::GetDirectedEdges(const size_t idx) const {
   if (idx >= header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
@@ -630,20 +633,20 @@ iterable_t<const DirectedEdge> GraphTile::GetDirectedEdges(const size_t idx) con
   }
   const auto& nodeinfo = nodes_[idx];
   const auto* edge = directededge(nodeinfo.edge_index());
-  return iterable_t<const DirectedEdge>{edge, nodeinfo.edge_count()};
+  return std::span<const DirectedEdge>{edge, nodeinfo.edge_count()};
 }
 
-iterable_t<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const NodeInfo* node) const {
+std::span<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const NodeInfo* node) const {
   if (node < nodes_ || node >= nodes_ + header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
         " GraphTile NodeInfo out of bounds: " + std::to_string(header_->graphid()));
   }
   const auto* edge_ext = ext_directededges_ + node->edge_index();
-  return iterable_t<const DirectedEdgeExt>{edge_ext, node->edge_count()};
+  return std::span<const DirectedEdgeExt>{edge_ext, node->edge_count()};
 }
 
-iterable_t<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const GraphId& node) const {
+std::span<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const GraphId& node) const {
   if (node.Tile_Base() != header_->graphid() || node.id() >= header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
@@ -655,7 +658,7 @@ iterable_t<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const GraphId& 
   return GetDirectedEdgeExts(nodeinfo);
 }
 
-iterable_t<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const size_t idx) const {
+std::span<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const size_t idx) const {
   if (idx >= header_->nodecount()) {
     throw std::logic_error(
         std::string(__FILE__) + ":" + std::to_string(__LINE__) +
@@ -665,7 +668,7 @@ iterable_t<const DirectedEdgeExt> GraphTile::GetDirectedEdgeExts(const size_t id
   }
   const auto& nodeinfo = nodes_[idx];
   const auto* edge_ext = ext_directededge(nodeinfo.edge_index());
-  return iterable_t<const DirectedEdgeExt>{edge_ext, nodeinfo.edge_count()};
+  return std::span<const DirectedEdgeExt>{edge_ext, nodeinfo.edge_count()};
 }
 
 EdgeInfo GraphTile::edgeinfo(const DirectedEdge* edge) const {
@@ -1230,14 +1233,14 @@ std::vector<AccessRestriction> GraphTile::GetAccessRestrictions(const uint32_t i
 }
 
 // Get the array of graphids for this bin
-midgard::iterable_t<GraphId> GraphTile::GetBin(size_t column, size_t row) const {
+std::span<GraphId> GraphTile::GetBin(size_t column, size_t row) const {
   auto offsets = header_->bin_offset(column, row);
-  return iterable_t<GraphId>{edge_bins_ + offsets.first, edge_bins_ + offsets.second};
+  return std::span<GraphId>{edge_bins_ + offsets.first, edge_bins_ + offsets.second};
 }
 
-midgard::iterable_t<GraphId> GraphTile::GetBin(size_t index) const {
+std::span<GraphId> GraphTile::GetBin(size_t index) const {
   auto offsets = header_->bin_offset(index);
-  return iterable_t<GraphId>{edge_bins_ + offsets.first, edge_bins_ + offsets.second};
+  return std::span<GraphId>{edge_bins_ + offsets.first, edge_bins_ + offsets.second};
 }
 
 // Get turn lanes for this edge.
