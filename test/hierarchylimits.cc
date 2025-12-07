@@ -183,7 +183,7 @@ TEST(StandAlone, ClampHierarchyLimitsMatrix) {
 
   Costing_Options opts;
   hierarchy_limits_config_t config_matrix =
-      parse_hierarchy_limits_from_config(test_params.cfg, "costmatrix", false);
+      parse_hierarchy_limits_from_config(test_params.cfg, "costmatrix", true);
 
   EXPECT_TRUE(check_hierarchy_limits(mode_costing[0]->GetHierarchyLimits(), mode_costing[0], opts,
                                      config_matrix, true, true));

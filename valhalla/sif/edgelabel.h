@@ -685,7 +685,8 @@ public:
               const bool destonly = false,
               const bool hgv_access = false,
               const uint8_t destonly_access_restr_mask = 0,
-              const uint64_t connection_pruning_mask = kInvalidPruningIdx)
+              const uint64_t connection_pruning_mask = kInvalidPruningIdx,
+              const float dist = 0.0f)
       : EdgeLabel(predecessor,
                   edgeid,
                   edge,
@@ -702,7 +703,7 @@ public:
                   hgv_access,
                   destonly_access_restr_mask),
         transition_cost_(transition_cost), opp_edgeid_(oppedgeid),
-        not_thru_pruning_(not_thru_pruning), distance_(0.0f),
+        not_thru_pruning_(not_thru_pruning), distance_(dist),
         conn_pruning_idx_(connection_pruning_mask) {
   }
 

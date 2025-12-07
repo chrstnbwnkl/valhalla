@@ -120,9 +120,9 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       max_iterations_(
           std::max(config.get<uint32_t>("costmatrix.max_iterations", kDefaultMaxIterations),
                    static_cast<uint32_t>(1))),
-      access_mode_(kAutoAccess),
-      mode_(travel_mode_t::kDrive), locs_count_{0, 0}, locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap}, sources_{new ReachedMap} {
+      access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
+      locs_remaining_{0, 0}, current_pathdist_threshold_(0), targets_{new ReachedMap},
+      sources_{new ReachedMap} {
 }
 
 CostMatrix::~CostMatrix() {
@@ -511,7 +511,7 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
     // edges while still expanding on the next level since we can still transition down to
     // that level. If using a shortcut, set the shortcuts mask. Skip if this is a regular
     // edge superseded by a shortcut.
-    if (StopExpanding(hierarchy_limits_[FORWARD][index][meta.edge_id.level() + 1])) {
+    if (StopExpanding(hierarchy_limits_[FORWARD][index][meta.edge_id.level() + 1], pred.distance())) {
       shortcuts |= meta.edge->shortcut();
     } else {
       return false;
@@ -610,10 +610,18 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
   // , just as bidir a* /route does; that would make for more optimal paths in some edge cases but
   // we'd pay a severe performance penalty, e.g. a request with distance checks (i.e. more expansion
   // on lower levels) takes 100 secs, while without it takes 60 secs.
+  float dist = 0.0f;
+  const auto& end_node_ll = t2->get_node_ll(meta.edge->endnode());
 
   // Add edge label, add to the adjacency list and set edge status
   uint32_t idx = edgelabels.size();
   *meta.edge_status = {EdgeSet::kTemporary, idx};
+  if (hierarchy_limits_[FORWARD][index][meta.edge_id.level()].max_up_transitions() !=
+      kUnlimitedTransitions) {
+    // Override distance to the destination with a distance from the origin.
+    // It will be used by hierarchy limits
+    dist = astar_heuristics_[!FORWARD][index].GetDistance(end_node_ll);
+  }
   if (FORWARD) {
     edgelabels.emplace_back(pred_idx, meta.edge_id, opp_edge_id, meta.edge, newcost, mode_, tc,
                             pred_dist, not_thru_pruning,
@@ -624,7 +632,7 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
                             meta.edge->destonly() ||
                                 (costing_->is_hgv() && meta.edge->destonly_hgv()),
                             meta.edge->forwardaccess() & kTruckAccess, destonly_restriction_mask,
-                            connection_pruning_index);
+                            connection_pruning_index, dist);
   } else {
     edgelabels.emplace_back(pred_idx, meta.edge_id, opp_edge_id, meta.edge, newcost, mode_, tc,
                             pred_dist, not_thru_pruning,
@@ -635,7 +643,7 @@ bool CostMatrix::ExpandInner(baldr::GraphReader& graphreader,
                             restriction_idx, 0,
                             opp_edge->destonly() || (costing_->is_hgv() && opp_edge->destonly_hgv()),
                             opp_edge->forwardaccess() & kTruckAccess, destonly_restriction_mask,
-                            connection_pruning_index);
+                            connection_pruning_index, dist);
   }
   auto newsortcost =
       GetAstarHeuristic<expansion_direction>(index, t2->get_node_ll(meta.edge->endnode()));
@@ -722,7 +730,8 @@ bool CostMatrix::Expand(const uint32_t index,
   // Prune path if predecessor is not a through edge or if the maximum
   // number of upward transitions has been exceeded on this hierarchy level.
   if ((pred.not_thru() && pred.not_thru_pruning()) ||
-      (!ignore_hierarchy_limits_ && StopExpanding(hierarchy_limits_[FORWARD][index][node.level()]))) {
+      (!ignore_hierarchy_limits_ &&
+       StopExpanding(hierarchy_limits_[FORWARD][index][node.level()], pred.distance()))) {
     return false;
   }
 
@@ -800,7 +809,7 @@ bool CostMatrix::Expand(const uint32_t index,
       // we cant get the tile at that level (local extracts could have this problem) THEN bail
       graph_tile_ptr trans_tile = nullptr;
       if ((!trans->up() && !ignore_hierarchy_limits_ &&
-           StopExpanding(hierarchy_limits[trans->endnode().level()])) ||
+           StopExpanding(hierarchy_limits[trans->endnode().level()], pred.distance())) ||
           !(trans_tile = graphreader.GetGraphTile(trans->endnode()))) {
         continue;
       }

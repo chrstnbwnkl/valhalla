@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
   // Timing with CostMatrix
   CostMatrix matrix(config.get_child("thor"));
   hierarchy_limits_config_t hl_config =
-      parse_hierarchy_limits_from_config(config, "costmatrix", false);
+      parse_hierarchy_limits_from_config(config, "costmatrix", true);
   check_hierarchy_limits(mode_costing[int(mode)]->GetHierarchyLimits(), mode_costing[int(mode)],
                          options.costings().find(options.costing_type())->second.options(), hl_config,
                          true, mode_costing[int(mode)]->UseHierarchyLimits());
