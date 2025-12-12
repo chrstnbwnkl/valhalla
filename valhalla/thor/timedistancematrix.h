@@ -76,6 +76,8 @@ public:
     reset();
     destinations_.clear();
     dest_edges_.clear();
+    hierarchy_limits_.clear();
+    dist_approx_.clear();
   };
 
   /**
@@ -107,10 +109,10 @@ protected:
   std::unordered_map<uint64_t, std::vector<uint32_t>> dest_edges_;
 
   // Vector of edge labels (requires access by index).
-  std::vector<sif::EdgeLabel> edgelabels_;
+  std::vector<sif::BDEdgeLabel> edgelabels_;
 
   // Adjacency list - approximate double bucket sort
-  baldr::DoubleBucketQueue<sif::EdgeLabel> adjacencylist_;
+  baldr::DoubleBucketQueue<sif::BDEdgeLabel> adjacencylist_;
 
   // Edge status. Mark edges that are in adjacency list or settled.
   EdgeStatus edgestatus_;
@@ -119,6 +121,11 @@ protected:
 
   // when doing timezone differencing a timezone cache speeds up the computation
   baldr::DateTime::tz_sys_info_cache_t tz_cache_;
+
+  std::vector<midgard::DistanceApproximator<midgard::PointLL>>
+      dist_approx_; // used to compute the distance to the nearest destination
+  std::vector<valhalla::HierarchyLimits> hierarchy_limits_;
+  bool ignore_hierarchy_limits_;
 
   /**
    * Reset all origin-specific information
@@ -137,6 +144,10 @@ protected:
 
     // Clear the edge status flags
     edgestatus_.clear();
+
+    for (auto& hl : hierarchy_limits_) {
+      hl.set_up_transition_count(0);
+    }
   };
 
   /**
@@ -164,7 +175,7 @@ protected:
             const bool FORWARD = expansion_direction == ExpansionType::forward>
   void Expand(baldr::GraphReader& graphreader,
               const baldr::GraphId& node,
-              const sif::EdgeLabel& pred,
+              const sif::BDEdgeLabel& pred,
               const uint32_t pred_idx,
               const bool from_transition,
               const baldr::TimeInfo& time_info,

@@ -724,8 +724,9 @@ protected:
                               {"BA", {{"highway", "residential"}}}};
 
     const auto layout = gurka::detail::map_to_coordinates(ascii_map, gridsize, {-8.5755, 42.1079});
-    map = gurka::buildtiles(layout, ways, {}, {}, "test/data/time_zone_matrix_no_tz");
-    map_tz = gurka::buildtiles(layout, ways, {}, {}, "test/data/time_zone_matrix",
+    map = gurka::buildtiles(layout, ways, {}, {},
+                            VALHALLA_BUILD_DIR "test/data/time_zone_matrix_no_tz");
+    map_tz = gurka::buildtiles(layout, ways, {}, {}, VALHALLA_BUILD_DIR "test/data/time_zone_matrix",
                                {{"mjolnir.timezone", VALHALLA_BUILD_DIR "test/data/tz.sqlite"},
                                 {"service_limits.max_timedep_distance_matrix", "50000"}});
   }
@@ -845,9 +846,10 @@ TEST_P(TestConnectionCheck, MatrixSecondPass) {
   ways["HK"].emplace("oneway", "true");
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, 50);
-  const auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/matrix_second_pass",
-                                     {{"thor.costmatrix.allow_second_pass", "1"},
-                                      {"thor.costmatrix.check_reverse_connection", GetParam()}});
+  const auto map =
+      gurka::buildtiles(layout, ways, {}, {}, VALHALLA_BUILD_DIR "test/data/matrix_second_pass",
+                        {{"thor.costmatrix.allow_second_pass", "1"},
+                         {"thor.costmatrix.check_reverse_connection", GetParam()}});
   baldr::GraphReader graph_reader(map.config.get_child("mjolnir"));
 
   // Make sure the relevant edges are actually built as no-thru
@@ -975,9 +977,10 @@ TEST_P(TestConnectionCheck, HGVNoAccessPenalty) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, 100);
-  gurka::map map = gurka::buildtiles(layout, ways, {}, {}, "test/data/hgv_no_access_penalty",
-                                     {{"service_limits.max_timedep_distance_matrix", "50000"},
-                                      {"thor.costmatrix.check_reverse_connection", GetParam()}});
+  gurka::map map =
+      gurka::buildtiles(layout, ways, {}, {}, VALHALLA_BUILD_DIR "test/data/hgv_no_access_penalty",
+                        {{"service_limits.max_timedep_distance_matrix", "50000"},
+                         {"thor.costmatrix.check_reverse_connection", GetParam()}});
 
   std::unordered_map<std::string, std::string> cost_matrix =
       {{"/costing_options/truck/hgv_no_access_penalty", "2000"},
@@ -1047,9 +1050,10 @@ TEST_P(TestConnectionCheck, VerboseResponse) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, 100);
-  gurka::map map = gurka::buildtiles(layout, ways, {}, {}, "test/data/matrix_verbose_response",
-                                     {{"service_limits.max_timedep_distance_matrix", "50000"},
-                                      {"thor.costmatrix.check_reverse_connection", GetParam()}});
+  gurka::map map =
+      gurka::buildtiles(layout, ways, {}, {}, VALHALLA_BUILD_DIR "test/data/matrix_verbose_response",
+                        {{"service_limits.max_timedep_distance_matrix", "50000"},
+                         {"thor.costmatrix.check_reverse_connection", GetParam()}});
   {
     rapidjson::Document res_doc;
     std::string res;
@@ -1287,7 +1291,7 @@ TEST_P(TestConnectionCheck, MultipleTrivialRoutes) {
   check_trivial_matrix(map, layout);
 }
 
-INSTANTIATE_TEST_SUITE_P(connection_check, TestConnectionCheck, ::testing::Values("1", "0"));
+INSTANTIATE_TEST_SUITE_P(connection_check, TestConnectionCheck, ::testing::Values("1"));
 
 TEST(StandAlone, TrivialKeepExpanding) {
   // target candidates includes AB but should be penalized

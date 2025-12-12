@@ -42,7 +42,7 @@ namespace sif {
  * @return                 Returns true if expansion at this hierarchy level should stop.
  */
 inline bool StopExpanding(const valhalla::HierarchyLimits& hierarchy_limits, const float dist) {
-  return false;
+  // return false;
   return (hierarchy_limits.up_transition_count() > hierarchy_limits.max_up_transitions() &&
           dist > hierarchy_limits.expand_within_dist());
 }
@@ -56,8 +56,8 @@ inline bool StopExpanding(const valhalla::HierarchyLimits& hierarchy_limits, con
  * @return                 Returns true if expansion at this hierarchy level should stop.
  */
 inline bool StopExpanding(const valhalla::HierarchyLimits& hierarchy_limits) {
-  return false;
-  // return hierarchy_limits.up_transition_count() > hierarchy_limits.max_up_transitions();
+  // return false;
+  return hierarchy_limits.up_transition_count() > hierarchy_limits.max_up_transitions();
 }
 
 /**

@@ -399,7 +399,7 @@ void CostMatrix::Initialize(
       hierarchy_limits_[is_fwd][i] = hlimits;
       // for each source/target init the other direction's astar heuristic
       auto& ll = locations[i].ll();
-      astar_heuristics_[!is_fwd][i].Init({ll.lng(), ll.lat()}, costing_->AStarCostFactor());
+      astar_heuristics_[!is_fwd][i].Init({ll.lng(), ll.lat()}, 0);
 
       // get the min heuristic to all targets/sources for this source's/target's adjacency list
       float min_heuristic = std::numeric_limits<float>::max();

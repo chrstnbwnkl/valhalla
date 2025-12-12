@@ -111,6 +111,8 @@ thor_worker_t::thor_worker_t(const boost::property_tree::ptree& config,
       parse_hierarchy_limits_from_config(config, "unidirectional_astar", true);
   hierarchy_limits_config_bidirectional_astar =
       parse_hierarchy_limits_from_config(config, "bidirectional_astar", true);
+  hierarchy_limits_config_tdmatrix =
+      parse_hierarchy_limits_from_config(config, "timedistancematrix", true);
 
   // signal that the worker started successfully
   started();

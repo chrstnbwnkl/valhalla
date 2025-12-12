@@ -76,6 +76,10 @@ public:
     return dist * costfactor_;
   }
 
+  midgard::PointLL GetTestPoint() const {
+    return distapprox_.GetTestPoint();
+  }
+
 private:
   midgard::DistanceApproximator<midgard::PointLL> distapprox_; // Distance approximation
   float costfactor_; // Cost factor - ensures the cost estimate

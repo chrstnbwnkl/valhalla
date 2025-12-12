@@ -112,8 +112,8 @@ void BidirectionalAStar::Clear() {
 void BidirectionalAStar::Init(const PointLL& origll, const PointLL& destll) {
   // Initialize the A* heuristics
   float factor = costing_->AStarCostFactor();
-  astarheuristic_forward_.Init(destll, factor);
-  astarheuristic_reverse_.Init(origll, factor);
+  astarheuristic_forward_.Init(destll, 0);
+  astarheuristic_reverse_.Init(origll, 0);
 
   // Reserve size for edge labels - do this here rather than in constructor so
   // to limit how much extra memory is used for persistent objects
