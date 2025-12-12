@@ -628,10 +628,10 @@ void UnidirectionalAStar<expansion_direction, FORWARD>::Init(const midgard::Poin
 
   float mincost = 0;
   if (FORWARD) {
-    astarheuristic_.Init(destll, costing_->AStarCostFactor());
+    astarheuristic_.Init(destll, 0);
     mincost = astarheuristic_.Get(origll);
   } else {
-    astarheuristic_.Init(origll, costing_->AStarCostFactor());
+    astarheuristic_.Init(origll, 0);
     mincost = astarheuristic_.Get(destll);
   }
   edgelabels_.reserve(std::min(max_reserved_labels_count_, kInitialEdgeLabelCountAstar));
