@@ -162,6 +162,7 @@ protected:
   std::vector<BestCandidate> best_connection_;
 
   bool ignore_hierarchy_limits_;
+  bool disable_astar_{false};
 
   // when doing timezone differencing a timezone cache speeds up the computation
   baldr::DateTime::tz_sys_info_cache_t tz_cache_;

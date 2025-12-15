@@ -953,6 +953,8 @@ void from_json(rapidjson::Document& doc, Options::Action action, Api& api) {
   // Option to prioritize bidirectional a* over timedependent forward when depart_at is set.
   options.set_prioritize_bidirectional(
       rapidjson::get<bool>(doc, "/prioritize_bidirectional", options.prioritize_bidirectional()));
+  options.set_costmatrix_dijkstra(
+      rapidjson::get<bool>(doc, "/costmatrix_dijkstra", options.costmatrix_dijkstra()));
 
   // Throw an error if use_timestamps is set to true but there are no timestamps in the
   // trace (or no durations present)

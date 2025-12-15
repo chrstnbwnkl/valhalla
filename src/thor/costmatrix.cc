@@ -189,6 +189,8 @@ bool CostMatrix::SourceToTarget(Api& request,
   costing_ = mode_costing[static_cast<uint32_t>(mode_)];
   access_mode_ = costing_->access_mode();
 
+  disable_astar_ = request.options().costmatrix_dijkstra();
+
   auto& source_location_list = *request.mutable_options()->mutable_sources();
   auto& target_location_list = *request.mutable_options()->mutable_targets();
 
@@ -399,11 +401,12 @@ void CostMatrix::Initialize(
       hierarchy_limits_[is_fwd][i] = hlimits;
       // for each source/target init the other direction's astar heuristic
       auto& ll = locations[i].ll();
-      astar_heuristics_[!is_fwd][i].Init({ll.lng(), ll.lat()}, costing_->AStarCostFactor());
+      astar_heuristics_[!is_fwd][i].Init({ll.lng(), ll.lat()},
+                                         disable_astar_ ? 0.f : costing_->AStarCostFactor());
 
       // get the min heuristic to all targets/sources for this source's/target's adjacency list
       float min_heuristic = std::numeric_limits<float>::max();
-      for (uint32_t j = 0; j < other_count; j++) {
+      for (uint32_t j = 0; j < other_count && !disable_astar_; j++) {
         auto& other_ll = other_locations[j].ll();
         auto heuristic = astar_heuristics_[!is_fwd][i].Get({other_ll.lng(), other_ll.lat()});
         min_heuristic = std::min(min_heuristic, heuristic);
@@ -411,7 +414,8 @@ void CostMatrix::Initialize(
       // TODO(nils): previously we'd estimate the bucket range by the max matrix distance,
       // which would lead to tons of RAM if a high value was chosen in the config; ideally
       // this would be chosen based on the request (e.g. some factor to the A* distance)
-      adjacency_[is_fwd][i].reuse(min_heuristic, range, bucketsize, &edgelabel_[is_fwd][i]);
+      adjacency_[is_fwd][i].reuse(disable_astar_ ? 0 : min_heuristic, range, bucketsize,
+                                  &edgelabel_[is_fwd][i]);
     }
   }
 
@@ -1388,6 +1392,9 @@ std::string CostMatrix::RecostFormPath(GraphReader& graphreader,
 
 template <const MatrixExpansionType expansion_direction, const bool FORWARD>
 float CostMatrix::GetAstarHeuristic(const uint32_t loc_idx, const PointLL& ll) const {
+  if (disable_astar_)
+    return 0.f;
+
   if (locs_status_[FORWARD][loc_idx].unfound_connections.empty()) {
     return 0.f;
   }
