@@ -116,6 +116,7 @@ size_t EdgeInfo::TaggedValueSize(const char* ptr) {
     case TaggedValue::kBssInfo:
     case TaggedValue::kLevel:
     case TaggedValue::kLevelRef:
+    case TaggedValue::kPrivate:
     case TaggedValue::kTunnel:
     case TaggedValue::kBridge:
       // These are null-terminated strings after the tag byte
@@ -554,7 +555,7 @@ std::vector<uint64_t> EdgeInfo::osm_node_ids() const {
 bool EdgeInfo::private_access() const {
   const auto& tags = GetTags();
   for (auto [itr, range_end] = tags.equal_range(TaggedValue::kPrivate); itr != range_end; ++itr) {
-    if (itr->second == std::string("1")) {
+    if (itr->second == "1") {
       return true;
     }
   }
@@ -645,6 +646,8 @@ void EdgeInfo::json(rapidjson::writer_wrapper_t& writer) const {
         conditional_speed_limits.push_back({l->td_.to_string(), l->speed_});
         break;
       }
+      case TaggedValue::kPrivate:
+        break;
       case TaggedValue::kTunnel:
         break;
       case TaggedValue::kBridge:
