@@ -435,9 +435,11 @@ struct graph_parser {
           way_.set_use(Use::kDriveThru);
           break;
         case Use::kServiceRoad:
+          way_.set_destination_only(true);
           way_.set_use(Use::kServiceRoad);
           break;
         case Use::kTrack:
+          way_.set_destination_only(true);
           way_.set_use(Use::kTrack);
           break;
         case Use::kOther:
