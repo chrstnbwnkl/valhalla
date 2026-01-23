@@ -381,8 +381,8 @@ bool Use_Enum_parse(const std::string& use_name, valhalla::TripLeg_Use* use) {
       {"culdesac", valhalla::TripLeg_Use_kCuldesacUse},
       {"living_street", valhalla::TripLeg_Use_kLivingStreetUse},
       {"livingstreet", valhalla::TripLeg_Use_kLivingStreetUse}, // Deprecated
-      {"service_road", valhalla::TripLeg_Use_kServiceRoadUse},  // Deprecated
-      {"serviceroad", valhalla::TripLeg_Use_kServiceRoadUse},
+      {"service_road", valhalla::TripLeg_Use_kServiceRoadUse},
+      {"serviceroad", valhalla::TripLeg_Use_kServiceRoadUse},   // Deprecated
       {"cycleway", valhalla::TripLeg_Use_kCyclewayUse},
       {"mountain_bike", valhalla::TripLeg_Use_kMountainBikeUse},
       {"mountainbike", valhalla::TripLeg_Use_kMountainBikeUse}, // Deprecated
