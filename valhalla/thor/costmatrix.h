@@ -9,12 +9,13 @@
 #include <valhalla/sif/dynamiccost.h>
 #include <valhalla/sif/edgelabel.h>
 #include <valhalla/thor/astarheuristic.h>
-#include <valhalla/thor/edgestatus.h>
+#include <valhalla/thor/edgestatus_pmr.h>
 #include <valhalla/thor/matrixalgorithm.h>
 #include <valhalla/thor/pathalgorithm.h>
 
 #include <cstdint>
 #include <memory>
+#include <memory_resource>
 #include <set>
 #include <vector>
 
@@ -87,6 +88,10 @@ public:
    */
   CostMatrix(const boost::property_tree::ptree& config = {});
 
+  CostMatrix(const CostMatrix&) = delete;
+  CostMatrix(CostMatrix&&) = delete;
+  CostMatrix& operator=(const CostMatrix&) = delete;
+  CostMatrix& operator=(CostMatrix&&) = delete;
   ~CostMatrix();
 
   /**
@@ -119,6 +124,7 @@ public:
   }
 
 protected:
+  std::pmr::unsynchronized_pool_resource pool_;
   uint32_t max_reserved_labels_count_;
   uint32_t max_reserved_locations_count_;
   bool check_reverse_connection_;
@@ -147,19 +153,25 @@ protected:
   float current_pathdist_threshold_;
 
   // Status
-  std::array<std::vector<LocationStatus>, 2> locs_status_;
+  std::array<std::vector<LocationStatus, std::pmr::polymorphic_allocator<LocationStatus>>, 2>
+      locs_status_;
 
   // Adjacency lists, EdgeLabels, EdgeStatus, and hierarchy limits for each location
   std::array<std::vector<std::vector<valhalla::HierarchyLimits>>, 2> hierarchy_limits_;
-  std::array<std::vector<baldr::DoubleBucketQueue<sif::BDEdgeLabel>>, 2> adjacency_;
-  std::array<std::vector<std::vector<sif::BDEdgeLabel>>, 2> edgelabel_;
-  std::array<std::vector<EdgeStatus>, 2> edgestatus_;
+  using PmrEdgeLabels =
+      std::vector<sif::BDEdgeLabel, std::pmr::polymorphic_allocator<sif::BDEdgeLabel>>;
+  using PmrBucketQueue = baldr::DoubleBucketQueue<sif::BDEdgeLabel, PmrEdgeLabels>;
+  std::array<std::vector<PmrBucketQueue>, 2> adjacency_;
+  std::vector<PmrEdgeLabels> edgelabel_[2];
+  using PmrEdgeStatusVec =
+      std::vector<PoolEdgeStatus, std::pmr::polymorphic_allocator<PoolEdgeStatus>>;
+  std::array<PmrEdgeStatusVec, 2> edgestatus_;
 
   // A* heuristics for both trees and each location
   std::array<std::vector<AStarHeuristic>, 2> astar_heuristics_;
 
   // List of best connections found so far
-  std::vector<BestCandidate> best_connection_;
+  std::vector<BestCandidate, std::pmr::polymorphic_allocator<BestCandidate>> best_connection_;
 
   bool ignore_hierarchy_limits_;
 

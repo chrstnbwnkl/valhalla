@@ -29,6 +29,7 @@ valhalla_module(NAME meili
   SYSTEM_INCLUDE_DIRECTORIES
     PUBLIC
       ${system_includes}
+      ${unordered_dense_include_dir}
     PRIVATE
       ${rapidjson_include_dir}
   DEPENDS

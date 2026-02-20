@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <memory_resource>
 #include <stdexcept>
 #include <vector>
 
@@ -22,7 +23,8 @@ using buckets_t = std::vector<bucket_t>;
  * into the overflow bucket and are moved into the low-level buckets as
  * needed. Each bucket stores label indexes into external data.
  */
-template <typename label_t> class DoubleBucketQueue final {
+template <typename label_t, typename label_container_t = std::vector<label_t>>
+class DoubleBucketQueue final {
 public:
   /**
    * Default c-tor creates empty object that needs to be initialized with `reuse` method
@@ -45,7 +47,7 @@ public:
   DoubleBucketQueue(const float mincost,
                     const float range,
                     const uint32_t bucketsize,
-                    const std::vector<label_t>* labelcontainer) {
+                    const label_container_t* labelcontainer) {
     reuse(mincost, range, bucketsize, labelcontainer);
   }
 
@@ -67,7 +69,7 @@ public:
   void reuse(const float mincost,
              const float range,
              const uint32_t bucketsize,
-             const std::vector<label_t>* labelcontainer) {
+             const label_container_t* labelcontainer) {
     labelcontainer_ = labelcontainer;
     // We need at least a bucketsize of 1 or more
     if (bucketsize < 1) {
@@ -193,7 +195,7 @@ private:
   bucket_t overflowbucket_;
 
   // Access to a container of labels to get cost given the label index.
-  const std::vector<label_t>* labelcontainer_;
+  const label_container_t* labelcontainer_;
 
   /**
    * Returns the bucket given the cost.
@@ -261,6 +263,161 @@ private:
     }
 
     // Reset current cost and bucket to beginning of low level buckets
+    currentcost_ = mincost_;
+    currentbucket_ = buckets_.begin();
+  }
+};
+
+template <typename label_t, typename label_container_t> class PMRDoubleBucketQueue final {
+public:
+  using bucket_t = std::vector<uint32_t, std::pmr::polymorphic_allocator<uint32_t>>;
+
+  /**
+   * Constructor.
+   * @param mincost         Minimum cost for bucket range.
+   * @param range           Cost range for low-level buckets.
+   * @param bucketsize      Bucket size (integer cost range per bucket).
+   * @param labelcontainer  Pointer to label container for reading sortcosts.
+   * @param mr              Memory resource for all internal allocations.
+   */
+  PMRDoubleBucketQueue(const float mincost,
+                       const float range,
+                       const uint32_t bucketsize,
+                       const label_container_t* labelcontainer,
+                       std::pmr::memory_resource* mr)
+      : mr_(mr), overflowbucket_(std::pmr::polymorphic_allocator<uint32_t>(mr)),
+        labelcontainer_(labelcontainer) {
+    if (bucketsize < 1) {
+      throw std::runtime_error("Bucketsize must be 1 or greater");
+    }
+    if (range <= 0.f) {
+      throw std::runtime_error("Bucketrange must be greater than 0");
+    }
+
+    const uint32_t c = static_cast<uint32_t>(mincost);
+    currentcost_ = static_cast<float>(c - (c % bucketsize));
+    mincost_ = currentcost_;
+    bucketrange_ = range;
+    bucketsize_ = static_cast<float>(bucketsize);
+    inv_ = 1.0f / bucketsize_;
+    maxcost_ = mincost_ + bucketrange_;
+
+    const size_t bucketcount = static_cast<size_t>(range / bucketsize_) + 1;
+    std::pmr::polymorphic_allocator<uint32_t> alloc(mr_);
+    buckets_.reserve(bucketcount);
+    for (size_t i = 0; i < bucketcount; i++) {
+      buckets_.emplace_back(alloc);
+    }
+    currentbucket_ = buckets_.begin();
+  }
+
+  PMRDoubleBucketQueue(PMRDoubleBucketQueue&&) = default;
+  PMRDoubleBucketQueue& operator=(PMRDoubleBucketQueue&&) = default;
+  PMRDoubleBucketQueue(const PMRDoubleBucketQueue&) = delete;
+  PMRDoubleBucketQueue& operator=(const PMRDoubleBucketQueue&) = delete;
+
+  /**
+   * Add a label index to the appropriate bucket by its sortcost.
+   * @param label  Label index.
+   */
+  void add(const uint32_t label) {
+    get_bucket((*labelcontainer_)[label].sortcost()).push_back(label);
+  }
+
+  /**
+   * Reorder a label whose cost has decreased.
+   * @param label    Label index.
+   * @param newcost  New (lower) sort cost.
+   */
+  void decrease(const uint32_t label, const float newcost) {
+    bucket_t& prevbucket = get_bucket((*labelcontainer_)[label].sortcost());
+    bucket_t& newbucket = get_bucket(newcost);
+    if (&prevbucket != &newbucket) {
+      newbucket.push_back(label);
+      prevbucket.erase(std::remove(prevbucket.begin(), prevbucket.end(), label));
+    }
+  }
+
+  /**
+   * Remove and return the lowest cost label index.
+   * @return Label index, or kInvalidLabel if empty.
+   */
+  uint32_t pop() {
+    if (empty()) {
+      if (overflowbucket_.empty()) {
+        --currentbucket_;
+        return kInvalidLabel;
+      }
+      empty_overflow();
+      if (empty()) {
+        return kInvalidLabel;
+      }
+    }
+    const uint32_t label = currentbucket_->back();
+    currentbucket_->pop_back();
+    return label;
+  }
+
+private:
+  std::pmr::memory_resource* mr_;
+
+  float bucketrange_;
+  float bucketsize_;
+  float inv_;
+  double mincost_;
+  float maxcost_;
+  float currentcost_;
+
+  std::vector<bucket_t> buckets_;
+  typename std::vector<bucket_t>::iterator currentbucket_;
+  bucket_t overflowbucket_;
+
+  const label_container_t* labelcontainer_;
+
+  bucket_t& get_bucket(const float cost) {
+    return (cost < currentcost_) ? *currentbucket_
+           : (cost < maxcost_)   ? buckets_[static_cast<uint32_t>((cost - mincost_) * inv_)]
+                                 : overflowbucket_;
+  }
+
+  bool empty() {
+    while (currentbucket_ != buckets_.end() && currentbucket_->empty()) {
+      ++currentbucket_;
+      currentcost_ += bucketsize_;
+    }
+    return currentbucket_ == buckets_.end();
+  }
+
+  void empty_overflow() {
+    auto itr =
+        std::min_element(overflowbucket_.begin(), overflowbucket_.end(),
+                         [this](uint32_t a, uint32_t b) {
+                           return (*labelcontainer_)[a].sortcost() < (*labelcontainer_)[b].sortcost();
+                         });
+
+    if (itr != overflowbucket_.end()) {
+      float min = (*labelcontainer_)[*itr].sortcost();
+      mincost_ += (std::floor((min - mincost_) / bucketrange_)) * bucketrange_;
+
+      if (mincost_ > min) {
+        mincost_ -= bucketrange_;
+      } else if (mincost_ + bucketrange_ < min) {
+        mincost_ += bucketrange_;
+      }
+      maxcost_ = mincost_ + bucketrange_;
+
+      auto minLabelsIt =
+          std::remove_if(overflowbucket_.begin(), overflowbucket_.end(), [this](const auto label) {
+            float cost = (*labelcontainer_)[label].sortcost();
+            if (cost < maxcost_) {
+              buckets_[static_cast<uint32_t>((cost - mincost_) * inv_)].push_back(label);
+              return true;
+            }
+            return false;
+          });
+      overflowbucket_.erase(minLabelsIt, overflowbucket_.end());
+    }
+
     currentcost_ = mincost_;
     currentbucket_ = buckets_.begin();
   }

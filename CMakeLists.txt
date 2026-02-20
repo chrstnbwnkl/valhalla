@@ -292,8 +292,11 @@ if(ENABLE_TOOLS)
     add_executable(${program} ${path})
     set_target_properties(${program} PROPERTIES FOLDER "Tools")
     create_source_groups("Source Files" ${path})
-    target_link_libraries(${program} valhalla $<$<BOOL:${ENABLE_COVERAGE}>:gcov>)
-    target_include_directories(${program} PRIVATE ${cxxopts_include_dir})
+    target_link_libraries(${program} valhalla $<$<BOOL:${ENABLE_COVERAGE}>:gcov>
+    )
+    target_include_directories(${program} PRIVATE ${cxxopts_include_dir} 
+      ${unordered_dense_include_dir}
+    )
     install(TARGETS ${program} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT runtime)
   endforeach()
 endif()

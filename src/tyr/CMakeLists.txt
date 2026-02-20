@@ -35,6 +35,7 @@ valhalla_module(NAME tyr
   SYSTEM_INCLUDE_DIRECTORIES
     PUBLIC
       ${system_includes}
+      ${unordered_dense_include_dir}
     PRIVATE
       ${rapidjson_include_dir}
       ${vtzero_include_dir}

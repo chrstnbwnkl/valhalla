@@ -63,8 +63,10 @@ function(valhalla_module)
       VALHALLA_BUILD_DIR=${VALHALLA_BUILD_DIR})
   target_include_directories(${library} ${MODULE_INCLUDE_DIRECTORIES}
      PRIVATE
+       ${unordered_dense_include_dir}
        ${VALHALLA_BINARY_DIR}
        ${VALHALLA_BINARY_DIR}/valhalla)
+
   if (MODULE_SYSTEM_INCLUDE_DIRECTORIES)
     target_include_directories(${library} SYSTEM ${MODULE_SYSTEM_INCLUDE_DIRECTORIES})
   endif()

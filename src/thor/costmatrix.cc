@@ -75,9 +75,9 @@ class CostMatrix::ReachedMap {
 public:
   using PmrVector = std::vector<uint32_t, std::pmr::polymorphic_allocator<uint32_t>>;
 
-  ReachedMap()
-      : pool_(std::pmr::new_delete_resource()), vec_alloc_(&pool_),
-        storage_(std::pmr::polymorphic_allocator<std::pair<const uint64_t, PmrVector>>(&pool_)) {
+  ReachedMap(std::pmr::unsynchronized_pool_resource* pool)
+      : pool_(pool), vec_alloc_(pool_),
+        storage_(std::pmr::polymorphic_allocator<std::pair<const uint64_t, PmrVector>>(pool_)) {
   }
 
   void add(uint64_t key, uint32_t value) {
@@ -101,14 +101,14 @@ public:
   }
 
 private:
-  std::pmr::unsynchronized_pool_resource pool_;
+  std::pmr::unsynchronized_pool_resource* pool_;
   std::pmr::polymorphic_allocator<uint32_t> vec_alloc_;
   ankerl::unordered_dense::pmr::map<uint64_t, PmrVector> storage_;
 };
 
 // Constructor with cost threshold.
 CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
-    : MatrixAlgorithm(config),
+    : MatrixAlgorithm(config), pool_(std::pmr::new_delete_resource()),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_bidir_dijkstras",
                                                       kInitialEdgeLabelCountBidirDijkstra)),
       max_reserved_locations_count_(
@@ -120,9 +120,12 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       max_iterations_(
           std::max(config.get<uint32_t>("costmatrix.max_iterations", kDefaultMaxIterations),
                    static_cast<uint32_t>(1))),
-      access_mode_(kAutoAccess),
-      mode_(travel_mode_t::kDrive), locs_count_{0, 0}, locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap}, sources_{new ReachedMap} {
+      access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
+      edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_)),
+                  PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_))},
+      best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {
@@ -131,45 +134,39 @@ CostMatrix::~CostMatrix() {
 // Clear the temporary information generated during time + distance matrix
 // construction.
 void CostMatrix::Clear() {
-  // Clear the target edge markings
-  targets_->clear();
-  if (check_reverse_connection_)
-    sources_->clear();
-
-  // Clear all adjacency lists, edge labels, and edge status
-  // Resize and shrink_to_fit so all capacity is reduced.
-  auto label_reservation = clear_reserved_memory_ ? 0 : max_reserved_labels_count_;
-  auto locs_reservation = clear_reserved_memory_ ? 0 : max_reserved_locations_count_;
+  // 1. Destroy all PMR-backed containers while pool memory is still valid
   for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
-    // resize all relevant structures down to configured amount of locations (25 default)
-    if (locs_count_[is_fwd] > locs_reservation) {
-      edgelabel_[is_fwd].resize(locs_reservation);
-      edgelabel_[is_fwd].shrink_to_fit();
-      adjacency_[is_fwd].resize(locs_reservation);
-      adjacency_[is_fwd].shrink_to_fit();
-      edgestatus_[is_fwd].resize(locs_reservation);
-      edgestatus_[is_fwd].shrink_to_fit();
-      astar_heuristics_[is_fwd].resize(locs_reservation);
-      astar_heuristics_[is_fwd].shrink_to_fit();
-    }
-    for (auto& iter : edgelabel_[is_fwd]) {
-      if (iter.size() > label_reservation) {
-        iter.resize(label_reservation);
-        iter.shrink_to_fit();
-      }
-      iter.clear();
-    }
-    for (auto& iter : edgestatus_[is_fwd]) {
-      iter.clear();
-    }
-    for (auto& iter : adjacency_[is_fwd]) {
-      iter.clear();
-    }
-    hierarchy_limits_[is_fwd].clear();
+    edgelabel_[is_fwd].clear();
+    edgestatus_[is_fwd].clear(); // drops tile pointers, pool owns the raw memory
     locs_status_[is_fwd].clear();
-    astar_heuristics_[is_fwd].clear();
   }
   best_connection_.clear();
+  // shrink_to_fit releases the vector buffers back to the pool while it's still live
+  for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
+    edgelabel_[is_fwd].shrink_to_fit();
+    edgestatus_[is_fwd].shrink_to_fit();
+    adjacency_[is_fwd].shrink_to_fit();
+  }
+  best_connection_.shrink_to_fit();
+
+  targets_.reset();
+  sources_.reset();
+
+  // 2. Now nothing references pool memory — safe to release
+  pool_.release();
+
+  // 3. Recreate non-vector PMR containers
+  targets_ = std::make_unique<ReachedMap>(&pool_);
+  if (check_reverse_connection_)
+    sources_ = std::make_unique<ReachedMap>(&pool_);
+
+  // 4. Non-PMR containers just clear normally
+  for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
+    adjacency_[is_fwd].clear();
+    astar_heuristics_[is_fwd].clear();
+    hierarchy_limits_[is_fwd].clear();
+  }
+
   set_not_thru_pruning(true);
   ignore_hierarchy_limits_ = false;
 }
@@ -378,7 +375,6 @@ void CostMatrix::Initialize(
   const uint32_t bucketsize = costing_->UnitSize();
   const float range = kBucketCount * bucketsize;
 
-  // Add initial sources & targets properties
   for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
     const auto count = locs_count_[is_fwd];
     const auto other_count = locs_count_[!is_fwd];
@@ -386,31 +382,29 @@ void CostMatrix::Initialize(
     const auto& locations = is_fwd ? source_locations : target_locations;
     const auto& other_locations = is_fwd ? target_locations : source_locations;
 
+    edgelabel_[is_fwd].reserve(count);
+    edgestatus_[is_fwd].reserve(count);
     locs_status_[is_fwd].reserve(count);
     hierarchy_limits_[is_fwd].resize(count);
+    adjacency_[is_fwd].clear();
     adjacency_[is_fwd].resize(count);
-    edgestatus_[is_fwd].resize(count);
-    edgelabel_[is_fwd].resize(count);
+
     for (uint32_t i = 0; i < count; i++) {
-      // Allocate the adjacency list and hierarchy limits for this source.
-      // Use the cost threshold to size the adjacency list.
+      edgelabel_[is_fwd].emplace_back(std::pmr::polymorphic_allocator<BDEdgeLabel>(&pool_));
       edgelabel_[is_fwd][i].reserve(max_reserved_labels_count_);
+      edgestatus_[is_fwd].emplace_back(&pool_);
       locs_status_[is_fwd].emplace_back(kMaxThreshold);
       hierarchy_limits_[is_fwd][i] = hlimits;
-      // for each source/target init the other direction's astar heuristic
+
       auto& ll = locations[i].ll();
       astar_heuristics_[!is_fwd][i].Init({ll.lng(), ll.lat()}, costing_->AStarCostFactor());
 
-      // get the min heuristic to all targets/sources for this source's/target's adjacency list
       float min_heuristic = std::numeric_limits<float>::max();
       for (uint32_t j = 0; j < other_count; j++) {
         auto& other_ll = other_locations[j].ll();
         auto heuristic = astar_heuristics_[!is_fwd][i].Get({other_ll.lng(), other_ll.lat()});
         min_heuristic = std::min(min_heuristic, heuristic);
       }
-      // TODO(nils): previously we'd estimate the bucket range by the max matrix distance,
-      // which would lead to tons of RAM if a high value was chosen in the config; ideally
-      // this would be chosen based on the request (e.g. some factor to the A* distance)
       adjacency_[is_fwd][i].reuse(min_heuristic, range, bucketsize, &edgelabel_[is_fwd][i]);
     }
   }

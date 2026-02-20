@@ -175,7 +175,8 @@ void Dijkstras::ExpandInner(baldr::GraphReader& graphreader,
                   : costing_->AllowedReverse(directededge, pred, opp_edge, t2, oppedgeid, 0, 0,
                                              restriction_idx, destonly_restriction_mask);
 
-      if (!allowed || costing_->Restricted(directededge, pred, bdedgelabels_, tile, edgeid, true)) {
+      if (!allowed ||
+          costing_->Restricted(directededge, pred, bdedgelabels_, tile, edgeid, true, todo)) {
         continue;
       }
     }

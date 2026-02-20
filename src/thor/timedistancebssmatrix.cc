@@ -108,7 +108,8 @@ void TimeDistanceBSSMatrix::Expand(GraphReader& graphreader,
     } else {
       if (!current_costing->AllowedReverse(directededge, pred, opp_edge, t2, opp_edge_id, 0, 0,
                                            restriction_idx, destonly_restriction_mask) ||
-          (current_costing->Restricted(directededge, pred, edgelabels_, tile, edgeid, FORWARD))) {
+          (current_costing->Restricted(directededge, pred, edgelabels_, tile, edgeid, FORWARD,
+                                       static_cast<EdgeStatus*>(nullptr)))) {
         continue;
       }
     }

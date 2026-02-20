@@ -152,7 +152,8 @@ void AStarBSSAlgorithm::ExpandForward(GraphReader& graphreader,
     if (current_es->set() == EdgeSet::kPermanent ||
         !current_costing->Allowed(directededge, is_dest, pred, tile, edgeid, 0, 0,
                                   has_time_restrictions, destonly_restriction_mask) ||
-        current_costing->Restricted(directededge, pred, edgelabels_, tile, edgeid, true)) {
+        current_costing->Restricted(directededge, pred, edgelabels_, tile, edgeid, true,
+                                    static_cast<EdgeStatus*>(nullptr))) {
       continue;
     }
 

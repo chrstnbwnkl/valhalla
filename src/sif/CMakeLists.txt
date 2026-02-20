@@ -32,6 +32,7 @@ valhalla_module(NAME sif
   SYSTEM_INCLUDE_DIRECTORIES
     PUBLIC
       ${system_includes}
+      ${unordered_dense_include_dir}
   DEPENDS
     valhalla::baldr
     valhalla::proto

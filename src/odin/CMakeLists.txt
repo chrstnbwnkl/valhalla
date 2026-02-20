@@ -44,6 +44,7 @@ valhalla_module(NAME odin
       ${system_includes}
     PRIVATE
       ${rapidjson_include_dir}
+      ${unordered_dense_include_dir}
   DEPENDS
     valhalla::proto
     ${valhalla_protobuf_targets}

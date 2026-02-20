@@ -43,9 +43,9 @@ valhalla_module(NAME thor
   SYSTEM_INCLUDE_DIRECTORIES
     PUBLIC
       ${system_includes}
+      ${unordered_dense_include_dir}
     PRIVATE
       ${rapidjson_include_dir}
-      ${unordered_dense_include_dir}
 
   DEPENDS
     valhalla::proto

@@ -18,6 +18,7 @@
 #include <valhalla/sif/costconstants.h>
 #include <valhalla/sif/edgelabel.h>
 #include <valhalla/thor/edgestatus.h>
+#include <valhalla/thor/edgestatus_pmr.h>
 
 #include <boost/container/small_vector.hpp>
 
@@ -531,14 +532,14 @@ public:
    *         that matches the mode and the predecessor list for the current
    *         path matches a complex restriction.
    */
-  template <typename edge_labels_container_t>
+  template <typename edge_labels_container_t, typename edge_status_t>
   bool Restricted(const baldr::DirectedEdge* edge,
                   const EdgeLabel& pred,
                   const edge_labels_container_t& edge_labels,
                   const baldr::graph_tile_ptr& tile,
                   const baldr::GraphId& edgeid,
                   const bool forward,
-                  thor::EdgeStatus* edgestatus = nullptr,
+                  edge_status_t* edgestatus = nullptr,
                   const uint64_t current_time = 0,
                   const uint32_t tz_index = 0) const {
     if (ignore_turn_restrictions_)
@@ -675,6 +676,21 @@ public:
     return false;
   }
 
+  // Overload without edgestatus for callers that don't pass one
+  template <typename edge_labels_container_t>
+  bool Restricted(const baldr::DirectedEdge* edge,
+                  const EdgeLabel& pred,
+                  const edge_labels_container_t& edge_labels,
+                  const baldr::graph_tile_ptr& tile,
+                  const baldr::GraphId& edgeid,
+                  const bool forward,
+                  const uint64_t current_time = 0,
+                  const uint32_t tz_index = 0) const {
+    thor::EdgeStatus* no_status = nullptr;
+    return Restricted<edge_labels_container_t, thor::EdgeStatus>(edge, pred, edge_labels, tile,
+                                                                 edgeid, forward, no_status,
+                                                                 current_time, tz_index);
+  }
   /**
    * Test if an edge should be restricted due to a date time access restriction.
    * @param  restriction  date and time info for the restriction
