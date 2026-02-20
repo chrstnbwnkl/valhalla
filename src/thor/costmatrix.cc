@@ -124,8 +124,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_)),
                   PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
-      sources_{new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
+                                                                            new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {
