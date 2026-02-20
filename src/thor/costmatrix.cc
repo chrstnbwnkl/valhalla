@@ -75,7 +75,7 @@ class CostMatrix::ReachedMap {
 public:
   using PmrVector = std::vector<uint32_t, std::pmr::polymorphic_allocator<uint32_t>>;
 
-  ReachedMap(std::pmr::unsynchronized_pool_resource* pool)
+  ReachedMap(std::pmr::memory_resource* pool)
       : pool_(pool), vec_alloc_(pool_),
         storage_(std::pmr::polymorphic_allocator<std::pair<const uint64_t, PmrVector>>(pool_)) {
   }
@@ -101,14 +101,15 @@ public:
   }
 
 private:
-  std::pmr::unsynchronized_pool_resource* pool_;
+  std::pmr::memory_resource* pool_;
   std::pmr::polymorphic_allocator<uint32_t> vec_alloc_;
   ankerl::unordered_dense::pmr::map<uint64_t, PmrVector> storage_;
 };
 
 // Constructor with cost threshold.
 CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
-    : MatrixAlgorithm(config), pool_(std::pmr::new_delete_resource()),
+    : MatrixAlgorithm(config), buffer_(std::make_unique<std::byte[]>(kDefaultPoolSize)),
+      pool_(buffer_.get(), kDefaultPoolSize, std::pmr::new_delete_resource()),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_bidir_dijkstras",
                                                       kInitialEdgeLabelCountBidirDijkstra)),
       max_reserved_locations_count_(
@@ -124,8 +125,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_)),
                   PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
-                                                                            new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {

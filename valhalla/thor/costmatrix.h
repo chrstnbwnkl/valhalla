@@ -124,7 +124,10 @@ public:
   }
 
 protected:
-  std::pmr::unsynchronized_pool_resource pool_;
+  static constexpr size_t kDefaultPoolSize = 16 * 1024 * 1024; // 16MB
+  // std::pmr::unsynchronized_pool_resource pool_;
+  std::unique_ptr<std::byte[]> buffer_;
+  std::pmr::monotonic_buffer_resource pool_;
   uint32_t max_reserved_labels_count_;
   uint32_t max_reserved_locations_count_;
   bool check_reverse_connection_;
