@@ -2,8 +2,8 @@
 #include "baldr/openlr.h"
 #include "baldr/pathlocation.h"
 #include "baldr/rapidjson_utils.h"
-#include "sif/dynamiccost.h"
 #include "baldr/time_info.h"
+#include "sif/dynamiccost.h"
 #include "tyr/serializers.h"
 
 #include <cstdint>
@@ -216,6 +216,7 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
         }
       }
     };
+
     // follow node transitions
     for (int i = 0; i < node->transition_count(); ++i) {
       const baldr::NodeTransition* trans = tile->transition(node->transition_index() + i);
@@ -396,8 +397,6 @@ void get_full_road_segment(rapidjson::writer_wrapper_t& writer,
     if ((acc_ / length) > 0.5f) {
       auto missing_length_m = (length * 0.5f) - (acc_ - dist);
       auto frac = missing_length_m / dist;
-      // LOG_ERROR("Frac=" + std::to_string(frac) + "|Dist=" + std::to_string(dist) +
-      //           "|Acc=" + std::to_string(acc_) + "|Length=" + std::to_string(length));
       mid = shape_itr->PointAlongSegment(*next_shape_itr, frac);
       break;
     }
@@ -503,8 +502,8 @@ void serialize_edges(const PathLocation& path_location,
         writer("inbound_reach", static_cast<int64_t>(edge.inbound_reach));
         if (full_road_segments) {
           writer.start_object("full_road_segment");
-          get_full_road_segment(writer, directed_edge, costing, edge.percent_along,
-                                reader, location.search_filter_);
+          get_full_road_segment(writer, directed_edge, costing, edge.percent_along, reader,
+                                location.search_filter_);
           writer.end_object();
         }
 
@@ -557,8 +556,8 @@ void serialize_edges(const PathLocation& path_location,
 
         if (full_road_segments) {
           writer.start_object("full_road_segment");
-          get_full_road_segment(writer, directed_edge, costing, edge.percent_along,
-                                reader, location.search_filter_);
+          get_full_road_segment(writer, directed_edge, costing, edge.percent_along, reader,
+                                location.search_filter_);
           writer.end_object();
         }
       }
