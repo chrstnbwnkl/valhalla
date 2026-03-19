@@ -139,6 +139,7 @@ public:
   vtzero::index_value key_osm_way_id_;
   vtzero::index_value key_speed_limit_;
   vtzero::index_value key_layer_;
+  vtzero::index_value key_encoded_shape_;
   // Direction-specific properties
   vtzero::index_value key_truck_speed_fwd_;
   vtzero::index_value key_truck_speed_rev_;
@@ -1246,6 +1247,21 @@ static constexpr EdgeAttributeTile kSharedEdgeAttributes[] = {
         },
     },
     {
+        "encoded_shape",
+        baldr::kShape,
+        &EdgesLayerBuilder::key_encoded_shape_,
+        [](EdgesLayerBuilder* layer_builder,
+           vtzero::index_value valhalla::loki::EdgesLayerBuilder::*const key_member,
+           vtzero::linestring_feature_builder& feature,
+           const baldr::DirectedEdge&,
+           const baldr::EdgeInfo& ei,
+           const volatile baldr::TrafficSpeed*) {
+          feature.add_property(layer_builder->*(key_member),
+                               vtzero::encoded_property_value(
+                                   midgard::encode<std::vector<midgard::PointLL>>(ei.shape())));
+        },
+    },
+    {
         "speed_limit",
         baldr::kEdgeSpeedLimit,
         &EdgesLayerBuilder::key_speed_limit_,
@@ -1417,6 +1433,7 @@ static const std::unordered_map<std::string_view, std::string_view> kEdgePropToA
     {"osm_id", baldr::kEdgeWayId},
     {"speed_limit", baldr::kEdgeSpeedLimit},
     {"layer", baldr::kEdgeLayer},
+    {"encoded_shape", baldr::kShape},
     // additional keys, they're added directly, not via EdgeAttributeTile
     {"edge_id:fwd", baldr::kEdgeId},
     {"edge_id:bwd", baldr::kEdgeId},
