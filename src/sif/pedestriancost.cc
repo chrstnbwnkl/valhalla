@@ -8,6 +8,8 @@
 #include "sif/costconstants.h"
 #include "sif/hierarchylimits.h"
 
+#include <array>
+
 #ifdef INLINE_TEST
 #include "test.h"
 #include "worker.h"
@@ -64,7 +66,7 @@ constexpr float kDefaultUseLivingStreets = 0.6f; // Factor between 0 and 1
 // Maximum distance at the beginning or end of a multimodal route
 // that you are willing to travel for this mode.  In this case,
 // it is the max walking distance.
-constexpr uint32_t kTransitStartEndMaxDistance = 2415; // 1.5 miles
+constexpr uint32_t kMultimodalStartEndMaxDistance = 2415; // 1.5 miles
 
 // Maximum transfer distance between stops that you are willing
 // to travel for this mode.  In this case, it is the max walking
@@ -121,8 +123,8 @@ constexpr ranged_default_t<float> kSideWalkFactorRange{kMinFactor, kDefaultSideW
 constexpr ranged_default_t<float> kAlleyFactorRange{kMinFactor, kDefaultAlleyFactor, kMaxFactor};
 constexpr ranged_default_t<float> kDrivewayFactorRange{kMinFactor, kDefaultDrivewayFactor,
                                                        kMaxFactor};
-constexpr ranged_default_t<uint32_t> kTransitStartEndMaxDistanceRange{0, kTransitStartEndMaxDistance,
-                                                                      100000}; // Max 100k
+constexpr ranged_default_t<uint32_t>
+    kMultimodalStartEndMaxDistanceRange{0, kMultimodalStartEndMaxDistance, 100000}; // Max 100k
 constexpr ranged_default_t<uint32_t> kTransitTransferMaxDistanceRange{0, kTransitTransferMaxDistance,
                                                                       50000}; // Max 50k
 constexpr ranged_default_t<float> kUseHillsRange{0.0f, kDefaultUseHills, 1.0f};
@@ -487,7 +489,7 @@ public:
                uint16_t disallow_mask = kDisallowNone) const override {
     return DynamicCost::Allowed(edge, tile, disallow_mask) && edge->use() < Use::kRailFerry &&
            edge->sac_scale() <= max_hiking_difficulty_ &&
-           (!edge->bss_connection() || project_on_bss_connection);
+           (!edge->bss_connection() || project_on_bss_connection_);
   }
 
   virtual Cost BSSCost() const override {
@@ -531,13 +533,12 @@ public:
   float step_penalty_;             // Penalty applied to steps/stairs (seconds).
   float elevator_penalty_;         // Penalty applied to elevator (seconds).
 
+  // Lookup table indexed by Use enum value. 0.0f = no Use-specific factor
+  std::array<float, static_cast<size_t>(Use::kSize)> use_factor_{};
+
   // Elevation/grade penalty (weighting applied based on the edge's weighted
   // grade (relative value from 0-15)
   float grade_penalty[16];
-
-  // Used in edgefilter, it tells if the location should be projected on a edge which is
-  // a bike share station connection
-  bool project_on_bss_connection = 0;
 
   /**
    * Override the base transition cost to not add maneuver penalties onto transit edges.
@@ -654,6 +655,16 @@ PedestrianCost::PedestrianCost(const Costing& costing)
   }
 
   use_hierarchy_limits = false;
+
+  // Populate the use_factor_ lookup table. 0.0f is the sentinel for "no match"
+  use_factor_.fill(0.0f);
+  use_factor_[static_cast<uint8_t>(Use::kFootway)] = walkway_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kSidewalk)] = walkway_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kAlley)] = alley_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kDriveway)] = driveway_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kTrack)] = track_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kLivingStreet)] = living_street_factor_;
+  use_factor_[static_cast<uint8_t>(Use::kServiceRoad)] = service_factor_;
 }
 
 // Check if access is allowed on the specified edge. Disallow if no
@@ -745,21 +756,11 @@ Cost PedestrianCost::EdgeCost(const baldr::DirectedEdge* edge,
     return Cost(edge->length(), sec);
   }
 
-  // TODO - consider using an array of "use factors" to avoid this conditional
   float factor = 1.0f + kSacScaleCostFactor[static_cast<uint8_t>(edge->sac_scale())] +
                  grade_penalty[edge->weighted_grade()];
-  if (edge->use() == Use::kFootway || edge->use() == Use::kSidewalk) {
-    factor *= walkway_factor_;
-  } else if (edge->use() == Use::kAlley) {
-    factor *= alley_factor_;
-  } else if (edge->use() == Use::kDriveway) {
-    factor *= driveway_factor_;
-  } else if (edge->use() == Use::kTrack) {
-    factor *= track_factor_;
-  } else if (edge->use() == Use::kLivingStreet) {
-    factor *= living_street_factor_;
-  } else if (edge->use() == Use::kServiceRoad) {
-    factor *= service_factor_;
+  const float uf = use_factor_[static_cast<uint8_t>(edge->use())];
+  if (uf != 0.0f) {
+    factor *= uf;
   } else if (edge->sidewalk_left() || edge->sidewalk_right()) {
     factor *= sidewalk_factor_;
   } else if (edge->roundabout()) {
@@ -909,7 +910,7 @@ void ParsePedestrianCostOptions(const rapidjson::Document& doc,
   JSON_PBF_RANGED_DEFAULT(co, kSideWalkFactorRange, json, "/sidewalk_factor", sidewalk_factor);
   JSON_PBF_RANGED_DEFAULT(co, kAlleyFactorRange, json, "/alley_factor", alley_factor);
   JSON_PBF_RANGED_DEFAULT(co, kDrivewayFactorRange, json, "/driveway_factor", driveway_factor);
-  JSON_PBF_RANGED_DEFAULT(co, kTransitStartEndMaxDistanceRange, json,
+  JSON_PBF_RANGED_DEFAULT(co, kMultimodalStartEndMaxDistanceRange, json,
                           "/transit_start_end_max_distance", transit_start_end_max_distance);
   JSON_PBF_RANGED_DEFAULT(co, kTransitTransferMaxDistanceRange, json,
                           "/transit_transfer_max_distance", transit_transfer_max_distance);
@@ -917,16 +918,12 @@ void ParsePedestrianCostOptions(const rapidjson::Document& doc,
   JSON_PBF_RANGED_DEFAULT(co, kBSSPenaltyRange, json, "/bss_rent_penalty", bike_share_penalty);
   JSON_PBF_RANGED_DEFAULT(co, kUseHillsRange, json, "/use_hills", use_hills);
   JSON_PBF_RANGED_DEFAULT(co, kElevatorPenaltyRange, json, "/elevator_penalty", elevator_penalty);
+  JSON_PBF_RANGED_DEFAULT(co, kMultimodalStartEndMaxDistanceRange, json,
+                          "/multimodal_start_end_max_distance", multimodal_start_end_max_distance);
 }
 
 cost_ptr_t CreatePedestrianCost(const Costing& costing_options) {
   return std::make_shared<PedestrianCost>(costing_options);
-}
-
-cost_ptr_t CreateBikeShareCost(const Costing& costing_options) {
-  auto cost_ptr = std::make_shared<PedestrianCost>(costing_options);
-  cost_ptr->project_on_bss_connection = true;
-  return cost_ptr;
 }
 
 } // namespace sif

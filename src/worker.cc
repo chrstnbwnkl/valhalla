@@ -44,9 +44,9 @@ namespace {
 
 // Parses exclude_layers from JSON and adds them to the request's tile options
 void parse_exclude_layers(const boost::optional<rapidjson::Value&>& exclude_layers, Api& request) {
-  static const std::unordered_set<std::string_view> kSupportedLayers = {valhalla::kEdgeLayerName,
-                                                                        valhalla::kNodeLayerName,
-                                                                        valhalla::kShortcutLayerName};
+  static const std::unordered_set<std::string_view> kSupportedLayers =
+      {valhalla::kEdgeLayerName, valhalla::kNodeLayerName, valhalla::kShortcutLayerName,
+       valhalla::kAccessRestrictionLayerName};
 
   if (exclude_layers.has_value() && exclude_layers->IsArray()) {
     for (const auto& lyr : exclude_layers->GetArray()) {
@@ -1084,6 +1084,11 @@ void from_json(rapidjson::Document& doc, Options::Action action, Api& api) {
     options.set_matrix_locations(std::numeric_limits<uint32_t>::max());
   }
 
+  auto expansion_max_distance = rapidjson::get_optional<unsigned int>(doc, "/expansion_max_distance");
+  if (expansion_max_distance) {
+    options.set_expansion_max_distance(*expansion_max_distance);
+  }
+
   // get the avoid polygons in there
   auto exclude_polygons =
       rapidjson::get_child_optional(doc, doc.HasMember("avoid_polygons") ? "/avoid_polygons"
@@ -1594,11 +1599,15 @@ worker_t::result_t serialize_error(const valhalla_exception_t& exception,
 }
 
 worker_t::result_t
-to_response(const std::string& data, http_request_info_t& request_info, const Api& request) {
+to_response(const std::string& data,
+            http_request_info_t& request_info,
+            const Api& request,
+            const std::vector<std::pair<std::string, std::string>>& additional_headers) {
   // try to get all the proper headers
   auto fmt = request.options().format();
 
   headers_t headers{CORS, fmt_to_mime(fmt)};
+  headers.insert(additional_headers.begin(), additional_headers.end());
   if (fmt == Options::gpx)
     headers.insert(ATTACHMENT);
 
