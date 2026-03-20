@@ -188,11 +188,10 @@ struct EdgeMetadata {
   baldr::GraphId edge_id;
   EdgeStatusInfo* edge_status;
 
-  template <typename edge_status_t>
   inline static EdgeMetadata make(const baldr::GraphId& node,
                                   const baldr::NodeInfo* nodeinfo,
                                   const baldr::graph_tile_ptr& tile,
-                                  edge_status_t& edge_status_) {
+                                  EdgeStatus& edge_status_) {
     baldr::GraphId edge_id = {node.tileid(), node.level(), nodeinfo->edge_index()};
     EdgeStatusInfo* edge_status = edge_status_.GetPtr(edge_id, tile);
     const baldr::DirectedEdge* directededge = tile->directededge(edge_id);
