@@ -125,8 +125,6 @@ public:
 protected:
   std::unique_ptr<std::byte[]> buffer_;
   std::pmr::monotonic_buffer_resource pool_;
-  uint32_t max_reserved_labels_count_;
-  uint32_t max_reserved_locations_count_;
   bool check_reverse_connection_;
 
   // lower and upper bounds for the number of additional iterations per expansion once a connection
@@ -157,25 +155,28 @@ protected:
       locs_status_;
 
   // Adjacency lists, EdgeLabels, EdgeStatus, and hierarchy limits for each location
-  std::array<std::vector<std::vector<valhalla::HierarchyLimits>>, 2> hierarchy_limits_;
-  using PmrEdgeLabels =
-      std::vector<sif::BDEdgeLabel, std::pmr::polymorphic_allocator<sif::BDEdgeLabel>>;
-  using PmrBucketQueue = baldr::DoubleBucketQueue<sif::BDEdgeLabel, PmrEdgeLabels>;
-  using PmrBucketQueueVec =
-      std::vector<PmrBucketQueue, std::pmr::polymorphic_allocator<PmrBucketQueue>>;
-  std::array<PmrBucketQueueVec, 2> adjacency_;
 
-  std::array<std::vector<PmrEdgeLabels>, 2> edgelabel_;
-  using PmrEdgeStatusVec = std::vector<EdgeStatus, std::pmr::polymorphic_allocator<EdgeStatus>>;
-  std::array<PmrEdgeStatusVec, 2> edgestatus_;
+  using edge_label_vec_t =
+      std::vector<sif::BDEdgeLabel, std::pmr::polymorphic_allocator<sif::BDEdgeLabel>>;
+  using bucket_queue_t = baldr::DoubleBucketQueue<sif::BDEdgeLabel, edge_label_vec_t>;
+  using bucket_queue_vec_t =
+      std::vector<bucket_queue_t, std::pmr::polymorphic_allocator<bucket_queue_t>>;
+  using edge_status_vec_t = std::vector<EdgeStatus, std::pmr::polymorphic_allocator<EdgeStatus>>;
+  using astar_heuristic_vec_t =
+      std::vector<AStarHeuristic, std::pmr::polymorphic_allocator<AStarHeuristic>>;
+  using best_candidate_vec_t =
+      std::vector<BestCandidate, std::pmr::polymorphic_allocator<BestCandidate>>;
+
+  std::array<std::vector<std::vector<valhalla::HierarchyLimits>>, 2> hierarchy_limits_;
+  std::array<bucket_queue_vec_t, 2> adjacency_;
+  std::array<std::vector<edge_label_vec_t>, 2> edgelabel_;
+  std::array<edge_status_vec_t, 2> edgestatus_;
 
   // A* heuristics for both trees and each location
-  using AstarHeuristicVec =
-      std::vector<AStarHeuristic, std::pmr::polymorphic_allocator<AStarHeuristic>>;
-  std::array<AstarHeuristicVec, 2> astar_heuristics_;
+  std::array<astar_heuristic_vec_t, 2> astar_heuristics_;
 
   // List of best connections found so far
-  std::vector<BestCandidate, std::pmr::polymorphic_allocator<BestCandidate>> best_connection_;
+  best_candidate_vec_t best_connection_;
 
   bool ignore_hierarchy_limits_;
 

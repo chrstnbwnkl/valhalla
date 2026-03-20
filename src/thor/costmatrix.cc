@@ -115,10 +115,6 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       pool_(buffer_.get(),
             config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20,
             std::pmr::new_delete_resource()),
-      max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_bidir_dijkstras",
-                                                      kInitialEdgeLabelCountBidirDijkstra)),
-      max_reserved_locations_count_(
-          config.get<uint32_t>("costmatrix.max_reserved_locations", kMaxLocationReservation)),
       check_reverse_connection_(config.get<bool>("costmatrix.check_reverse_connection", true)),
       min_iterations_(
           std::max(config.get<uint32_t>("costmatrix.min_iterations", kDefaultMinIterations),
@@ -127,19 +123,17 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
           std::max(config.get<uint32_t>("costmatrix.max_iterations", kDefaultMaxIterations),
                    static_cast<uint32_t>(1))),
       access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
-      adjacency_{PmrBucketQueueVec(std::pmr::polymorphic_allocator<PmrBucketQueue>(&pool_)),
-                 PmrBucketQueueVec(std::pmr::polymorphic_allocator<PmrBucketQueue>(&pool_))},
+      adjacency_{bucket_queue_vec_t(std::pmr::polymorphic_allocator<bucket_queue_t>(&pool_)),
+                 bucket_queue_vec_t(std::pmr::polymorphic_allocator<bucket_queue_t>(&pool_))},
       astar_heuristics_{
-          AstarHeuristicVec(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
-          AstarHeuristicVec(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
+          astar_heuristic_vec_t(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
+          astar_heuristic_vec_t(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
       },
-      edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
-                  PmrEdgeStatusVec(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
+      edgestatus_{edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
+                  edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
       current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
       sources_{new ReachedMap(&pool_)} {
-  LOG_ERROR("Pool size: {}",
-            config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb));
 }
 
 CostMatrix::~CostMatrix() {
@@ -148,40 +142,36 @@ CostMatrix::~CostMatrix() {
 // Clear the temporary information generated during time + distance matrix
 // construction.
 void CostMatrix::Clear() {
-  // 1. Destroy all PMR-backed containers while pool memory is still valid
   for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
     edgelabel_[is_fwd].clear();
+    edgelabel_[is_fwd].shrink_to_fit();
+
     edgestatus_[is_fwd].clear(); // drops tile pointers, pool owns the raw memory
+    edgestatus_[is_fwd].shrink_to_fit();
+
     locs_status_[is_fwd].clear();
+    locs_status_[is_fwd].shrink_to_fit();
+
     adjacency_[is_fwd].clear();
+    adjacency_[is_fwd].shrink_to_fit();
+
     astar_heuristics_[is_fwd].clear();
+    astar_heuristics_[is_fwd].shrink_to_fit();
+
+    hierarchy_limits_[is_fwd].clear();
+    hierarchy_limits_[is_fwd].shrink_to_fit();
   }
   best_connection_.clear();
-  // shrink_to_fit releases the vector buffers back to the pool while it's still live
-  for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
-    edgelabel_[is_fwd].shrink_to_fit();
-    edgestatus_[is_fwd].shrink_to_fit();
-    adjacency_[is_fwd].shrink_to_fit();
-    astar_heuristics_[is_fwd].shrink_to_fit();
-  }
   best_connection_.shrink_to_fit();
 
   targets_.reset();
   sources_.reset();
 
-  // 2. Now nothing references pool memory — safe to release
   pool_.release();
 
-  // 3. Recreate non-vector PMR containers
   targets_ = std::make_unique<ReachedMap>(&pool_);
   if (check_reverse_connection_)
     sources_ = std::make_unique<ReachedMap>(&pool_);
-
-  // 4. Non-PMR containers just clear normally
-  for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
-    hierarchy_limits_[is_fwd].clear();
-    hierarchy_limits_[is_fwd].shrink_to_fit();
-  }
 
   set_not_thru_pruning(true);
   ignore_hierarchy_limits_ = false;
