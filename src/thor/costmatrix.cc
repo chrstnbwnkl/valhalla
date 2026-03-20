@@ -110,11 +110,9 @@ private:
 // Constructor with cost threshold.
 CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
     : MatrixAlgorithm(config),
-      buffer_(std::make_unique<std::byte[]>(
+      buffer_(std::make_unique<std::vector<std::byte>>(
           config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20)),
-      pool_(buffer_.get(),
-            config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20,
-            std::pmr::new_delete_resource()),
+      pool_(buffer_->data(), buffer_->size(), std::pmr::new_delete_resource()),
       check_reverse_connection_(config.get<bool>("costmatrix.check_reverse_connection", true)),
       min_iterations_(
           std::max(config.get<uint32_t>("costmatrix.min_iterations", kDefaultMinIterations),
@@ -146,7 +144,7 @@ void CostMatrix::Clear() {
     edgelabel_[is_fwd].clear();
     edgelabel_[is_fwd].shrink_to_fit();
 
-    edgestatus_[is_fwd].clear(); // drops tile pointers, pool owns the raw memory
+    edgestatus_[is_fwd].clear();
     edgestatus_[is_fwd].shrink_to_fit();
 
     locs_status_[is_fwd].clear();

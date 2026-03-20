@@ -123,7 +123,7 @@ public:
   }
 
 protected:
-  std::unique_ptr<std::byte[]> buffer_;
+  std::unique_ptr<std::vector<std::byte>> buffer_;
   std::pmr::monotonic_buffer_resource pool_;
   bool check_reverse_connection_;
 

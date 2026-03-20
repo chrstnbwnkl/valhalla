@@ -146,8 +146,7 @@ void MultimodalAStar::ExpandForward(GraphReader& graphreader,
     if (meta.edge_status->set() == EdgeSet::kPermanent ||
         !current_costing->Allowed(meta.edge, is_dest, pred, tile, meta.edge_id, 0, 0,
                                   has_time_restrictions, destonly_restriction_mask) ||
-        current_costing->Restricted(meta.edge, pred, edgelabels_, tile, meta.edge_id, true,
-                                    static_cast<EdgeStatus*>(nullptr))) {
+        current_costing->Restricted(meta.edge, pred, edgelabels_, tile, meta.edge_id, true)) {
       continue;
     }
 

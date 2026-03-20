@@ -111,18 +111,16 @@ void TimeDistanceMatrix::Expand(GraphReader& graphreader,
     if (FORWARD) {
       if (!costing_->Allowed(directededge, is_dest, pred, tile, edgeid, offset_time.local_time,
                              nodeinfo->timezone(), restriction_idx, destonly_restriction_mask) ||
-          costing_->Restricted(directededge, pred, edgelabels_, tile, edgeid, true,
-                               static_cast<EdgeStatus*>(nullptr), offset_time.local_time,
-                               nodeinfo->timezone())) {
+          costing_->Restricted(directededge, pred, edgelabels_, tile, edgeid, true, nullptr,
+                               offset_time.local_time, nodeinfo->timezone())) {
         continue;
       }
     } else {
       if (!costing_->AllowedReverse(directededge, pred, opp_edge, t2, opp_edge_id,
                                     offset_time.local_time, nodeinfo->timezone(), restriction_idx,
                                     destonly_restriction_mask) ||
-          (costing_->Restricted(directededge, pred, edgelabels_, tile, edgeid, false,
-                                static_cast<EdgeStatus*>(nullptr), offset_time.local_time,
-                                nodeinfo->timezone()))) {
+          (costing_->Restricted(directededge, pred, edgelabels_, tile, edgeid, false, nullptr,
+                                offset_time.local_time, nodeinfo->timezone()))) {
         continue;
       }
     }

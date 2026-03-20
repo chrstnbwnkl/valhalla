@@ -113,7 +113,7 @@ protected:
   baldr::DoubleBucketQueue<sif::EdgeLabel> adjacencylist_;
 
   // Edge status. Mark edges that are in adjacency list or settled.
-  std::pmr::monotonic_buffer_resource edgestatus_mr_{std::pmr::new_delete_resource()};
+  std::pmr::unsynchronized_pool_resource edgestatus_mr_{std::pmr::new_delete_resource()};
   EdgeStatus edgestatus_;
 
   sif::travel_mode_t mode_;
