@@ -153,6 +153,7 @@ protected:
 
   // if `true` clean reserved memory for edge labels
   bool clear_reserved_memory_;
+  std::pmr::monotonic_buffer_resource edgestatus_mr_{std::pmr::new_delete_resource()};
 };
 
 /**

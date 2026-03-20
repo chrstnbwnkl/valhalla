@@ -24,7 +24,8 @@ TimeDistanceBSSMatrix::TimeDistanceBSSMatrix(const boost::property_tree::ptree& 
     : MatrixAlgorithm(config), settled_count_(0), current_cost_threshold_(0),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_dijkstras",
                                                       kInitialEdgeLabelCountDijkstras)),
-      clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)) {
+      clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)),
+      pedestrian_edgestatus_(&edgestatus_mr_), bicycle_edgestatus_(&edgestatus_mr_) {
 }
 
 float TimeDistanceBSSMatrix::GetCostThreshold(const float max_matrix_distance) const {

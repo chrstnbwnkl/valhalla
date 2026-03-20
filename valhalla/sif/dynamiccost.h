@@ -18,7 +18,6 @@
 #include <valhalla/sif/costconstants.h>
 #include <valhalla/sif/edgelabel.h>
 #include <valhalla/thor/edgestatus.h>
-#include <valhalla/thor/edgestatus_pmr.h>
 
 #include <boost/container/small_vector.hpp>
 

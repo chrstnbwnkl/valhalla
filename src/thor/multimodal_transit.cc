@@ -16,7 +16,8 @@ MultiModalPathAlgorithm::MultiModalPathAlgorithm(const boost::property_tree::ptr
     : PathAlgorithm(config.get<uint32_t>("max_reserved_labels_count_astar",
                                          kInitialEdgeLabelCountAstar),
                     config.get<bool>("clear_reserved_memory", false)),
-      max_walking_dist_(0), mode_(travel_mode_t::kPedestrian), travel_type_(0) {
+      max_walking_dist_(0), mode_(travel_mode_t::kPedestrian), travel_type_(0),
+      edgestatus_(&edgestatus_mr_) {
 }
 
 // Destructor
@@ -57,6 +58,7 @@ void MultiModalPathAlgorithm::Clear() {
 
   // Clear the edge status flags
   edgestatus_.clear();
+  edgestatus_mr_.release();
 
   // Set the ferry flag to false
   has_ferry_ = false;
@@ -756,7 +758,7 @@ bool MultiModalPathAlgorithm::CanReachDestination(const valhalla::Location& dest
   mode_ = dest_mode;
 
   // Local edge labels and edge status info
-  EdgeStatus edgestatus;
+  EdgeStatus edgestatus(&edgestatus_mr_);
   std::vector<EdgeLabel> edgelabels;
 
   // Use a simple Dijkstra method - no need to recover the path just need to make sure we can

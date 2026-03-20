@@ -18,7 +18,8 @@ constexpr uint32_t kMaxIterationsWithoutConvergence = 200000;
 MultimodalAStar::MultimodalAStar(const boost::property_tree::ptree& config)
     : PathAlgorithm(config.get<uint32_t>("max_reserved_labels_count_astar",
                                          kInitialEdgeLabelCountAstar),
-                    config.get<bool>("clear_reserved_memory", false)) {
+                    config.get<bool>("clear_reserved_memory", false)),
+      edge_status_{EdgeStatus{&edgestatus_mr_}, EdgeStatus{&edgestatus_mr_}} {
   mode_ = travel_mode_t::kDrive;
 }
 
@@ -41,6 +42,7 @@ void MultimodalAStar::Clear() {
   destinations_.clear();
   adjacencylist_.clear();
   std::for_each(edge_status_.begin(), edge_status_.end(), [](auto& status) { status.clear(); });
+  edgestatus_mr_.release();
 
   // Set the ferry flag to false
   has_ferry_ = false;

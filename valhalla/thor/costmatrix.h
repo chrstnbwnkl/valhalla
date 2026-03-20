@@ -9,7 +9,6 @@
 #include <valhalla/sif/dynamiccost.h>
 #include <valhalla/sif/edgelabel.h>
 #include <valhalla/thor/astarheuristic.h>
-#include <valhalla/thor/edgestatus_pmr.h>
 #include <valhalla/thor/matrixalgorithm.h>
 #include <valhalla/thor/pathalgorithm.h>
 
@@ -124,8 +123,6 @@ public:
   }
 
 protected:
-  static constexpr size_t kDefaultPoolSize = 16 * 1024 * 1024; // 16MB
-  // std::pmr::unsynchronized_pool_resource pool_;
   std::unique_ptr<std::byte[]> buffer_;
   std::pmr::monotonic_buffer_resource pool_;
   uint32_t max_reserved_labels_count_;
@@ -164,14 +161,18 @@ protected:
   using PmrEdgeLabels =
       std::vector<sif::BDEdgeLabel, std::pmr::polymorphic_allocator<sif::BDEdgeLabel>>;
   using PmrBucketQueue = baldr::DoubleBucketQueue<sif::BDEdgeLabel, PmrEdgeLabels>;
-  std::array<std::vector<PmrBucketQueue>, 2> adjacency_;
-  std::vector<PmrEdgeLabels> edgelabel_[2];
-  using PmrEdgeStatusVec =
-      std::vector<PoolEdgeStatus, std::pmr::polymorphic_allocator<PoolEdgeStatus>>;
+  using PmrBucketQueueVec =
+      std::vector<PmrBucketQueue, std::pmr::polymorphic_allocator<PmrBucketQueue>>;
+  std::array<PmrBucketQueueVec, 2> adjacency_;
+
+  std::array<std::vector<PmrEdgeLabels>, 2> edgelabel_;
+  using PmrEdgeStatusVec = std::vector<EdgeStatus, std::pmr::polymorphic_allocator<EdgeStatus>>;
   std::array<PmrEdgeStatusVec, 2> edgestatus_;
 
   // A* heuristics for both trees and each location
-  std::array<std::vector<AStarHeuristic>, 2> astar_heuristics_;
+  using AstarHeuristicVec =
+      std::vector<AStarHeuristic, std::pmr::polymorphic_allocator<AStarHeuristic>>;
+  std::array<AstarHeuristicVec, 2> astar_heuristics_;
 
   // List of best connections found so far
   std::vector<BestCandidate, std::pmr::polymorphic_allocator<BestCandidate>> best_connection_;

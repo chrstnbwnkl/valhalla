@@ -24,6 +24,7 @@ constexpr uint32_t kMaxThreshold = std::numeric_limits<int>::max();
 constexpr uint32_t kMaxLocationReservation = 25; // the default config for max matrix locations
 constexpr uint32_t kDefaultMinIterations = 100;
 constexpr uint32_t kDefaultMaxIterations = 2800;
+static constexpr size_t kDefaultPoolSizeMb = 16; // 16mb
 
 /**
  * Checks whether an edge of the source (target) correlation is present with the same percent_along in
@@ -108,8 +109,12 @@ private:
 
 // Constructor with cost threshold.
 CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
-    : MatrixAlgorithm(config), buffer_(std::make_unique<std::byte[]>(kDefaultPoolSize)),
-      pool_(buffer_.get(), kDefaultPoolSize, std::pmr::new_delete_resource()),
+    : MatrixAlgorithm(config),
+      buffer_(std::make_unique<std::byte[]>(
+          config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20)),
+      pool_(buffer_.get(),
+            config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20,
+            std::pmr::new_delete_resource()),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_bidir_dijkstras",
                                                       kInitialEdgeLabelCountBidirDijkstra)),
       max_reserved_locations_count_(
@@ -122,11 +127,19 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
           std::max(config.get<uint32_t>("costmatrix.max_iterations", kDefaultMaxIterations),
                    static_cast<uint32_t>(1))),
       access_mode_(kAutoAccess), mode_(travel_mode_t::kDrive), locs_count_{0, 0},
-      edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_)),
-                  PmrEdgeStatusVec(std::pmr::polymorphic_allocator<PoolEdgeStatus>(&pool_))},
+      adjacency_{PmrBucketQueueVec(std::pmr::polymorphic_allocator<PmrBucketQueue>(&pool_)),
+                 PmrBucketQueueVec(std::pmr::polymorphic_allocator<PmrBucketQueue>(&pool_))},
+      astar_heuristics_{
+          AstarHeuristicVec(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
+          AstarHeuristicVec(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
+      },
+      edgestatus_{PmrEdgeStatusVec(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
+                  PmrEdgeStatusVec(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
-                                                                            new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
+  LOG_ERROR("Pool size: {}",
+            config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb));
 }
 
 CostMatrix::~CostMatrix() {
@@ -140,6 +153,8 @@ void CostMatrix::Clear() {
     edgelabel_[is_fwd].clear();
     edgestatus_[is_fwd].clear(); // drops tile pointers, pool owns the raw memory
     locs_status_[is_fwd].clear();
+    adjacency_[is_fwd].clear();
+    astar_heuristics_[is_fwd].clear();
   }
   best_connection_.clear();
   // shrink_to_fit releases the vector buffers back to the pool while it's still live
@@ -147,6 +162,7 @@ void CostMatrix::Clear() {
     edgelabel_[is_fwd].shrink_to_fit();
     edgestatus_[is_fwd].shrink_to_fit();
     adjacency_[is_fwd].shrink_to_fit();
+    astar_heuristics_[is_fwd].shrink_to_fit();
   }
   best_connection_.shrink_to_fit();
 
@@ -163,9 +179,8 @@ void CostMatrix::Clear() {
 
   // 4. Non-PMR containers just clear normally
   for (const auto is_fwd : {MATRIX_FORW, MATRIX_REV}) {
-    adjacency_[is_fwd].clear();
-    astar_heuristics_[is_fwd].clear();
     hierarchy_limits_[is_fwd].clear();
+    hierarchy_limits_[is_fwd].shrink_to_fit();
   }
 
   set_not_thru_pruning(true);
@@ -392,7 +407,6 @@ void CostMatrix::Initialize(
 
     for (uint32_t i = 0; i < count; i++) {
       edgelabel_[is_fwd].emplace_back(std::pmr::polymorphic_allocator<BDEdgeLabel>(&pool_));
-      edgelabel_[is_fwd][i].reserve(max_reserved_labels_count_);
       edgestatus_[is_fwd].emplace_back(&pool_);
       locs_status_[is_fwd].emplace_back(kMaxThreshold);
       hierarchy_limits_[is_fwd][i] = hlimits;

@@ -20,7 +20,8 @@ UnidirectionalAStar<expansion_direction, FORWARD>::UnidirectionalAStar(
     : PathAlgorithm(config.get<uint32_t>("max_reserved_labels_count_astar",
                                          kInitialEdgeLabelCountAstar),
                     config.get<bool>("clear_reserved_memory", false)),
-      mode_(travel_mode_t::kDrive), travel_type_(0), access_mode_(kAutoAccess) {
+      mode_(travel_mode_t::kDrive), travel_type_(0), access_mode_(kAutoAccess),
+      edgestatus_(&edgestatus_mr_) {
 }
 
 // Default constructor
@@ -45,6 +46,7 @@ void UnidirectionalAStar<expansion_direction, FORWARD>::Clear() {
   destinations_.clear();
   adjacencylist_.clear();
   edgestatus_.clear();
+  edgestatus_mr_.release();
 
   // Set the ferry flag to false
   has_ferry_ = false;

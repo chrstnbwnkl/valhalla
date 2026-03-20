@@ -16,7 +16,7 @@ TimeDistanceMatrix::TimeDistanceMatrix(const boost::property_tree::ptree& config
     : MatrixAlgorithm(config), settled_count_(0), current_cost_threshold_(0),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_dijkstras",
                                                       kInitialEdgeLabelCountDijkstras)),
-      mode_(travel_mode_t::kDrive) {
+      mode_(travel_mode_t::kDrive), edgestatus_(&edgestatus_mr_) {
 }
 
 // Compute a cost threshold in seconds based on average speed for the travel mode.

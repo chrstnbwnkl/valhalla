@@ -59,30 +59,31 @@ public:
   /**
    * Default constructor.
    */
-  EdgeStatus() = default;
-
-  // in order no to delete objects twice in destructor we should explicitly
-  // forbid copying
-  EdgeStatus(const EdgeStatus&) = delete;
-  EdgeStatus& operator=(const EdgeStatus&) = delete;
-  EdgeStatus(EdgeStatus&&) = default;
-  EdgeStatus& operator=(EdgeStatus&&) = default;
-
-  /**
-   * Destructor. Delete any allocated EdgeStatusInfo arrays.
-   */
-  ~EdgeStatus() {
-    clear();
+  explicit EdgeStatus(std::pmr::memory_resource* mr) : mr_(mr) {
   }
 
+  EdgeStatus(const EdgeStatus&) = delete;
+  EdgeStatus& operator=(const EdgeStatus&) = delete;
+
+  EdgeStatus(EdgeStatus&& other) noexcept
+      : edgestatus_(std::move(other.edgestatus_)), mr_(other.mr_) {
+    other.edgestatus_.clear();
+  }
+
+  EdgeStatus& operator=(EdgeStatus&& other) noexcept {
+    if (this != &other) {
+      edgestatus_ = std::move(other.edgestatus_);
+      mr_ = other.mr_;
+      other.edgestatus_.clear();
+    }
+    return *this;
+  }
+
+  ~EdgeStatus() = default;
   /**
    * Clear the EdgeStatusInfo arrays and the edge status map.
    */
   void clear() {
-    // Delete any allocated arrays for tiles within the map.
-    for (auto& iter : edgestatus_) {
-      delete[] iter.second;
-    }
     edgestatus_.clear();
   }
 
@@ -107,8 +108,8 @@ public:
     } else {
       // Tile is not in the map. Add an array of EdgeStatusInfo, sized to
       // the number of directed edges in the specified tile.
-      auto inserted = edgestatus_.emplace(edgeid.tile_value() | SHIFT_path_id(path_id),
-                                          new EdgeStatusInfo[tile->header()->directededgecount()]);
+      auto* arr = allocate_tile(tile->header()->directededgecount());
+      auto inserted = edgestatus_.emplace(edgeid.tile_value() | SHIFT_path_id(path_id), arr);
       inserted.first->second[edgeid.id()] = {set, index};
     }
   }
@@ -163,17 +164,29 @@ public:
     } else {
       // Tile is not in the map. Add an array of EdgeStatusInfo, sized to
       // the number of directed edges in the specified tile.
-      auto inserted = edgestatus_.emplace(edgeid.tile_value() | SHIFT_path_id(path_id),
-                                          new EdgeStatusInfo[tile->header()->directededgecount()]);
+      auto* arr = allocate_tile(tile->header()->directededgecount());
+      auto inserted = edgestatus_.emplace(edgeid.tile_value() | SHIFT_path_id(path_id), arr);
       return &(inserted.first->second)[edgeid.id()];
     }
   }
 
 private:
+  /**
+   * Allocate a zero-initialized array of EdgeStatusInfo from the pool.
+   * Zero-init guarantees EdgeSet::kUnreachedOrReset (0) as default.
+   */
+  EdgeStatusInfo* allocate_tile(uint32_t edge_count) {
+    auto bytes = edge_count * sizeof(EdgeStatusInfo);
+    auto* arr = static_cast<EdgeStatusInfo*>(mr_->allocate(bytes, alignof(EdgeStatusInfo)));
+    std::memset(arr, 0, bytes);
+    return arr;
+  }
+
   // Edge status - keys are the tile Ids (level and tile Id) and the
   // values are dynamically allocated arrays of EdgeStatusInfo (sized
   // based on the directed edge count within the tile).
-  std::unordered_map<uint32_t, EdgeStatusInfo*> edgestatus_;
+  ankerl::unordered_dense::map<uint32_t, EdgeStatusInfo*> edgestatus_;
+  std::pmr::memory_resource* mr_;
 };
 
 } // namespace thor

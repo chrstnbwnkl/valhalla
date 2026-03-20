@@ -55,7 +55,8 @@ BidirectionalAStar::BidirectionalAStar(const boost::property_tree::ptree& config
     : PathAlgorithm(config.get<uint32_t>("max_reserved_labels_count_bidir_astar",
                                          kInitialEdgeLabelCountBidirAstar),
                     config.get<bool>("clear_reserved_memory", false)),
-      extended_search_(config.get<bool>("extended_search", false)) {
+      extended_search_(config.get<bool>("extended_search", false)),
+      edgestatus_forward_(&edgestatus_mr_), edgestatus_reverse_(&edgestatus_mr_) {
   cost_threshold_ = 0;
   iterations_threshold_ = 0;
   desired_paths_count_ = 1;
@@ -96,6 +97,7 @@ void BidirectionalAStar::Clear() {
   adjacencylist_reverse_.clear();
   edgestatus_forward_.clear();
   edgestatus_reverse_.clear();
+  edgestatus_mr_.release();
 
   // Set the ferry flag to false
   has_ferry_ = false;

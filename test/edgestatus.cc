@@ -19,7 +19,8 @@ struct test_tile : public GraphTile {
 };
 
 TEST(EdgeStatus, TestStatus) {
-  EdgeStatus edgestatus;
+  auto res = std::pmr::new_delete_resource();
+  EdgeStatus edgestatus(res);
 
   // Dummy tile header
   GraphTileHeader header;

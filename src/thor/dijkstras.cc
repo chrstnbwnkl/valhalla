@@ -16,7 +16,8 @@ Dijkstras::Dijkstras(const boost::property_tree::ptree& config)
     : mode_(travel_mode_t::kDrive), access_mode_(kAutoAccess),
       max_reserved_labels_count_(config.get<uint32_t>("max_reserved_labels_count_dijkstras",
                                                       kInitialEdgeLabelCountDijkstras)),
-      clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)), multipath_(false) {
+      clear_reserved_memory_(config.get<bool>("clear_reserved_memory", false)), multipath_(false),
+      edgestatus_(&edgestatus_mr_) {
 }
 
 // Clear the temporary information generated during path construction.
@@ -38,6 +39,7 @@ void Dijkstras::Clear() {
   adjacencylist_.clear();
   mmadjacencylist_.clear();
   edgestatus_.clear();
+  edgestatus_mr_.release();
 }
 
 // Initialize - create adjacency list, edgestatus support, and reserve

@@ -77,6 +77,7 @@ public:
     reset();
     destinations_.clear();
     dest_edges_.clear();
+    edgestatus_mr_.release();
   };
 
   /**
@@ -113,6 +114,7 @@ protected:
   baldr::DoubleBucketQueue<sif::EdgeLabel> adjacencylist_;
 
   // Edge status. Mark edges that are in adjacency list or settled.
+  std::pmr::monotonic_buffer_resource edgestatus_mr_{std::pmr::new_delete_resource()};
   EdgeStatus pedestrian_edgestatus_;
   EdgeStatus bicycle_edgestatus_;
 

@@ -159,6 +159,7 @@ protected:
   baldr::DoubleBucketQueue<sif::MMEdgeLabel> mmadjacencylist_;
 
   // Edge status. Mark edges that are in adjacency list or settled.
+  std::pmr::monotonic_buffer_resource edgestatus_mr_{std::pmr::new_delete_resource()};
   EdgeStatus edgestatus_;
 
   // when doing timezone differencing a timezone cache speeds up the computation
