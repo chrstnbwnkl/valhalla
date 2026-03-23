@@ -127,6 +127,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
           astar_heuristic_vec_t(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
           astar_heuristic_vec_t(std::pmr::polymorphic_allocator<AStarHeuristic>(&pool_)),
       },
+      edgelabel_{edge_label_outer_vec_t(std::pmr::polymorphic_allocator<edge_label_vec_t>(&pool_)),
+                 edge_label_outer_vec_t(std::pmr::polymorphic_allocator<edge_label_vec_t>(&pool_))},
       edgestatus_{edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
                   edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
@@ -394,7 +396,7 @@ void CostMatrix::Initialize(
     adjacency_[is_fwd].resize(count);
 
     for (uint32_t i = 0; i < count; i++) {
-      edgelabel_[is_fwd].emplace_back(std::pmr::polymorphic_allocator<BDEdgeLabel>(&pool_));
+      edgelabel_[is_fwd].emplace_back();
       edgestatus_[is_fwd].emplace_back(&pool_);
       locs_status_[is_fwd].emplace_back(kMaxThreshold);
       hierarchy_limits_[is_fwd][i] = hlimits;

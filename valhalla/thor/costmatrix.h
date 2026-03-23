@@ -158,6 +158,8 @@ protected:
 
   using edge_label_vec_t =
       std::vector<sif::BDEdgeLabel, std::pmr::polymorphic_allocator<sif::BDEdgeLabel>>;
+  using edge_label_outer_vec_t =
+      std::vector<edge_label_vec_t, std::pmr::polymorphic_allocator<edge_label_vec_t>>;
   using bucket_queue_t = baldr::DoubleBucketQueue<sif::BDEdgeLabel, edge_label_vec_t>;
   using bucket_queue_vec_t =
       std::vector<bucket_queue_t, std::pmr::polymorphic_allocator<bucket_queue_t>>;
@@ -168,8 +170,8 @@ protected:
       std::vector<BestCandidate, std::pmr::polymorphic_allocator<BestCandidate>>;
 
   std::array<std::vector<std::vector<valhalla::HierarchyLimits>>, 2> hierarchy_limits_;
+  std::array<edge_label_outer_vec_t, 2> edgelabel_;
   std::array<bucket_queue_vec_t, 2> adjacency_;
-  std::array<std::vector<edge_label_vec_t>, 2> edgelabel_;
   std::array<edge_status_vec_t, 2> edgestatus_;
 
   // A* heuristics for both trees and each location
