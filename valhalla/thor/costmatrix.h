@@ -41,9 +41,9 @@ constexpr float kCostThresholdPedestrianDivisor =
  */
 struct LocationStatus {
   int threshold;
-  std::set<uint32_t> unfound_connections;
+  ankerl::unordered_dense::pmr::set<uint32_t> unfound_connections;
 
-  LocationStatus(const int t) : threshold(t) {
+  LocationStatus(const int t, std::pmr::memory_resource* mr) : threshold(t), unfound_connections(mr) {
   }
 };
 

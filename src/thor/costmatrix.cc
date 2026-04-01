@@ -127,8 +127,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       edgestatus_{edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
                   edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
-                                                                            new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {
@@ -393,7 +393,8 @@ void CostMatrix::Initialize(
     for (uint32_t i = 0; i < count; i++) {
       edgelabel_[is_fwd].emplace_back();
       edgestatus_[is_fwd].emplace_back(&pool_);
-      locs_status_[is_fwd].emplace_back(kMaxThreshold);
+      auto& ls = locs_status_[is_fwd].emplace_back(kMaxThreshold, &pool_);
+      ls.unfound_connections.reserve(other_count);
       hierarchy_limits_[is_fwd][i] = hlimits;
 
       auto& ll = locations[i].ll();
