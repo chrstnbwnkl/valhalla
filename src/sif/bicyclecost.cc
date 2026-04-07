@@ -35,6 +35,7 @@ constexpr float kDefaultBssPenalty = 0.0f;    // Seconds
 constexpr float kDefaultUseRoad = 0.25f;          // Factor between 0 and 1
 constexpr float kDefaultAvoidBadSurfaces = 0.25f; // Factor between 0 and 1
 constexpr float kDefaultUseLivingStreets = 0.5f;  // Factor between 0 and 1
+constexpr float kDefaultUseDensity = 0.5f;        // Factor between 0 and 1
 const std::string kDefaultBicycleType = "hybrid"; // Bicycle type
 
 // Default turn costs - modified by the stop impact.
@@ -203,6 +204,7 @@ constexpr float kBicycleNetworkFactor = 0.95f;
 constexpr ranged_default_t<float> kUseRoadRange{0.0f, kDefaultUseRoad, 1.0f};
 constexpr ranged_default_t<float> kUseHillsRange{0.0f, kDefaultUseHills, 1.0f};
 constexpr ranged_default_t<float> kAvoidBadSurfacesRange{0.0f, kDefaultAvoidBadSurfaces, 1.0f};
+constexpr ranged_default_t<float> kUseDensityRange{0.0f, kDefaultUseDensity, 1.0f};
 
 constexpr ranged_default_t<float> kBSSCostRange{0, kDefaultBssCost, kMaxPenalty};
 constexpr ranged_default_t<float> kBSSPenaltyRange{0, kDefaultBssPenalty, kMaxPenalty};
@@ -433,6 +435,9 @@ public:
   // grade (relative value from 0-15)
   float grade_penalty[16];
 
+  // Density penalty (weighting applied based on the edge's density value 0-15)
+  float density_penalty_[16];
+
 protected:
   /**
    * Function to be used in location searching which will
@@ -546,6 +551,21 @@ BicycleCost::BicycleCost(const Costing& costing)
   float avoid_hills = (1.0f - use_hills);
   for (uint32_t i = 0; i <= kMaxGradeFactor; i++) {
     grade_penalty[i] = avoid_hills * kAvoidHillsStrength[i];
+  }
+
+  float use_density = costing_options.use_density();
+  for (uint32_t i = 0; i < 16; i++) {
+    // Normalized density in [0, 1]
+    float d = static_cast<float>(i) / 15.0f;
+    if (use_density < 0.5f) {
+      float strength = 10.0f - 20.0f * use_density;
+      density_penalty_[i] = strength * d;
+    } else if (use_density > 0.5f) {
+      float strength = 20.0f * (use_density - 0.5f);
+      density_penalty_[i] = strength * (1.0f - d);
+    } else {
+      density_penalty_[i] = 0.0f;
+    }
   }
 
   use_hierarchy_limits = false;
@@ -694,9 +714,9 @@ Cost BicycleCost::EdgeCost(const baldr::DirectedEdge* edge,
   }
 
   // Create an edge factor based on total stress (sum of accommodation factor and roadway
-  // stress) and the weighted grade penalty for the edge.
-  float factor =
-      1.0f + grade_penalty[edge->weighted_grade()] + (accommodation_factor * roadway_stress);
+  // stress), the weighted grade penalty, and the density penalty for the edge.
+  float factor = 1.0f + grade_penalty[edge->weighted_grade()] + density_penalty_[edge->density()] +
+                 (accommodation_factor * roadway_stress);
 
   // If surface is worse than the minimum we add a surface factor
   if (edge->surface() >= minimal_surface_penalized_) {
@@ -888,6 +908,7 @@ void ParseBicycleCostOptions(const rapidjson::Document& doc,
   JSON_PBF_RANGED_DEFAULT(co, kUseHillsRange, json, "/use_hills", use_hills, warnings);
   JSON_PBF_RANGED_DEFAULT(co, kAvoidBadSurfacesRange, json, "/avoid_bad_surfaces", avoid_bad_surfaces,
                           warnings);
+  JSON_PBF_RANGED_DEFAULT(co, kUseDensityRange, json, "/use_density", use_density, warnings);
   JSON_PBF_DEFAULT(co, kDefaultBicycleType, json, "/bicycle_type", transport_type);
 
   // convert string to enum, set ranges and defaults based on enum
@@ -935,10 +956,11 @@ namespace {
 
 class TestBicycleCost : public BicycleCost {
 public:
-  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options){};
+  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options) {};
 
   using BicycleCost::alley_penalty_;
   using BicycleCost::country_crossing_cost_;
+  using BicycleCost::density_penalty_;
   using BicycleCost::destination_only_penalty_;
   using BicycleCost::ferry_transition_cost_;
   using BicycleCost::gate_cost_;
@@ -1069,6 +1091,18 @@ defaults.use_ferry_.max));
   for (unsigned i = 0; i < testIterations; ++i) {
     ctorTester.reset(make_bicyclecost_from_json("use_roads", (*distributor)(generator)));
     EXPECT_THAT(ctorTester->use_roads_, test::IsBetween(kUseRoadRange.min, kUseRoadRange.max));
+  }
+
+  // use_density
+  distributor.reset(make_distributor_from_range(kUseDensityRange));
+  for (unsigned i = 0; i < testIterations; ++i) {
+    ctorTester.reset(make_bicyclecost_from_json("use_density", (*distributor)(generator)));
+    // Verify density penalties are computed correctly
+    float use_density =
+        std::clamp((*distributor)(generator), kUseDensityRange.min, kUseDensityRange.max);
+    // Just verify the constructor doesn't crash and the member is populated
+    EXPECT_GE(ctorTester->density_penalty_[0], 0.0f);
+    EXPECT_GE(ctorTester->density_penalty_[15], 0.0f);
   }
 
   // speed_
