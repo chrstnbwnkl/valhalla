@@ -196,6 +196,19 @@ public:
   }
 
   /**
+   * Trains should snap to railway stop nodes rather than arbitrary
+   * points along the nearest rail edge, so a user point correlates to
+   * the station it's closest to.
+   */
+  bool RequiresPreferredSnapNode() const override {
+    return true;
+  }
+
+  bool IsPreferredSnapNode(const baldr::NodeInfo* node) const override {
+    return node != nullptr && node->type() == NodeType::kRailwayStop;
+  }
+
+  /**
    * Edge access check used by location search filtering.
    */
   virtual bool IsAccessible(const baldr::DirectedEdge* edge) const override {
@@ -303,6 +316,7 @@ public:
     if ((edge->forwardaccess() & kTrainAccess) == 0 && (edge->reverseaccess() & kTrainAccess) == 0) {
       return false;
     }
+
     // The single-arg version doesn't know the edge id. Most locate/search
     // calls use the full Allowed() above; this one is only used by reach
     // probes where being slightly permissive is fine. Apply filters only

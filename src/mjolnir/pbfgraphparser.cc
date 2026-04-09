@@ -2255,6 +2255,12 @@ struct graph_parser {
         osmdata_.edge_count += !intersection;
         intersection = true;
         n.set_type(NodeType::kElevator);
+      } else if (tag.first == "railway_stop" && tag.second == "true") {
+        // Force an intersection at rail stop points so trains can target
+        // them as a waypoint on the line.
+        osmdata_.edge_count += !intersection;
+        intersection = true;
+        n.set_type(NodeType::kRailwayStop);
       } else if (tag.first == "access_mask") {
         n.set_access(to_int(tag.second));
       } else if (tag.first == "tagged_access") {

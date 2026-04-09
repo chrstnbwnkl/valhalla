@@ -597,31 +597,102 @@ struct bin_handler_t {
 
       // get some shape of the edge
       auto edge_info = tile->edgeinfo(edge);
-      auto shape = edge_info.lazy_shape();
-      PointLL v;
-      if (!shape.empty()) {
-        v = shape.pop();
-      }
 
-      // iterate along this edges segments projecting each of the points
-      for (size_t i = 0; !shape.empty(); ++i) {
-        auto u = v;
-        v = shape.pop();
-        // for each input point
+      // Train-style costings that snap locations to specific node types
+      // (e.g. railway=stop points) don't care about projection onto the
+      // shape — they only care whether either endpoint of this edge is a
+      // preferred snap node. Replace the per-shape projection with a
+      // direct endpoint check; if neither endpoint qualifies, this edge
+      // is not a valid candidate for any of the input points in this
+      // bin.
+      if (costing->RequiresPreferredSnapNode()) {
+        // Endpoint positions from the full shape: for forward edges
+        // shape.front() is the begin node and shape.back() is the end
+        // node; reversed for non-forward edges. We use shape points
+        // (not node->latlng()) so the equality check in finalize() that
+        // picks the node-snap path fires without relying on float
+        // tolerance.
+        const auto& full_shape = edge_info.shape();
+        const PointLL shape_front = full_shape.front();
+        const PointLL shape_back = full_shape.back();
+        const PointLL begin_ll = edge->forward() ? shape_front : shape_back;
+        const PointLL end_ll = edge->forward() ? shape_back : shape_front;
+
+        // Look up end node and decide if it's a preferred snap node.
+        const GraphId end_node_id = edge->endnode();
+        graph_tile_ptr end_tile = reader.GetGraphTile(end_node_id);
+        const bool end_preferred =
+            end_tile && costing->IsPreferredSnapNode(end_tile->node(end_node_id));
+
+        // Look up begin node via the opposing edge (the begin node of
+        // `edge` is the end node of its opposing edge).
+        const DirectedEdge* opp_for_begin = nullptr;
+        graph_tile_ptr opp_tile_for_begin;
+        reader.GetOpposingEdgeId(edge_id, opp_for_begin, opp_tile_for_begin);
+        bool begin_preferred = false;
+        if (opp_for_begin && opp_tile_for_begin) {
+          const GraphId begin_node_id = opp_for_begin->endnode();
+          graph_tile_ptr begin_tile = reader.GetGraphTile(begin_node_id);
+          begin_preferred =
+              begin_tile && costing->IsPreferredSnapNode(begin_tile->node(begin_node_id));
+        }
+
+        // For each input point, pick the closer of the two preferred
+        // endpoints. If neither endpoint is preferred, this edge isn't
+        // usable for that point; mark as prefiltered.
         c_itr = bin_candidates.begin();
         for (p_itr = begin; p_itr != end; ++p_itr, ++c_itr) {
-          // skip updating this candidate because it was prefiltered
           if (c_itr->prefiltered) {
             continue;
           }
-          // how close is the input to this segment
-          auto point = p_itr->project(u, v);
-          auto sq_distance = p_itr->project.approx.DistanceSquared(point);
-          // do we want to keep it
-          if (sq_distance < c_itr->sq_distance) {
-            c_itr->sq_distance = sq_distance;
-            c_itr->point = std::move(point);
-            c_itr->index = i;
+          if (!end_preferred && !begin_preferred) {
+            c_itr->prefiltered = true;
+            continue;
+          }
+          const double end_d2 = end_preferred ? p_itr->project.approx.DistanceSquared(end_ll)
+                                              : std::numeric_limits<double>::max();
+          const double begin_d2 = begin_preferred ? p_itr->project.approx.DistanceSquared(begin_ll)
+                                                  : std::numeric_limits<double>::max();
+          if (end_d2 <= begin_d2) {
+            c_itr->sq_distance = end_d2;
+            c_itr->point = end_ll;
+            // Index points at the last segment so correlate_edge would
+            // still work as a fallback; the front/back equality check
+            // in finalize() will force a node-snap anyway.
+            c_itr->index = full_shape.size() >= 2 ? full_shape.size() - 2 : 0;
+          } else {
+            c_itr->sq_distance = begin_d2;
+            c_itr->point = begin_ll;
+            c_itr->index = 0;
+          }
+        }
+      } else {
+        auto shape = edge_info.lazy_shape();
+        PointLL v;
+        if (!shape.empty()) {
+          v = shape.pop();
+        }
+
+        // iterate along this edges segments projecting each of the points
+        for (size_t i = 0; !shape.empty(); ++i) {
+          auto u = v;
+          v = shape.pop();
+          // for each input point
+          c_itr = bin_candidates.begin();
+          for (p_itr = begin; p_itr != end; ++p_itr, ++c_itr) {
+            // skip updating this candidate because it was prefiltered
+            if (c_itr->prefiltered) {
+              continue;
+            }
+            // how close is the input to this segment
+            auto point = p_itr->project(u, v);
+            auto sq_distance = p_itr->project.approx.DistanceSquared(point);
+            // do we want to keep it
+            if (sq_distance < c_itr->sq_distance) {
+              c_itr->sq_distance = sq_distance;
+              c_itr->point = std::move(point);
+              c_itr->index = i;
+            }
           }
         }
       }

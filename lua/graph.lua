@@ -2418,6 +2418,11 @@ function nodes_proc (kv, nokeys)
     kv["building_entrance"] = "true"
   elseif kv["highway"] == "elevator" then
     kv["elevator"] = "true"
+  elseif kv["railway"] == "stop" then
+    -- Rail stop point on a railway line. We want these to become graph
+    -- nodes so trains can stop at them; pbfgraphparser will promote them
+    -- to intersections and set NodeType::kRailwayStop.
+    kv["railway_stop"] = "true"
   end
 
   if kv["amenity"] == "bicycle_rental" or (kv["shop"] == "bicycle" and kv["service:bicycle:rental"] == "yes") then

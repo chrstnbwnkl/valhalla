@@ -243,6 +243,7 @@ enum class NodeType : uint8_t {
   kSumpBuster = 12,             // Sump Buster
   kBuildingEntrance = 13,       // Building entrance
   kElevator = 14,               // Elevator
+  kRailwayStop = 15,            // Rail stop point on a railway line (railway=stop)
 };
 inline std::string to_string(NodeType n) {
   static const std::unordered_map<uint8_t, std::string> NodeTypeStrings =
@@ -260,7 +261,8 @@ inline std::string to_string(NodeType n) {
        {static_cast<uint8_t>(NodeType::kTollGantry), "toll_gantry"},
        {static_cast<uint8_t>(NodeType::kSumpBuster), "sump_buster"},
        {static_cast<uint8_t>(NodeType::kBuildingEntrance), "building_entrance"},
-       {static_cast<uint8_t>(NodeType::kElevator), "elevator"}};
+       {static_cast<uint8_t>(NodeType::kElevator), "elevator"},
+       {static_cast<uint8_t>(NodeType::kRailwayStop), "railway_stop"}};
 
   auto i = NodeTypeStrings.find(static_cast<uint8_t>(n));
   if (i == NodeTypeStrings.cend()) {

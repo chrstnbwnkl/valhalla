@@ -402,6 +402,24 @@ public:
   }
 
   /**
+   * Whether this costing wants locations to snap to a specific kind of
+   * node (rather than an arbitrary point along the closest edge). Used
+   * by train costing to force snapping to railway=stop nodes.
+   */
+  virtual bool RequiresPreferredSnapNode() const {
+    return false;
+  }
+
+  /**
+   * If RequiresPreferredSnapNode() returns true, loki::search will call
+   * this for each candidate endpoint node and pick the closest one that
+   * returns true.
+   */
+  virtual bool IsPreferredSnapNode(const baldr::NodeInfo*) const {
+    return true;
+  }
+
+  /**
    * Used for determine the viability of a candidate edge as well as a conservative reachability
    * The notable difference to the full featured allowed method is this methods lack of info
    * about the currently tracked path (hence why its conservative)
