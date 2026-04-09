@@ -416,6 +416,11 @@ void FilterTiles(GraphReader& reader,
 
         // Add directed edge
         tilebuilder.directededges().emplace_back(std::move(newedge));
+        // Mirror the extended-edge vector if the source tile has one so rail
+        // attributes (gauge/usage/traffic_mode/electrified) survive filtering.
+        if (tile->header()->has_ext_directededge()) {
+          tilebuilder.directededges_ext().emplace_back(*tile->ext_directededge(edgeid));
+        }
         ++edge_count;
       }
 
@@ -806,6 +811,11 @@ void AggregateTiles(GraphReader& reader, std::unordered_map<GraphId, GraphId>& o
 
         // Add directed edge
         tilebuilder.directededges().emplace_back(std::move(newedge));
+        // Mirror the extended-edge vector if the source tile has one so rail
+        // attributes (gauge/usage/traffic_mode/electrified) survive filtering.
+        if (tile->header()->has_ext_directededge()) {
+          tilebuilder.directededges_ext().emplace_back(*tile->ext_directededge(edgeid));
+        }
         ++edge_count;
       }
 

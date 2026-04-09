@@ -300,15 +300,23 @@ void GraphTileBuilder::StoreTileData() {
     in_mem.write(reinterpret_cast<const char*>(directededges_builder_.data()),
                  directededges_builder_.size() * sizeof(DirectedEdge));
 
-    // Write extended directed edge attributes if they exist.
+    // Write extended directed edge attributes if they exist. The flag must be
+    // explicitly set or cleared here — stages that construct a GraphTileBuilder
+    // with deserialize=false inherit header_builder_ from the memory-mapped
+    // input tile (which may have has_ext_directededge set) but do not
+    // necessarily populate directededges_ext_builder_. Leaving the flag set
+    // while writing no ext bytes corrupts the tile's downstream offsets.
     if (directededges_ext_builder_.size() > 0) {
       if (directededges_ext_builder_.size() != directededges_builder_.size()) {
         LOG_ERROR("DirectedEdge extended attributes not same size as directed edges");
+        header_builder_.set_has_ext_directededge(false);
       } else {
         header_builder_.set_has_ext_directededge(true);
         in_mem.write(reinterpret_cast<const char*>(directededges_ext_builder_.data()),
                      directededges_ext_builder_.size() * sizeof(DirectedEdgeExt));
       }
+    } else {
+      header_builder_.set_has_ext_directededge(false);
     }
 
     // Sort and write the access restrictions
@@ -488,8 +496,14 @@ void GraphTileBuilder::Update(const std::vector<NodeInfo>& nodes,
     file.write(reinterpret_cast<const char*>(directededges.data()),
                directededges.size() * sizeof(DirectedEdge));
 
-    // If there are extended directed edge attributes they would need to be written out here
-    // (and likely added to the method)
+    // Pass through extended directed edge attributes from the source tile.
+    // Update() does not modify ext attributes, so we just copy the bytes from
+    // the memory-mapped source tile. The ext section lies immediately after
+    // the directed edge section when has_ext_directededge() is set.
+    if (header_->has_ext_directededge()) {
+      file.write(reinterpret_cast<const char*>(ext_directededges_),
+                 header_->directededgecount() * sizeof(DirectedEdgeExt));
+    }
 
     // Write the rest of the tiles
     auto begin = reinterpret_cast<const char*>(&access_restrictions_[0]);

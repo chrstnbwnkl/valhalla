@@ -1580,6 +1580,96 @@ function filter_tags_generic(kv)
       kv["train_forward"] = "true"
       kv["train_backward"] = "true"
     end
+
+    -- gauge=* is the track gauge in mm. OSM allows ";"-separated lists for
+    -- dual-gauge track; we just take the first value and bucket it into the
+    -- RailGauge enum.
+    local gauge_str = kv["gauge"]
+    if gauge_str then
+      local first = gauge_str:match("^(%d+)")
+      local g = first and tonumber(first) or nil
+      if g == nil then
+        -- leave unknown
+      elseif g < 600 then
+        kv["railway_gauge"] = "1"   -- miniature
+      elseif g == 600 then
+        kv["railway_gauge"] = "2"
+      elseif g == 750 then
+        kv["railway_gauge"] = "3"
+      elseif g == 1000 then
+        kv["railway_gauge"] = "4"
+      elseif g == 1067 then
+        kv["railway_gauge"] = "5"
+      elseif g == 1372 then
+        kv["railway_gauge"] = "6"
+      elseif g == 1435 then
+        kv["railway_gauge"] = "7"
+      elseif g == 1520 then
+        kv["railway_gauge"] = "8"
+      elseif g == 1524 then
+        kv["railway_gauge"] = "9"
+      elseif g == 1600 then
+        kv["railway_gauge"] = "10"
+      elseif g == 1668 then
+        kv["railway_gauge"] = "11"
+      else
+        kv["railway_gauge"] = "15"  -- other
+      end
+    end
+
+    -- usage=* (main/branch/industrial/...) with service=* as a more specific
+    -- override for sidings, yards, spurs and crossovers.
+    local svc = kv["service"]
+    local usg = kv["usage"]
+    if svc == "yard" then
+      kv["railway_usage"] = "9"
+    elseif svc == "siding" then
+      kv["railway_usage"] = "10"
+    elseif svc == "spur" then
+      kv["railway_usage"] = "11"
+    elseif svc == "crossover" then
+      kv["railway_usage"] = "12"
+    elseif usg == "main" then
+      kv["railway_usage"] = "1"
+    elseif usg == "branch" then
+      kv["railway_usage"] = "2"
+    elseif usg == "industrial" then
+      kv["railway_usage"] = "3"
+    elseif usg == "military" then
+      kv["railway_usage"] = "4"
+    elseif usg == "test" then
+      kv["railway_usage"] = "5"
+    elseif usg == "tourism" then
+      kv["railway_usage"] = "6"
+    elseif usg == "science" then
+      kv["railway_usage"] = "7"
+    elseif usg == "freight" then
+      kv["railway_usage"] = "8"
+    end
+
+    -- railway:traffic_mode=freight|passenger|mixed
+    local tm = kv["railway:traffic_mode"]
+    if tm == "freight" then
+      kv["railway_traffic_mode"] = "1"
+    elseif tm == "passenger" then
+      kv["railway_traffic_mode"] = "2"
+    elseif tm == "mixed" then
+      kv["railway_traffic_mode"] = "3"
+    end
+
+    -- electrified=no|yes|contact_line|rail|ground-level_power_supply
+    local elec = kv["electrified"]
+    if elec == "no" then
+      kv["railway_electrified"] = "1"
+    elseif elec == "yes" then
+      kv["railway_electrified"] = "2"
+    elseif elec == "contact_line" then
+      kv["railway_electrified"] = "3"
+    elseif elec == "rail" then
+      kv["railway_electrified"] = "4"
+    elseif elec == "ground-level_power_supply" or elec == "ground_level_power_supply" then
+      kv["railway_electrified"] = "5"
+    end
   else
     kv["train_forward"] = "false"
     kv["train_backward"] = "false"

@@ -1659,6 +1659,62 @@ struct OSMWay {
   }
 
   /**
+   * Sets the railway track gauge.
+   */
+  void set_railway_gauge(const baldr::RailGauge g) {
+    railway_gauge_ = static_cast<uint32_t>(g);
+  }
+
+  /**
+   * Gets the railway track gauge.
+   */
+  baldr::RailGauge railway_gauge() const {
+    return static_cast<baldr::RailGauge>(railway_gauge_);
+  }
+
+  /**
+   * Sets the railway usage classification.
+   */
+  void set_railway_usage(const baldr::RailUsage u) {
+    railway_usage_ = static_cast<uint32_t>(u);
+  }
+
+  /**
+   * Gets the railway usage classification.
+   */
+  baldr::RailUsage railway_usage() const {
+    return static_cast<baldr::RailUsage>(railway_usage_);
+  }
+
+  /**
+   * Sets the railway:traffic_mode.
+   */
+  void set_railway_traffic_mode(const baldr::RailTrafficMode t) {
+    railway_traffic_mode_ = static_cast<uint32_t>(t);
+  }
+
+  /**
+   * Gets the railway:traffic_mode.
+   */
+  baldr::RailTrafficMode railway_traffic_mode() const {
+    return static_cast<baldr::RailTrafficMode>(railway_traffic_mode_);
+  }
+
+  /**
+   * Sets the electrified classification.
+   */
+  void set_railway_electrified(const baldr::RailElectrified e) {
+    railway_electrified_ = static_cast<uint32_t>(e);
+  }
+
+  /**
+   * Gets the electrified classification.
+   */
+  baldr::RailElectrified railway_electrified() const {
+    return static_cast<baldr::RailElectrified>(railway_electrified_);
+  }
+
+  /**
    * Sets the destination_only flag for cars or motor vehicles.
    * @param  destination_only   Is private?
    */
@@ -2742,6 +2798,13 @@ struct OSMWay {
   uint16_t destination_only_hgv_ : 1;
   uint16_t train_forward_ : 1;
   uint16_t train_backward_ : 1;
+
+  // Railway attributes (populated for railway ways). 13 bits used, 19 spare.
+  uint32_t railway_gauge_ : 4;        // RailGauge
+  uint32_t railway_usage_ : 4;        // RailUsage
+  uint32_t railway_traffic_mode_ : 2; // RailTrafficMode
+  uint32_t railway_electrified_ : 3;  // RailElectrified
+  uint32_t spare_railway_ : 19;
 
   uint16_t nodecount_;
 

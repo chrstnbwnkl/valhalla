@@ -348,7 +348,7 @@ void DirectedEdge::set_reverseaccess(const uint32_t modes) {
 
 // Sets the average speed in KPH.
 void DirectedEdge::set_speed(const uint32_t speed) {
-  if (speed > kMaxAssumedSpeed) {
+  if (speed > kMaxAssumedSpeed && !(forwardaccess_ & kTrainAccess)) {
     speed_ = kMaxAssumedSpeed;
   } else {
     speed_ = speed;
@@ -677,6 +677,16 @@ void DirectedEdge::json(rapidjson::writer_wrapper_t& writer) const {
   if (is_hov_only()) {
     writer("hov_type", to_string(static_cast<HOVEdgeType>(hov_type_)));
   }
+}
+
+// json representation of extended directed edge attributes
+void DirectedEdgeExt::json(rapidjson::writer_wrapper_t& writer) const {
+  writer.start_object("railway");
+  writer("gauge", to_string(railway_gauge()));
+  writer("usage", to_string(railway_usage()));
+  writer("traffic_mode", to_string(railway_traffic_mode()));
+  writer("electrified", to_string(railway_electrified()));
+  writer.end_object();
 }
 
 } // namespace baldr

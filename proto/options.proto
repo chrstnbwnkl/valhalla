@@ -358,6 +358,23 @@ message Costing {
     oneof has_multimodal_start_end_max_distance {
       uint32 multimodal_start_end_max_distance = 96;
     }
+    // Train-only railway options. The values for railway_preferred_gauge and
+    // railway_traffic_mode are stored as uint32 whose values match the
+    // baldr::RailGauge and baldr::RailTrafficMode enums. A value of 0
+    // (kUnknown) means "no preference / no filter".
+    oneof has_railway_preferred_gauge {
+      uint32 railway_preferred_gauge = 97;
+    }
+    oneof has_railway_gauge_penalty {
+      float railway_gauge_penalty = 98;
+    }
+    oneof has_railway_use_main {
+      float railway_use_main = 99;
+    }
+    oneof has_railway_traffic_mode {
+      uint32 railway_traffic_mode = 100;
+    }
+    bool railway_require_electrified = 101;
   }
 
   oneof has_options {

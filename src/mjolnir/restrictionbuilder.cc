@@ -367,6 +367,9 @@ void build(const std::string& complex_restriction_from_file,
     size_t forward_count = 0, reverse_count = 0;
 
     GraphId prevNode;
+
+    LOG_ERROR("tile at level {} has ext? {}", tilebuilder.header_builder().graphid().level(),
+              tilebuilder.header_builder().has_ext_directededge());
     for (uint32_t i = 0; i < tilebuilder.header()->nodecount(); i++) {
       NodeInfo& nodeinfo = tilebuilder.node_builder(i);
 

@@ -188,6 +188,7 @@ void FormTilesInNewLevel(GraphReader& reader,
     // Copy the data version & checksum
     tilebuilder->header_builder().set_dataset_id(tile->header()->dataset_id());
     tilebuilder->header_builder().set_checksum(tile->header()->checksum());
+    tilebuilder->header_builder().set_has_ext_directededge(tile->header()->has_ext_directededge());
 
     // Copy node information and set the node lat,lon offsets within the new tile
     NodeInfo baseni = *(tile->node(base_node.id()));
@@ -309,6 +310,11 @@ void FormTilesInNewLevel(GraphReader& reader,
 
       // Add directed edge
       tilebuilder->directededges().emplace_back(std::move(newedge));
+      // Mirror the extended-edge vector so rail attributes (only meaningful
+      // at the local level) survive the hierarchy rebuild.
+      if (tile->header()->has_ext_directededge()) {
+        tilebuilder->directededges_ext().emplace_back(*tile->ext_directededge(base_edge_id));
+      }
     }
 
     // Add node transitions

@@ -363,6 +363,32 @@ struct graph_parser {
     tag_handlers_["train_backward"] = [this]() {
       way_.set_train_backward(tag_.second == "true" ? true : false);
     };
+    tag_handlers_["railway_gauge"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_gauge(static_cast<valhalla::baldr::RailGauge>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_usage"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_usage(static_cast<valhalla::baldr::RailUsage>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_traffic_mode"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_traffic_mode(
+          static_cast<valhalla::baldr::RailTrafficMode>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_electrified"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_electrified(
+          static_cast<valhalla::baldr::RailElectrified>(std::stoi(tag_.second)));
+    };
     tag_handlers_["private"] = [this]() {
       // Make sure we do not unset this flag if set previously
       if (tag_.second == "true")
