@@ -357,6 +357,12 @@ struct graph_parser {
     tag_handlers_["pedestrian_backward"] = [this]() {
       way_.set_pedestrian_backward(tag_.second == "true" ? true : false);
     };
+    tag_handlers_["train_forward"] = [this]() {
+      way_.set_train_forward(tag_.second == "true" ? true : false);
+    };
+    tag_handlers_["train_backward"] = [this]() {
+      way_.set_train_backward(tag_.second == "true" ? true : false);
+    };
     tag_handlers_["private"] = [this]() {
       // Make sure we do not unset this flag if set previously
       if (tag_.second == "true")

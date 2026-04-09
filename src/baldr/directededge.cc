@@ -19,6 +19,7 @@ void access_json(uint32_t access, rapidjson::writer_wrapper_t& writer) {
   writer("wheelchair", static_cast<bool>(access & kWheelchairAccess));
   writer("moped", static_cast<bool>(access & kMopedAccess));
   writer("motorcycle", static_cast<bool>(access & kMotorcycleAccess));
+  writer("train", static_cast<bool>(access & kTrainAccess));
 }
 
 /**

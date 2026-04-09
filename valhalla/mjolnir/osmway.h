@@ -1627,6 +1627,38 @@ struct OSMWay {
   }
 
   /**
+   * Sets the train_forward flag.
+   * @param  train_forward   Can a train travel in the forward direction?
+   */
+  void set_train_forward(const bool train_forward) {
+    train_forward_ = train_forward;
+  }
+
+  /**
+   * Get the train forward flag.
+   * @return  Returns train forward flag.
+   */
+  bool train_forward() const {
+    return train_forward_;
+  }
+
+  /**
+   * Sets the train_backward flag.
+   * @param  train_backward   Can a train travel in the reverse direction?
+   */
+  void set_train_backward(const bool train_backward) {
+    train_backward_ = train_backward;
+  }
+
+  /**
+   * Get the train backward flag.
+   * @return  Returns train backward flag.
+   */
+  bool train_backward() const {
+    return train_backward_;
+  }
+
+  /**
    * Sets the destination_only flag for cars or motor vehicles.
    * @param  destination_only   Is private?
    */
@@ -2708,7 +2740,8 @@ struct OSMWay {
   uint16_t bike_backward_ : 1;
   uint16_t lit_ : 1;
   uint16_t destination_only_hgv_ : 1;
-  uint16_t spare2_ : 2;
+  uint16_t train_forward_ : 1;
+  uint16_t train_backward_ : 1;
 
   uint16_t nodecount_;
 

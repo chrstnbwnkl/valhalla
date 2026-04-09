@@ -8,6 +8,7 @@
 #include "sif/hierarchylimits.h"
 #include "sif/motorcyclecost.h"
 #include "sif/motorscootercost.h"
+#include "sif/traincost.h"
 #include "sif/nocost.h"
 #include "sif/pedestriancost.h"
 #include "sif/transitcost.h"
@@ -697,6 +698,10 @@ void ParseCosting(const rapidjson::Document& doc,
     }
     case Costing::truck: {
       sif::ParseTruckCostOptions(doc, key, costing, warnings);
+      break;
+    }
+    case Costing::train: {
+      sif::ParseTrainCostOptions(doc, key, costing, warnings);
       break;
     }
     case Costing::motorcycle: {

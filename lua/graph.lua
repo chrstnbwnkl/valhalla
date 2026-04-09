@@ -935,6 +935,12 @@ function filter_tags_generic(kv)
   end
   local ferry = kv["route"] == "ferry"
   local rail = kv["route"] == "shuttle_train"
+  -- train routing: detect routable OSM railway ways. kv["rail"] above is
+  -- specifically for car-carrying shuttle trains and must stay independent.
+  local railway_types = { rail=true, light_rail=true, subway=true,
+                          tram=true, narrow_gauge=true, monorail=true,
+                          funicular=true }
+  local train = kv["highway"] == nil and railway_types[kv["railway"]] == true
   local access = any_in(access, kv["access"])
 
   kv["emergency_forward"] = "false"
@@ -1527,13 +1533,66 @@ function filter_tags_generic(kv)
     kv["taxi_backward"] = "true"
   end
 
+  -- train routing: for pure railway ways, explicitly clear all road-mode
+  -- access flags and set train_forward/train_backward from direction tags.
+  -- We want a later costing profile to filter edges via a kTrainAccess bit,
+  -- so here we only need to make sure the way survives filter_tags_generic
+  -- with train direction populated.
+  if train then
+    kv["auto_forward"] = "false"
+    kv["auto_backward"] = "false"
+    kv["truck_forward"] = "false"
+    kv["truck_backward"] = "false"
+    kv["bus_forward"] = "false"
+    kv["bus_backward"] = "false"
+    kv["taxi_forward"] = "false"
+    kv["taxi_backward"] = "false"
+    kv["hov_forward"] = "false"
+    kv["hov_backward"] = "false"
+    kv["moped_forward"] = "false"
+    kv["moped_backward"] = "false"
+    kv["motorcycle_forward"] = "false"
+    kv["motorcycle_backward"] = "false"
+    kv["pedestrian_forward"] = "false"
+    kv["pedestrian_backward"] = "false"
+    kv["bike_forward"] = "false"
+    kv["bike_backward"] = "false"
+    kv["emergency_forward"] = "false"
+    kv["emergency_backward"] = "false"
+
+    -- Direction: railway:preferred_direction takes precedence over oneway.
+    -- Most double-track mainlines are modelled as two parallel oneway ways;
+    -- single-track bidirectional is common too, so default to both directions.
+    local pref = kv["railway:preferred_direction"]
+    if pref == "forward" then
+      kv["train_forward"] = "true"
+      kv["train_backward"] = "false"
+    elseif pref == "backward" then
+      kv["train_forward"] = "false"
+      kv["train_backward"] = "true"
+    elseif kv["oneway"] == "yes" or kv["oneway"] == "true" or kv["oneway"] == "1" then
+      kv["train_forward"] = "true"
+      kv["train_backward"] = "false"
+    elseif kv["oneway"] == "-1" or kv["oneway"] == "reverse" then
+      kv["train_forward"] = "false"
+      kv["train_backward"] = "true"
+    else
+      kv["train_forward"] = "true"
+      kv["train_backward"] = "true"
+    end
+  else
+    kv["train_forward"] = "false"
+    kv["train_backward"] = "false"
+  end
+
   --if none of the modes were set we are done looking at this
   if kv["auto_forward"] == "false" and kv["truck_forward"] == "false" and kv["bus_forward"] == "false" and
      kv["bike_forward"] == "false" and kv["emergency_forward"] == "false" and kv["moped_forward"] == "false" and
      kv["motorcycle_forward"] == "false" and kv["pedestrian_forward"] == "false" and
      kv["auto_backward"] == "false" and kv["truck_backward"] == "false" and kv["bus_backward"] == "false" and
      kv["bike_backward"] == "false" and kv["emergency_backward"] == "false" and kv["moped_backward"] == "false" and
-     kv["motorcycle_backward"] == "false" and kv["pedestrian_backward"] == "false" then
+     kv["motorcycle_backward"] == "false" and kv["pedestrian_backward"] == "false" and
+     kv["train_forward"] == "false" and kv["train_backward"] == "false" then
        if kv["highway"] ~= "bridleway" then --save bridleways for country access logic.
          return 1
        end
