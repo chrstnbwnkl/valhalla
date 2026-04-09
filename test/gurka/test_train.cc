@@ -92,8 +92,8 @@ TEST_P(TrainRailTypeTest, RoutableAsTrain) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, {}, {},
-                               "test/data/gurka_train_type_" + railway_type, kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_type_" + railway_type,
+                               kTrainConfig);
 
   auto result = gurka::do_action(Options::route, map, {"A", "C"}, "train");
   gurka::assert::raw::expect_path(result, {"AB", "BC"});

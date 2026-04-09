@@ -8,9 +8,9 @@
 #include "sif/hierarchylimits.h"
 #include "sif/motorcyclecost.h"
 #include "sif/motorscootercost.h"
-#include "sif/traincost.h"
 #include "sif/nocost.h"
 #include "sif/pedestriancost.h"
+#include "sif/traincost.h"
 #include "sif/transitcost.h"
 #include "sif/truckcost.h"
 

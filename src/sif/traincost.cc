@@ -77,8 +77,7 @@ public:
    * Edge access check used by location search filtering.
    */
   virtual bool IsAccessible(const baldr::DirectedEdge* edge) const override {
-    return (edge->forwardaccess() & kTrainAccess) != 0 ||
-           (edge->reverseaccess() & kTrainAccess) != 0;
+    return (edge->forwardaccess() & kTrainAccess) != 0 || (edge->reverseaccess() & kTrainAccess) != 0;
   }
 
   bool IsClosed(const baldr::DirectedEdge*, const graph_tile_ptr&) const override {
@@ -149,8 +148,7 @@ public:
     if (edge->is_shortcut() || edge->IsTransitLine()) {
       return false;
     }
-    return (edge->forwardaccess() & kTrainAccess) != 0 ||
-           (edge->reverseaccess() & kTrainAccess) != 0;
+    return (edge->forwardaccess() & kTrainAccess) != 0 || (edge->reverseaccess() & kTrainAccess) != 0;
   }
 };
 
