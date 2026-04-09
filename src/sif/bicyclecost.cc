@@ -196,13 +196,14 @@ constexpr float kAvoidHillsStrength[] = {
 // factors.
 constexpr uint32_t kSpeedPenaltyThreshold = 40; // 40 KPH ~ 25 MPH
 
-// How much to favor bicycle networks.
-constexpr float kBicycleNetworkFactor = 0.95f;
+// Default use_bike_network factor (0 = avoid, 1 = strongly favor)
+constexpr float kDefaultUseBikeNetwork = 0.5f;
 
 // Valid ranges and defaults
 constexpr ranged_default_t<float> kUseRoadRange{0.0f, kDefaultUseRoad, 1.0f};
 constexpr ranged_default_t<float> kUseHillsRange{0.0f, kDefaultUseHills, 1.0f};
 constexpr ranged_default_t<float> kAvoidBadSurfacesRange{0.0f, kDefaultAvoidBadSurfaces, 1.0f};
+constexpr ranged_default_t<float> kUseBikeNetworkRange{0.0f, kDefaultUseBikeNetwork, 1.0f};
 
 constexpr ranged_default_t<float> kBSSCostRange{0, kDefaultBssCost, kMaxPenalty};
 constexpr ranged_default_t<float> kBSSPenaltyRange{0, kDefaultBssPenalty, kMaxPenalty};
@@ -407,6 +408,9 @@ public:
   float livingstreet_factor_; // Factor to use for living streets
   float track_factor_;        // Factor to use tracks
   float avoid_bad_surfaces_;  // Preference of avoiding bad surfaces for the bike type
+  float bike_network_factor_; // Factor for bike network edges (use_bike_network <= 0.5)
+  float
+      non_bike_network_factor_; // Penalty factor for non-bike-network edges (use_bike_network > 0.5)
 
   // Average speed (kph) on smooth, flat roads.
   float speed_;
@@ -481,6 +485,21 @@ BicycleCost::BicycleCost(const Costing& costing)
 
   speed_ = costing_options.cycling_speed();
   avoid_bad_surfaces_ = costing_options.avoid_bad_surfaces();
+
+  // Convert use_bike_network (0-1) to factors.
+  // At <= 0.5: apply a factor to bike network edges (0.0 -> 1.5 penalize, 0.5 -> 0.95 slight favor)
+  // At > 0.5: penalize non-bike-network edges instead
+  float use_bike_network = costing_options.use_bike_network();
+  if (use_bike_network <= 0.5f) {
+    bike_network_factor_ = 1.5f - 1.1f * use_bike_network; // [1.5, 0.95]
+    non_bike_network_factor_ = 1.0f;
+  } else {
+    bike_network_factor_ = 1.0f;
+    float t = (use_bike_network - 0.5f) * 2.0f; // [0, 1]
+
+    // Exponential ramp from 1.0 at 0.5 up to 100 at 1.0.
+    non_bike_network_factor_ = std::pow(100.0f, t);
+  }
   minimal_surface_penalized_ = kWorstAllowedSurface[static_cast<uint32_t>(type_)];
   worst_allowed_surface_ = avoid_bad_surfaces_ == 1.0f ? minimal_surface_penalized_ : Surface::kPath;
 
@@ -688,9 +707,11 @@ Cost BicycleCost::EdgeCost(const baldr::DirectedEdge* edge,
     accommodation_factor += sidepath_factor_;
   }
 
-  // Favor bicycle networks slightly
+  // Apply bike network factors (controlled by use_bike_network option)
   if (edge->bike_network()) {
-    accommodation_factor *= kBicycleNetworkFactor;
+    accommodation_factor *= bike_network_factor_;
+  } else {
+    accommodation_factor *= non_bike_network_factor_;
   }
 
   // Create an edge factor based on total stress (sum of accommodation factor and roadway
@@ -888,6 +909,8 @@ void ParseBicycleCostOptions(const rapidjson::Document& doc,
   JSON_PBF_RANGED_DEFAULT(co, kUseHillsRange, json, "/use_hills", use_hills, warnings);
   JSON_PBF_RANGED_DEFAULT(co, kAvoidBadSurfacesRange, json, "/avoid_bad_surfaces", avoid_bad_surfaces,
                           warnings);
+  JSON_PBF_RANGED_DEFAULT(co, kUseBikeNetworkRange, json, "/use_bike_network", use_bike_network,
+                          warnings);
   JSON_PBF_DEFAULT(co, kDefaultBicycleType, json, "/bicycle_type", transport_type);
 
   // convert string to enum, set ranges and defaults based on enum
@@ -935,14 +958,16 @@ namespace {
 
 class TestBicycleCost : public BicycleCost {
 public:
-  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options){};
+  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options) {};
 
   using BicycleCost::alley_penalty_;
+  using BicycleCost::bike_network_factor_;
   using BicycleCost::country_crossing_cost_;
   using BicycleCost::destination_only_penalty_;
   using BicycleCost::ferry_transition_cost_;
   using BicycleCost::gate_cost_;
   using BicycleCost::maneuver_penalty_;
+  using BicycleCost::non_bike_network_factor_;
   using BicycleCost::service_penalty_;
 };
 
@@ -1069,6 +1094,16 @@ defaults.use_ferry_.max));
   for (unsigned i = 0; i < testIterations; ++i) {
     ctorTester.reset(make_bicyclecost_from_json("use_roads", (*distributor)(generator)));
     EXPECT_THAT(ctorTester->use_roads_, test::IsBetween(kUseRoadRange.min, kUseRoadRange.max));
+  }
+
+  // bike_network_factor_ and non_bike_network_factor_
+  distributor.reset(make_distributor_from_range(kUseBikeNetworkRange));
+  for (unsigned i = 0; i < testIterations; ++i) {
+    ctorTester.reset(make_bicyclecost_from_json("use_bike_network", (*distributor)(generator)));
+    // At <= 0.5: bike_network_factor_ in [0.95, 1.5], non_bike_network_factor_ == 1.0
+    // At > 0.5: bike_network_factor_ == 1.0, non_bike_network_factor_ in [1.0, 100000]
+    EXPECT_THAT(ctorTester->bike_network_factor_, test::IsBetween(0.95f, 1.5f));
+    EXPECT_THAT(ctorTester->non_bike_network_factor_, test::IsBetween(1.0f, 100000.0f));
   }
 
   // speed_
