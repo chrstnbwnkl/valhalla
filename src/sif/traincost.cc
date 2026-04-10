@@ -141,6 +141,7 @@ public:
     use_main_ = co.railway_use_main();
     traffic_mode_filter_ = static_cast<RailTrafficMode>(co.railway_traffic_mode());
     require_electrified_ = co.railway_require_electrified();
+    snap_to_station_ = !co.normal_snapping();
   }
 
   virtual ~TrainCost() {
@@ -201,7 +202,7 @@ public:
    * the station it's closest to.
    */
   bool RequiresPreferredSnapNode() const override {
-    return true;
+    return snap_to_station_;
   }
 
   bool IsPreferredSnapNode(const baldr::NodeInfo* node) const override {
@@ -333,6 +334,7 @@ private:
   float use_main_ = 0.0f;
   RailTrafficMode traffic_mode_filter_ = RailTrafficMode::kUnknown;
   bool require_electrified_ = false;
+  bool snap_to_station_ = true;
 
   // Shared rail-attribute filter: tile-qualified edge id form.
   bool PassesRailFilters(const baldr::DirectedEdge* de,
@@ -399,6 +401,14 @@ void ParseTrainCostOptions(const rapidjson::Document& doc,
   // Plain bool — no range/default helper needed; proto3 default is false.
   co->set_railway_require_electrified(
       rapidjson::get<bool>(json, "/railway_require_electrified", co->railway_require_electrified()));
+
+  // normal_snapping: if the user explicitly provided a value, store it in the
+  // oneof so the action-dependent default (false for locate, true otherwise)
+  // is only applied when the field is absent.
+  auto normal_snapping = rapidjson::get_optional<bool>(json, "/normal_snapping");
+  if (normal_snapping) {
+    co->set_normal_snapping(*normal_snapping);
+  }
 }
 
 cost_ptr_t CreateTrainCost(const Costing& costing_options) {

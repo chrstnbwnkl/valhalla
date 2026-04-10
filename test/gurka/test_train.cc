@@ -8,9 +8,9 @@ namespace {
 
 // Low reachability so tiny test graphs aren't rejected at snap time.
 const std::unordered_map<std::string, std::string> kTrainConfig = {
-    {"mjolnir.concurrency", "1"},
-    {"loki.service_defaults.minimum_reachability", "2"},
-    {"loki.service_defaults.radius", "10"},
+    // {"mjolnir.concurrency", "1"},
+    // {"loki.service_defaults.minimum_reachability", "2"},
+    // {"loki.service_defaults.radius", "10"},
 };
 
 constexpr double kGridSize = 100;
@@ -28,9 +28,15 @@ TEST(Train, BasicLine) {
       {"BC", {{"railway", "rail"}}},
       {"CD", {{"railway", "rail"}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+      {"D", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_basic", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_basic", kTrainConfig);
 
   auto result = gurka::do_action(Options::route, map, {"A", "D"}, "train");
   gurka::assert::raw::expect_path(result, {"AB", "BC", "CD"});
@@ -50,10 +56,15 @@ TEST(Train, AutoCannotUseRailway) {
       {"AB", {{"railway", "rail"}}},
       {"BC", {{"railway", "rail"}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
   auto map =
-      gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_auto_reject", kTrainConfig);
+      gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_auto_reject", kTrainConfig);
 
   EXPECT_THROW(gurka::do_action(Options::route, map, {"A", "C"}, "auto"), std::runtime_error);
 }
@@ -68,10 +79,15 @@ TEST(Train, TrainCannotUseHighway) {
       {"AB", {{"highway", "primary"}}},
       {"BC", {{"highway", "primary"}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map =
-      gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_highway_reject", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_highway_reject",
+                               kTrainConfig);
 
   EXPECT_THROW(gurka::do_action(Options::route, map, {"A", "C"}, "train"), std::runtime_error);
 }
@@ -90,9 +106,14 @@ TEST_P(TrainRailTypeTest, RoutableAsTrain) {
       {"AB", {{"railway", railway_type}}},
       {"BC", {{"railway", railway_type}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_type_" + railway_type,
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_type_" + railway_type,
                                kTrainConfig);
 
   auto result = gurka::do_action(Options::route, map, {"A", "C"}, "train");
@@ -120,9 +141,14 @@ TEST(Train, OnewayForward) {
       {"AB", {{"railway", "rail"}, {"oneway", "yes"}}},
       {"BC", {{"railway", "rail"}, {"oneway", "yes"}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_oneway", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_oneway", kTrainConfig);
 
   // forward works
   auto result = gurka::do_action(Options::route, map, {"A", "C"}, "train");
@@ -144,8 +170,13 @@ TEST(Train, PreferredDirectionBackward) {
       {"BC", {{"railway", "rail"}, {"railway:preferred_direction", "backward"}}},
   };
 
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+  };
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_preferred_backward",
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_preferred_backward",
                                kTrainConfig);
 
   // backward (C->A) works because that's the preferred direction
@@ -170,10 +201,16 @@ TEST(Train, YJunction) {
       {"BC", {{"railway", "rail"}}},
       {"BD", {{"railway", "rail"}}},
   };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "stop"}}},
+      {"B", {{"railway", "stop"}}},
+      {"C", {{"railway", "stop"}}},
+      {"D", {{"railway", "stop"}}},
+  };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
   auto map =
-      gurka::buildtiles(layout, ways, {}, {}, "test/data/gurka_train_y_junction", kTrainConfig);
+      gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_y_junction", kTrainConfig);
 
   auto to_c = gurka::do_action(Options::route, map, {"A", "C"}, "train");
   gurka::assert::raw::expect_path(to_c, {"AB", "BC"});

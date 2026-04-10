@@ -375,6 +375,9 @@ message Costing {
       uint32 railway_traffic_mode = 100;
     }
     bool railway_require_electrified = 101;
+    oneof has_normal_snapping {
+      bool normal_snapping = 102;
+    }
   }
 
   oneof has_options {

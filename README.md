@@ -1,3 +1,4 @@
+> **NOTE:** This is a fork of Valhalla that enables routing on railway infrastructure mapped in OSM. It uses `DirectedEdgeExt` to store additional attributes relevant for train/railway routing (e.g. gauge, usage, electrification, etc.). For more on how to use this, check out this doc.
 
 
 

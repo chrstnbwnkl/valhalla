@@ -926,6 +926,15 @@ void from_json(rapidjson::Document& doc, Options::Action action, Api& api) {
   //   so how can it determine "ignore_closures" there?
   sif::ParseCosting(doc, "/costing_options", options, warnings);
 
+  // Apply action-dependent default for train costing's normal_snapping:
+  // false for locate (snap to stations), true for everything else.
+  if (options.costing_type() == Costing::train) {
+    auto& train_costing = (*options.mutable_costings())[Costing::train];
+    if (!train_costing.options().has_normal_snapping_case()) {
+      train_costing.mutable_options()->set_normal_snapping(options.action() != Options::locate);
+    }
+  }
+
   // if any of the locations params have a date_time object in their locations, we'll remember
   // only /sources_to_targets will parse more than one location collection and there it's fine
   bool had_date_time = false;
