@@ -17,20 +17,18 @@ namespace sif {
 namespace {
 
 // Fixed "typical" train speed used when edges have no usable speed tag.
-// Actual rail speeds aren't populated from OSM maxspeed yet, so using the
-// raw edge speed would produce nonsense. 80 kph is a reasonable middle-of-
-// the-road between suburban rail and long-distance mainline.
 constexpr uint32_t kDefaultTrainSpeedKph = 80;
 
-// Top speed used only for the A* heuristic. Must be an upper bound on the
+// top speed used only for the A* heuristic. Must be an upper bound on the
 // effective speed used in EdgeCost for the heuristic to remain admissible.
-constexpr float kTopTrainSpeedMetersPerSec = 120.0f * kKPHtoMetersPerSec; // 120 kph
+constexpr float kTopTrainSpeedMetersPerSec = 180.0f * kKPHtoMetersPerSec; // 120 kph
 
-// Usage factors — how cheap/expensive an edge is relative to a main line.
+// usage factors: how cheap/expensive an edge is relative to a main line.
 // Scaled later by the user's `railway_use_main` preference (0..1). At
 // use_main = 1.0 these are applied in full; at 0.0 everything costs the
 // same as a main line (i.e. no bias).
 constexpr float kUsageFactorMain = 1.0f;
+constexpr float kUsageFactorMilitary = 1.10f;
 constexpr float kUsageFactorBranch = 1.10f;
 constexpr float kUsageFactorIndustrial = 1.75f;
 constexpr float kUsageFactorFreight = 1.50f;
@@ -38,7 +36,6 @@ constexpr float kUsageFactorYard = 3.0f;
 constexpr float kUsageFactorSiding = 2.5f;
 constexpr float kUsageFactorSpur = 3.0f;
 constexpr float kUsageFactorCrossover = 2.0f;
-constexpr float kUsageFactorMilitary = 4.0f;
 constexpr float kUsageFactorTest = 4.0f;
 constexpr float kUsageFactorTourism = 3.0f;
 constexpr float kUsageFactorScience = 4.0f;
@@ -240,7 +237,8 @@ public:
                         const baldr::TimeInfo&,
                         uint8_t&) const override {
     const float length = static_cast<float>(edge->length());
-    const float seconds = length / (kDefaultTrainSpeedKph * kKPHtoMetersPerSec);
+    const float seconds =
+        length / (edge->speed() != 0 ? edge->speed() : kDefaultTrainSpeedKph) * kKPHtoMetersPerSec;
 
     float factor = 1.0f;
     if (tile && tile->header()->has_ext_directededge()) {
