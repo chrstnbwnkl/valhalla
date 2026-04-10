@@ -1341,6 +1341,12 @@ void GraphTileBuilder::UpdatePredictedSpeeds(const std::vector<DirectedEdge>& di
     file.write(reinterpret_cast<const char*>(directededges.data()),
                directededges.size() * sizeof(DirectedEdge));
 
+    // Pass through extended directed edge attributes from the source tile.
+    if (header_->has_ext_directededge()) {
+      file.write(reinterpret_cast<const char*>(ext_directededges_),
+                 header_->directededgecount() * sizeof(DirectedEdgeExt));
+    }
+
     // Write out data from access restrictions to the end of lane connectivity data.
     auto begin = reinterpret_cast<const char*>(&access_restrictions_[0]);
     auto end = reinterpret_cast<const char*>(header()) + offset;
