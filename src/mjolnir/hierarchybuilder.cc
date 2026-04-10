@@ -99,7 +99,9 @@ OldToNewNodes find_nodes(sequence<OldToNewNodes>& old_to_new, const GraphId& nod
     return a.node_id < b.node_id;
   });
   if (iter == old_to_new.end()) {
-    throw std::runtime_error("Didn't find node!");
+    throw std::runtime_error("Didn't find node! level=" + std::to_string(node.level()) +
+                             " tile=" + std::to_string(node.tileid()) +
+                             " id=" + std::to_string(node.id()));
   } else {
     return *iter;
   }
