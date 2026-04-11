@@ -4062,17 +4062,15 @@ struct graph_parser {
         // Strip MTB flag — node networks are ncn/rcn/lcn only
         uint8_t nn_network = bike_network_mask & ~kMcn;
 
-        // Parse the relation ref into from_ref and to_ref.
+        // Parse the relation ref into from_ref and to_ref numbers.
         // Common formats: "45-67", "45 - 67", "45−67" (en-dash)
-        std::string from_ref, to_ref;
+        uint32_t from_ref_num = 0, to_ref_num = 0;
         if (!ref.empty()) {
-          // Try splitting on " - ", "-", or "−" (en-dash U+2013)
           std::string_view rv(ref);
           size_t pos = rv.find(" - ");
           size_t sep_len = 3;
           if (pos == std::string_view::npos) {
-            // Try en-dash (UTF-8: 0xE2 0x80 0x93)
-            pos = rv.find("\xe2\x80\x93");
+            pos = rv.find("\xe2\x80\x93"); // en-dash U+2013
             sep_len = 3;
           }
           if (pos == std::string_view::npos) {
@@ -4080,20 +4078,17 @@ struct graph_parser {
             sep_len = 1;
           }
           if (pos != std::string_view::npos) {
-            from_ref = std::string(rv.substr(0, pos));
-            to_ref = std::string(rv.substr(pos + sep_len));
-            boost::algorithm::trim(from_ref);
-            boost::algorithm::trim(to_ref);
+            from_ref_num = to_int(std::string(rv.substr(0, pos)));
+            to_ref_num = to_int(std::string(rv.substr(pos + sep_len)));
           } else {
-            // No separator found — treat entire ref as from_ref
-            from_ref = ref;
+            from_ref_num = to_int(ref);
           }
         }
 
         OSMNodeNetworkEdge nn_edge;
         nn_edge.bike_network = nn_network;
-        nn_edge.from_ref_index = osmdata_.name_offset_map.index(from_ref);
-        nn_edge.to_ref_index = osmdata_.name_offset_map.index(to_ref);
+        nn_edge.from_ref = from_ref_num;
+        nn_edge.to_ref = to_ref_num;
 
         for (const auto& member : members) {
           if (member.member_type == osmium::item_type::way) {

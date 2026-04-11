@@ -116,8 +116,8 @@ void serialize_edges(const AttributesController& controller,
         for (const auto& route : edge.bike_node_network_routes()) {
           writer.start_object();
           writer("network", static_cast<uint64_t>(route.network()));
-          writer("from_ref", route.from_ref());
-          writer("to_ref", route.to_ref());
+          writer("from_ref", static_cast<uint64_t>(route.from_ref()));
+          writer("to_ref", static_cast<uint64_t>(route.to_ref()));
           writer.end_object();
         }
         writer.end_array();

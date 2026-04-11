@@ -24,28 +24,53 @@ constexpr size_t kMaxNamesPerEdge = 15;
  * Represents one node_network route segment on this edge.
  */
 struct BikeNodeNetwork {
-  uint8_t network;      // Bike network level (kNcn, kRcn, or kLcn)
-  std::string from_ref; // Junction ref at the start of the route segment
-  std::string to_ref;   // Junction ref at the end of the route segment
+  uint8_t network;    // Bike network level (kNcn, kRcn, or kLcn)
+  uint32_t from_ref;  // Numeric junction ref at the start of the route segment
+  uint32_t to_ref;    // Numeric junction ref at the end of the route segment
+
+  /** Decode an unsigned varint from ptr, advancing ptr past the consumed bytes. */
+  static uint32_t DecodeUvarint(const char*& ptr, const char* end) {
+    uint32_t result = 0, shift = 0;
+    while (ptr < end) {
+      uint8_t byte = static_cast<uint8_t>(*ptr++);
+      result |= static_cast<uint32_t>(byte & 0x7f) << shift;
+      if ((byte & 0x80) == 0)
+        return result;
+      shift += 7;
+    }
+    return result;
+  }
+
+  /** Encode an unsigned varint, appending to out. */
+  static void EncodeUvarint(uint32_t value, std::string& out) {
+    while (value > 0x7f) {
+      out += static_cast<char>(0x80 | (value & 0x7f));
+      value >>= 7;
+    }
+    out += static_cast<char>(value & 0x7f);
+  }
+
+  /** Return the number of bytes a uvarint would occupy. */
+  static size_t UvarintSize(const char* ptr) {
+    size_t n = 0;
+    while (static_cast<uint8_t>(ptr[n]) & 0x80)
+      ++n;
+    return n + 1; // include the final byte without continuation bit
+  }
 
   /**
    * Parse a BikeNodeNetwork from the raw tagged value blob (after the tag byte is stripped).
-   * Format: [network byte][from_ref\0][to_ref...]
+   * Format: [network byte][uvarint from_ref][uvarint to_ref]
    */
   static BikeNodeNetwork Parse(const std::string& blob) {
-    BikeNodeNetwork result;
-    if (blob.empty()) {
-      result.network = 0;
+    BikeNodeNetwork result{};
+    if (blob.empty())
       return result;
-    }
-    result.network = static_cast<uint8_t>(blob[0]);
-    // from_ref is a null-terminated string starting at offset 1
-    const char* p = blob.data() + 1;
-    result.from_ref = p;
-    p += result.from_ref.size() + 1; // skip past null terminator
-    // to_ref is the remainder
-    size_t remaining = blob.size() - (p - blob.data());
-    result.to_ref = std::string(p, remaining);
+    const char* p = blob.data();
+    const char* end = p + blob.size();
+    result.network = static_cast<uint8_t>(*p++);
+    result.from_ref = DecodeUvarint(p, end);
+    result.to_ref = DecodeUvarint(p, end);
     return result;
   }
 };

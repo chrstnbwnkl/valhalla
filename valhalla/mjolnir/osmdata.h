@@ -41,9 +41,9 @@ struct OSMBike {
 
 // OSM bicycle node network edge data (way member of a network:type=node_network relation)
 struct OSMNodeNetworkEdge {
-  uint8_t bike_network;    // kNcn, kRcn, or kLcn
-  uint32_t from_ref_index; // Index into UniqueNames for from-node ref (e.g., "45")
-  uint32_t to_ref_index;   // Index into UniqueNames for to-node ref (e.g., "67")
+  uint8_t bike_network; // kNcn, kRcn, or kLcn
+  uint32_t from_ref;    // Numeric junction ref at start (e.g., 45)
+  uint32_t to_ref;      // Numeric junction ref at end (e.g., 67)
 };
 
 // OSM bicycle node network junction refs (rcn_ref, lcn_ref, ncn_ref on nodes)

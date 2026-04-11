@@ -1,6 +1,7 @@
 #include "mjolnir/graphbuilder.h"
 #include "baldr/conditional_speed_limit.h"
 #include "baldr/datetime.h"
+#include "baldr/edgeinfo.h"
 #include "baldr/graphconstants.h"
 #include "baldr/graphid.h"
 #include "baldr/signinfo.h"
@@ -931,20 +932,12 @@ void BuildTileSet(const std::string& ways_file,
             {
               auto nn_range = osmdata.node_network_edges.equal_range(w.way_id());
               for (auto nn = nn_range.first; nn != nn_range.second; ++nn) {
-                // Format: [TaggedValue byte][network level byte][from_ref\0][to_ref\0]
-                // Both from_ref and to_ref are null-terminated strings.
+                // Format: [TaggedValue byte][network byte][uvarint from_ref][uvarint to_ref]
                 std::string value;
                 value += static_cast<char>(TaggedValue::kBikeNodeNetwork);
                 value += static_cast<char>(nn->second.bike_network);
-                std::string from_ref = nn->second.from_ref_index
-                                           ? osmdata.name_offset_map.name(nn->second.from_ref_index)
-                                           : "";
-                std::string to_ref = nn->second.to_ref_index
-                                         ? osmdata.name_offset_map.name(nn->second.to_ref_index)
-                                         : "";
-                value += from_ref;
-                value += '\0';
-                value += to_ref;
+                BikeNodeNetwork::EncodeUvarint(nn->second.from_ref, value);
+                BikeNodeNetwork::EncodeUvarint(nn->second.to_ref, value);
                 tagged_values.push_back(std::move(value));
               }
             }

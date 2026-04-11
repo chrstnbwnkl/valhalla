@@ -122,12 +122,11 @@ size_t EdgeInfo::TaggedValueSize(const char* ptr) {
       return strlen(ptr) + 1; // +1 for null terminator
 
     case TaggedValue::kBikeNodeNetwork: {
-      // Format: [tag byte][network byte][from_ref\0][to_ref\0]
-      // Two null-terminated strings after the 2-byte header
-      const char* p = ptr + 2; // skip tag + network byte
-      p += strlen(p) + 1;      // skip from_ref + its null
-      p += strlen(p) + 1;      // skip to_ref + its null
-      return static_cast<size_t>(p - ptr);
+      // Format: [tag byte][network byte][uvarint from_ref][uvarint to_ref]
+      const char* p = ptr + 2;                      // skip tag + network byte
+      p += BikeNodeNetwork::UvarintSize(p);          // skip from_ref varint
+      p += BikeNodeNetwork::UvarintSize(p);          // skip to_ref varint
+      return static_cast<size_t>(p - ptr) + 1;       // +1 for null terminator
     }
 
     case TaggedValue::kLandmark: {
@@ -662,8 +661,8 @@ void EdgeInfo::json(rapidjson::writer_wrapper_t& writer) const {
         auto nn = BikeNodeNetwork::Parse(it->second);
         writer.start_object();
         writer("network", static_cast<uint64_t>(nn.network));
-        writer("from_ref", nn.from_ref);
-        writer("to_ref", nn.to_ref);
+        writer("from_ref", static_cast<uint64_t>(nn.from_ref));
+        writer("to_ref", static_cast<uint64_t>(nn.to_ref));
         writer.end_object();
       }
       writer.end_array();
