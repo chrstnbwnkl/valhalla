@@ -497,8 +497,8 @@ BicycleCost::BicycleCost(const Costing& costing)
     bike_network_factor_ = 1.0f;
     float t = (use_bike_network - 0.5f) * 2.0f; // [0, 1]
 
-    // Exponential ramp from 1.0 at 0.5 up to 100 at 1.0.
-    non_bike_network_factor_ = std::pow(100.0f, t);
+    // Exponential ramp from 1.0 at 0.5 up to 5 at 1.0.
+    non_bike_network_factor_ = std::pow(5.0f, t);
   }
   minimal_surface_penalized_ = kWorstAllowedSurface[static_cast<uint32_t>(type_)];
   worst_allowed_surface_ = avoid_bad_surfaces_ == 1.0f ? minimal_surface_penalized_ : Surface::kPath;
@@ -958,7 +958,7 @@ namespace {
 
 class TestBicycleCost : public BicycleCost {
 public:
-  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options){};
+  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options) {};
 
   using BicycleCost::alley_penalty_;
   using BicycleCost::bike_network_factor_;
