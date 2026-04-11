@@ -48,9 +48,9 @@ struct OSMNodeNetworkEdge {
 
 // OSM bicycle node network junction refs (rcn_ref, lcn_ref, ncn_ref on nodes)
 struct OSMNodeNetworkRef {
-  uint32_t ncn_ref_index; // Index into node_names for ncn_ref value
-  uint32_t rcn_ref_index; // Index into node_names for rcn_ref value
-  uint32_t lcn_ref_index; // Index into node_names for lcn_ref value
+  uint32_t ncn_ref; // Numeric national cycle network junction ref (0 = none)
+  uint32_t rcn_ref; // Numeric regional cycle network junction ref (0 = none)
+  uint32_t lcn_ref; // Numeric local cycle network junction ref (0 = none)
 };
 
 // OSM lane connectivity (stored within OSMData)

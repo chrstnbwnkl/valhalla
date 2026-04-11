@@ -2098,6 +2098,7 @@ struct graph_parser {
 
     bool is_toll_node = is_barrier_toll_booth || is_highway_toll_gantry;
     bool named_toll_node = false;
+    bool has_node_network_ref = false;
 
     OSMNode n;
     OSMNodeLinguistic linguistics;
@@ -2225,16 +2226,20 @@ struct graph_parser {
         n.set_type(NodeType::kElevator);
       } else if ((tag.first == "rcn_ref" || tag.first == "lcn_ref" || tag.first == "ncn_ref") &&
                  hasTag) {
-        // Bike node network junction ref — store in the node_network_refs map
-        auto [it, inserted] =
-            osmdata_.node_network_refs.try_emplace(osmid, OSMNodeNetworkRef{0, 0, 0});
-        uint32_t idx = osmdata_.node_names.index(tag.second);
-        if (tag.first == "ncn_ref") {
-          it->second.ncn_ref_index = idx;
-        } else if (tag.first == "rcn_ref") {
-          it->second.rcn_ref_index = idx;
-        } else {
-          it->second.lcn_ref_index = idx;
+        // Bike node network junction ref — store as number in the node_network_refs map
+        uint32_t ref_num = to_int(tag.second);
+        if (ref_num > 0) {
+          auto [it, inserted] =
+              osmdata_.node_network_refs.try_emplace(osmid, OSMNodeNetworkRef{0, 0, 0});
+          if (tag.first == "ncn_ref") {
+            it->second.ncn_ref = ref_num;
+          } else if (tag.first == "rcn_ref") {
+            it->second.rcn_ref = ref_num;
+          } else {
+            it->second.lcn_ref = ref_num;
+          }
+          LOG_ERROR("OK GOT IT = {} \n\n\n", osmid);
+          has_node_network_ref = true;
         }
       } else if (tag.first == "access_mask") {
         n.set_access(to_int(tag.second));
@@ -2317,7 +2322,7 @@ struct graph_parser {
     }
 
     // Different types of named nodes are tagged as a named intersection
-    n.set_named_intersection(named_junction || named_toll_node);
+    n.set_named_intersection(named_junction || named_toll_node || has_node_network_ref);
 
     // If way parsing marked it as the beginning or end of a way (dead ends) we'll keep that too
     sequence<OSMWayNode>::iterator element = (*way_nodes_)[current_way_node_index_];
@@ -4275,7 +4280,7 @@ struct graph_parser {
                   return; // should not make it here; has to be bad data.
                 }
               } // else
-            }   // if (condition.empty())
+            } // if (condition.empty())
 
             std::vector<std::string> conditions = GetTagTokens(condition, ';');
 
@@ -4302,7 +4307,7 @@ struct graph_parser {
             }
             return;
           } // if (isConditional)
-        }   // end turning into complex restriction
+        } // end turning into complex restriction
 
         restriction.set_modes(modes);
 

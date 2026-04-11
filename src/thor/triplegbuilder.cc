@@ -1164,7 +1164,7 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
   }
 
   // Process node signs (junction names and bike node network refs)
-  if (start_tile && (has_junction_name || !trip_edge->bike_node_network_routes().empty())) {
+  if (has_junction_name && start_tile) {
     // Add the node signs
     LinguisticMap linguistics;
     std::vector<SignInfo> node_signs = start_tile->GetSigns(start_node_idx, linguistics, true);

@@ -1347,17 +1347,18 @@ void BuildTileSet(const std::string& ways_file,
             std::vector<SignInfo> nn_signs;
             std::vector<std::string> nn_linguistics;
 
-            auto add_nn_ref = [&](uint32_t ref_index) {
-              if (ref_index) {
+            auto add_nn_ref = [&](uint32_t ref_num) {
+              if (ref_num) {
                 nn_signs.emplace_back(Sign::Type::kBikeNodeNetworkRef, false, false, false, 0, 0,
-                                      osmdata.node_names.name(ref_index));
+                                      std::to_string(ref_num));
               }
             };
-            add_nn_ref(nn_ref.ncn_ref_index);
-            add_nn_ref(nn_ref.rcn_ref_index);
-            add_nn_ref(nn_ref.lcn_ref_index);
+            add_nn_ref(nn_ref.ncn_ref);
+            add_nn_ref(nn_ref.rcn_ref);
+            add_nn_ref(nn_ref.lcn_ref);
 
             if (!nn_signs.empty()) {
+              graphtile.nodes().back().set_named_intersection(true);
               graphtile.AddSigns(graphtile.nodes().size() - 1, nn_signs, nn_linguistics);
             }
           }

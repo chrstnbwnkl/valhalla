@@ -301,6 +301,22 @@ void serialize_nodes(const Location& location,
       writer.start_object("node_id");
       n.json(writer);
       writer.end_object();
+
+      // serialize signs on this node
+      if (node_info->named_intersection()) {
+        auto signs = tile->GetSigns(n.id(), true);
+        if (!signs.empty()) {
+          writer.start_array("signs");
+          for (const auto& sign : signs) {
+            writer.start_object();
+            writer("type", static_cast<uint64_t>(sign.type()));
+            writer("text", sign.text());
+            writer("is_route_num", sign.is_route_num());
+            writer.end_object();
+          }
+          writer.end_array();
+        }
+      }
     } else {
       midgard::PointLL node_ll = tile->get_node_ll(n);
       writer.set_precision(tyr::kCoordinatePrecision);
