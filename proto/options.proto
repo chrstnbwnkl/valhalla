@@ -360,6 +360,9 @@ message Costing {
     oneof has_use_bike_network {
       float use_bike_network = 97;
     }
+    oneof has_use_density {
+      float use_density = 98;
+    }
   }
 
   oneof has_options {

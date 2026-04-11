@@ -35,6 +35,7 @@ constexpr float kDefaultBssPenalty = 0.0f;    // Seconds
 constexpr float kDefaultUseRoad = 0.25f;          // Factor between 0 and 1
 constexpr float kDefaultAvoidBadSurfaces = 0.25f; // Factor between 0 and 1
 constexpr float kDefaultUseLivingStreets = 0.5f;  // Factor between 0 and 1
+constexpr float kDefaultUseDensity = 0.5f;        // Factor between 0 and 1
 const std::string kDefaultBicycleType = "hybrid"; // Bicycle type
 
 // Default turn costs - modified by the stop impact.
@@ -204,6 +205,7 @@ constexpr ranged_default_t<float> kUseRoadRange{0.0f, kDefaultUseRoad, 1.0f};
 constexpr ranged_default_t<float> kUseHillsRange{0.0f, kDefaultUseHills, 1.0f};
 constexpr ranged_default_t<float> kAvoidBadSurfacesRange{0.0f, kDefaultAvoidBadSurfaces, 1.0f};
 constexpr ranged_default_t<float> kUseBikeNetworkRange{0.0f, kDefaultUseBikeNetwork, 1.0f};
+constexpr ranged_default_t<float> kUseDensityRange{0.0f, kDefaultUseDensity, 1.0f};
 
 constexpr ranged_default_t<float> kBSSCostRange{0, kDefaultBssCost, kMaxPenalty};
 constexpr ranged_default_t<float> kBSSPenaltyRange{0, kDefaultBssPenalty, kMaxPenalty};
@@ -437,6 +439,9 @@ public:
   // grade (relative value from 0-15)
   float grade_penalty[16];
 
+  // Density penalty (weighting applied based on the edge's density value 0-15)
+  float density_factor_[16];
+
 protected:
   /**
    * Function to be used in location searching which will
@@ -565,6 +570,28 @@ BicycleCost::BicycleCost(const Costing& costing)
   float avoid_hills = (1.0f - use_hills);
   for (uint32_t i = 0; i <= kMaxGradeFactor; i++) {
     grade_penalty[i] = avoid_hills * kAvoidHillsStrength[i];
+  }
+
+  // Populate density factors (based on use_density option - value between 0 and 1).
+  // At 0.5: factor is 1.0 (neutral) for all densities.
+  // Below 0.5: penalize high-density edges (avoid urban areas).
+  // Above 0.5: penalize low-density edges (favor urban areas).
+  // Density bins: low (0-4), medium (5-9), high (10-15).
+  // Same exponential base (5.0) as bike_network_factor_.
+  float use_density = costing_options.use_density();
+  for (uint32_t i = 0; i < 16; i++) {
+    float density_class = (i <= 4) ? 0.0f : (i <= 10) ? 0.7f : 1.0f;
+    if (use_density < 0.5f) {
+      // Penalize high-density edges
+      float t = (0.5f - use_density) * 2.0f;
+      density_factor_[i] = std::pow(6.0f, t * density_class);
+    } else if (use_density > 0.5f) {
+      // Penalize low-density edges
+      float t = (use_density - 0.5f) * 2.0f;
+      density_factor_[i] = std::pow(6.0f, t * (1.0f - density_class));
+    } else {
+      density_factor_[i] = 1.0f;
+    }
   }
 
   use_hierarchy_limits = false;
@@ -714,10 +741,13 @@ Cost BicycleCost::EdgeCost(const baldr::DirectedEdge* edge,
     accommodation_factor *= non_bike_network_factor_;
   }
 
+  accommodation_factor *= density_factor_[edge->density()];
+
   // Create an edge factor based on total stress (sum of accommodation factor and roadway
-  // stress) and the weighted grade penalty for the edge.
-  float factor =
-      1.0f + grade_penalty[edge->weighted_grade()] + (accommodation_factor * roadway_stress);
+  // stress), the weighted grade penalty, and the density penalty for the edge.
+  // density_factor_ is 1.0 when neutral, so subtract 1 for the additive contribution.
+  float factor = 1.0f + grade_penalty[edge->weighted_grade()] +
+                 (density_factor_[edge->density()] - 1.0f) + (accommodation_factor * roadway_stress);
 
   // If surface is worse than the minimum we add a surface factor
   if (edge->surface() >= minimal_surface_penalized_) {
@@ -911,6 +941,7 @@ void ParseBicycleCostOptions(const rapidjson::Document& doc,
                           warnings);
   JSON_PBF_RANGED_DEFAULT(co, kUseBikeNetworkRange, json, "/use_bike_network", use_bike_network,
                           warnings);
+  JSON_PBF_RANGED_DEFAULT(co, kUseDensityRange, json, "/use_density", use_density, warnings);
   JSON_PBF_DEFAULT(co, kDefaultBicycleType, json, "/bicycle_type", transport_type);
 
   // convert string to enum, set ranges and defaults based on enum
@@ -958,7 +989,7 @@ namespace {
 
 class TestBicycleCost : public BicycleCost {
 public:
-  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options){};
+  TestBicycleCost(const Costing& costing_options) : BicycleCost(costing_options) {};
 
   using BicycleCost::alley_penalty_;
   using BicycleCost::bike_network_factor_;
@@ -1105,7 +1136,6 @@ defaults.use_ferry_.max));
     EXPECT_THAT(ctorTester->bike_network_factor_, test::IsBetween(0.95f, 1.5f));
     EXPECT_THAT(ctorTester->non_bike_network_factor_, test::IsBetween(1.0f, 100000.0f));
   }
-
   // speed_
   constexpr ranged_default_t<float> kRoadCyclingSpeedRange{kMinCyclingSpeed, kDefaultCyclingSpeed[0],
                                                            kMaxCyclingSpeed};
