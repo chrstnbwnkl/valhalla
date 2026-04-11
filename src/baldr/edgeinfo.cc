@@ -123,10 +123,10 @@ size_t EdgeInfo::TaggedValueSize(const char* ptr) {
 
     case TaggedValue::kBikeNodeNetwork: {
       // Format: [tag byte][network byte][uvarint from_ref][uvarint to_ref]
-      const char* p = ptr + 2;                      // skip tag + network byte
-      p += BikeNodeNetwork::UvarintSize(p);          // skip from_ref varint
-      p += BikeNodeNetwork::UvarintSize(p);          // skip to_ref varint
-      return static_cast<size_t>(p - ptr) + 1;       // +1 for null terminator
+      const char* p = ptr + 2;                 // skip tag + network byte
+      p += BikeNodeNetwork::UvarintSize(p);    // skip from_ref varint
+      p += BikeNodeNetwork::UvarintSize(p);    // skip to_ref varint
+      return static_cast<size_t>(p - ptr) + 1; // +1 for null terminator
     }
 
     case TaggedValue::kLandmark: {

@@ -24,9 +24,9 @@ constexpr size_t kMaxNamesPerEdge = 15;
  * Represents one node_network route segment on this edge.
  */
 struct BikeNodeNetwork {
-  uint8_t network;    // Bike network level (kNcn, kRcn, or kLcn)
-  uint32_t from_ref;  // Numeric junction ref at the start of the route segment
-  uint32_t to_ref;    // Numeric junction ref at the end of the route segment
+  uint8_t network;   // Bike network level (kNcn, kRcn, or kLcn)
+  uint32_t from_ref; // Numeric junction ref at the start of the route segment
+  uint32_t to_ref;   // Numeric junction ref at the end of the route segment
 
   /** Decode an unsigned varint from ptr, advancing ptr past the consumed bytes. */
   static uint32_t DecodeUvarint(const char*& ptr, const char* end) {
