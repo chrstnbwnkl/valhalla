@@ -2227,18 +2227,17 @@ struct graph_parser {
       } else if ((tag.first == "rcn_ref" || tag.first == "lcn_ref" || tag.first == "ncn_ref") &&
                  hasTag) {
         // Bike node network junction ref — store as number in the node_network_refs map
-        uint32_t ref_num = to_int(tag.second);
-        if (ref_num > 0) {
+        auto ref_num = try_to_int(tag.second);
+        if (ref_num) {
           auto [it, inserted] =
               osmdata_.node_network_refs.try_emplace(osmid, OSMNodeNetworkRef{0, 0, 0});
           if (tag.first == "ncn_ref") {
-            it->second.ncn_ref = ref_num;
+            it->second.ncn_ref = *ref_num;
           } else if (tag.first == "rcn_ref") {
-            it->second.rcn_ref = ref_num;
+            it->second.rcn_ref = *ref_num;
           } else {
-            it->second.lcn_ref = ref_num;
+            it->second.lcn_ref = *ref_num;
           }
-          LOG_ERROR("OK GOT IT = {} \n\n\n", osmid);
           has_node_network_ref = true;
         }
       } else if (tag.first == "access_mask") {
@@ -4083,10 +4082,17 @@ struct graph_parser {
             sep_len = 1;
           }
           if (pos != std::string_view::npos) {
-            from_ref_num = to_int(std::string(rv.substr(0, pos)));
-            to_ref_num = to_int(std::string(rv.substr(pos + sep_len)));
+            auto from_ref = try_to_int(std::string(rv.substr(0, pos)));
+            if (from_ref)
+              from_ref_num = *from_ref;
+
+            auto to_ref = try_to_int(std::string(rv.substr(pos + sep_len)));
+            if (to_ref)
+              to_ref_num = *to_ref;
           } else {
-            from_ref_num = to_int(ref);
+            auto from_ref = try_to_int(ref);
+            if (from_ref)
+              from_ref_num = *from_ref;
           }
         }
 

@@ -588,6 +588,86 @@ void legs(valhalla::Api& api, int route_index, rapidjson::writer_wrapper_t& writ
       writer.end_array(); // elevation
     }
 
+    // Bike node network traversal
+    // Walk the leg's nodes/edges to find junction nodes and determine if the route
+    // followed node_network routes between them.
+    {
+      // Collect junction nodes: index, ref values, shape_index
+      struct JunctionNode {
+        int node_index;
+        std::vector<uint32_t> refs; // all junction ref values at this node
+        uint32_t begin_shape_index;
+      };
+      std::vector<JunctionNode> junctions;
+
+      for (int ni = 0; ni < trip_leg_itr->node_size(); ++ni) {
+        const auto& node = trip_leg_itr->node(ni);
+        if (!node.has_edge())
+          continue;
+        const auto& sign = node.edge().sign();
+        if (sign.bike_node_network_refs_size() > 0) {
+          JunctionNode jn;
+          jn.node_index = ni;
+          jn.begin_shape_index = node.edge().begin_shape_index();
+          for (const auto& ref : sign.bike_node_network_refs()) {
+            uint32_t ref_num = std::strtoul(ref.text().c_str(), nullptr, 10);
+            if (ref_num > 0)
+              jn.refs.push_back(ref_num);
+          }
+          if (!jn.refs.empty())
+            junctions.push_back(std::move(jn));
+        }
+      }
+
+      if (!junctions.empty()) {
+        writer.start_array("bike_node_network");
+
+        for (size_t ji = 0; ji < junctions.size(); ++ji) {
+          writer.start_object();
+          const auto& jn = junctions[ji];
+
+          // Emit junction ref(s)
+          if (jn.refs.size() == 1) {
+            writer("ref", static_cast<uint64_t>(jn.refs[0]));
+          } else {
+            writer.start_array("refs");
+            for (auto r : jn.refs)
+              writer(static_cast<uint64_t>(r));
+            writer.end_array();
+          }
+          writer("begin_shape_index", static_cast<uint64_t>(jn.begin_shape_index));
+
+          // Check if the route follows the node network to the next junction
+          if (ji + 1 < junctions.size()) {
+            const auto& next_jn = junctions[ji + 1];
+            // Look at all edges between this junction and the next for matching routes
+            bool on_network = false;
+            for (int ei = jn.node_index; ei < next_jn.node_index; ++ei) {
+              const auto& edge = trip_leg_itr->node(ei).edge();
+              for (const auto& route : edge.bike_node_network_routes()) {
+                // Check if this route connects the two junctions (in either direction)
+                for (auto from_r : jn.refs) {
+                  for (auto to_r : next_jn.refs) {
+                    if ((route.from_ref() == from_r && route.to_ref() == to_r) ||
+                        (route.from_ref() == to_r && route.to_ref() == from_r)) {
+                      on_network = true;
+                    }
+                  }
+                }
+              }
+              if (on_network)
+                break;
+            }
+            writer("on_network_to_next", on_network);
+          }
+
+          writer.end_object();
+        }
+
+        writer.end_array(); // bike_node_network
+      }
+    }
+
     writer.start_object("summary");
 
     // Does the user want admin info?
