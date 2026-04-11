@@ -68,41 +68,41 @@ std::string pathToGPX(const google::protobuf::RepeatedPtrField<TripLeg>& legs) {
 fit::CoursePointType maneuver_type_to_course_point_type(DirectionsLeg_Maneuver_Type type) {
   switch (type) {
     case DirectionsLeg_Maneuver_Type_kSlightRight:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::slight_right;
     case DirectionsLeg_Maneuver_Type_kRight:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::right;
     case DirectionsLeg_Maneuver_Type_kSharpRight:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::sharp_right;
     case DirectionsLeg_Maneuver_Type_kSlightLeft:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::slight_left;
     case DirectionsLeg_Maneuver_Type_kLeft:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::left;
     case DirectionsLeg_Maneuver_Type_kSharpLeft:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::sharp_left;
     case DirectionsLeg_Maneuver_Type_kUturnRight:
     case DirectionsLeg_Maneuver_Type_kUturnLeft:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::u_turn;
     case DirectionsLeg_Maneuver_Type_kContinue:
     case DirectionsLeg_Maneuver_Type_kStayStraight:
     case DirectionsLeg_Maneuver_Type_kRampStraight:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::straight;
     case DirectionsLeg_Maneuver_Type_kRampRight:
     case DirectionsLeg_Maneuver_Type_kExitRight:
     case DirectionsLeg_Maneuver_Type_kStayRight:
     case DirectionsLeg_Maneuver_Type_kMergeRight:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::right_fork;
     case DirectionsLeg_Maneuver_Type_kRampLeft:
     case DirectionsLeg_Maneuver_Type_kExitLeft:
     case DirectionsLeg_Maneuver_Type_kStayLeft:
     case DirectionsLeg_Maneuver_Type_kMergeLeft:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::left_fork;
     case DirectionsLeg_Maneuver_Type_kMerge:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::straight;
     case DirectionsLeg_Maneuver_Type_kRoundaboutEnter:
     case DirectionsLeg_Maneuver_Type_kRoundaboutExit:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::generic;
     default:
-      return fit::CoursePointType::summit;
+      return fit::CoursePointType::generic;
   }
 }
 
@@ -125,7 +125,7 @@ std::string pathToFIT(Api& request) {
   } else if (costing == Costing::pedestrian) {
     writer.set_sport(fit::Sport::walking);
   } else {
-    writer.set_sport(fit::Sport::generic);
+    writer.set_sport(fit::Sport::cycling);
   }
 
   double cumulative_distance = 0.0;
