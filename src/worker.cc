@@ -34,6 +34,8 @@ static const worker::content_type& fmt_to_mime(const Options::Format& fmt) noexc
       return worker::TIFF_MIME;
     case Options::mvt:
       return worker::MVT_MIME;
+    case Options::fit:
+      return worker::FIT_MIME;
     default:
       return worker::JSON_MIME;
   }
@@ -84,6 +86,8 @@ bool is_format_supported(Options::Action action, Options::Format format) {
 #endif
       // mvt
       (1 << Options::tile),
+      // fit
+      (1 << Options::route) | (1 << Options::optimized_route) | (1 << Options::trace_route),
   };
   static_assert(std::size(kFormatActionSupport) == Options::Format_ARRAYSIZE,
                 "Please update format_action array to match Options::Action_ARRAYSIZE");

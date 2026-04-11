@@ -280,7 +280,7 @@ const std::string& ShapeMatch_Enum_Name(const ShapeMatch match) {
 bool Options_Format_Enum_Parse(const std::string& format, Options::Format* f) {
   static const std::unordered_map<std::string, Options::Format> formats{
       {"json", Options::json}, {"gpx", Options::gpx},         {"osrm", Options::osrm},
-      {"pbf", Options::pbf},   {"geotiff", Options::geotiff},
+      {"pbf", Options::pbf},   {"geotiff", Options::geotiff}, {"fit", Options::fit},
   };
   auto i = formats.find(format);
   if (i == formats.cend())
@@ -292,7 +292,7 @@ bool Options_Format_Enum_Parse(const std::string& format, Options::Format* f) {
 const std::string& Options_Format_Enum_Name(const Options::Format match) {
   static const std::unordered_map<int, std::string> formats{
       {Options::json, "json"}, {Options::gpx, "gpx"},         {Options::osrm, "osrm"},
-      {Options::pbf, "pbf"},   {Options::geotiff, "geotiff"},
+      {Options::pbf, "pbf"},   {Options::geotiff, "geotiff"}, {Options::fit, "fit"},
   };
   auto i = formats.find(match);
   return i == formats.cend() ? empty_str : i->second;

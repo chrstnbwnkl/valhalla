@@ -399,6 +399,7 @@ message Options {
     pbf = 3;
     geotiff = 4;
     mvt = 5;  // we set this ourselves and throw if it's set by the user
+    fit = 6;
   }
 
   enum Action {
