@@ -588,9 +588,9 @@ void GraphTileBuilder::AddSigns(const uint32_t idx,
 
       signs_builder_.emplace_back(idx, sign.type(), sign.is_route_num(), sign.is_tagged(), offset);
       if (sign.has_linguistic()) {
-        bool linguistic_on_node =
-            sign.type() == Sign::Type::kJunctionName || sign.type() == Sign::Type::kTollName ||
-            sign.type() == Sign::Type::kBikeNodeNetworkRef;
+        bool linguistic_on_node = sign.type() == Sign::Type::kJunctionName ||
+                                  sign.type() == Sign::Type::kTollName ||
+                                  sign.type() == Sign::Type::kBikeNodeNetworkRef;
         uint32_t count = (sign.linguistic_start_index() + sign.linguistic_count()) - 1;
         uint32_t sign_offset =
             AddName(process_linguistic_header(sign.linguistic_start_index(), count, linguistics, i));

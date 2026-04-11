@@ -124,9 +124,9 @@ size_t EdgeInfo::TaggedValueSize(const char* ptr) {
     case TaggedValue::kBikeNodeNetwork: {
       // Format: [tag byte][network byte][from_ref\0][to_ref\0]
       // Two null-terminated strings after the 2-byte header
-      const char* p = ptr + 2;       // skip tag + network byte
-      p += strlen(p) + 1;            // skip from_ref + its null
-      p += strlen(p) + 1;            // skip to_ref + its null
+      const char* p = ptr + 2; // skip tag + network byte
+      p += strlen(p) + 1;      // skip from_ref + its null
+      p += strlen(p) + 1;      // skip to_ref + its null
       return static_cast<size_t>(p - ptr);
     }
 
@@ -588,7 +588,8 @@ void EdgeInfo::json(rapidjson::writer_wrapper_t& writer) const {
   }
 
   std::vector<std::pair<std::string, uint64_t>> conditional_speed_limits;
-  for (const auto& [tag, value] : GetTags()) {
+  const auto& tags = GetTags();
+  for (const auto& [tag, value] : tags) {
     switch (tag) {
       case TaggedValue::kLayer:
         break;
@@ -646,6 +647,26 @@ void EdgeInfo::json(rapidjson::writer_wrapper_t& writer) const {
         break;
       case TaggedValue::kBridge:
         break;
+      case TaggedValue::kBikeNodeNetwork:
+        // Handled below after the loop
+        break;
+    }
+  }
+
+  // Emit bike node network routes (may be multiple per edge)
+  {
+    auto nn_range = tags.equal_range(TaggedValue::kBikeNodeNetwork);
+    if (nn_range.first != nn_range.second) {
+      writer.start_array("bike_node_network_routes");
+      for (auto it = nn_range.first; it != nn_range.second; ++it) {
+        auto nn = BikeNodeNetwork::Parse(it->second);
+        writer.start_object();
+        writer("network", static_cast<uint64_t>(nn.network));
+        writer("from_ref", nn.from_ref);
+        writer("to_ref", nn.to_ref);
+        writer.end_object();
+      }
+      writer.end_array();
     }
   }
 

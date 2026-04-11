@@ -936,14 +936,12 @@ void BuildTileSet(const std::string& ways_file,
                 std::string value;
                 value += static_cast<char>(TaggedValue::kBikeNodeNetwork);
                 value += static_cast<char>(nn->second.bike_network);
-                std::string from_ref =
-                    nn->second.from_ref_index
-                        ? osmdata.name_offset_map.name(nn->second.from_ref_index)
-                        : "";
-                std::string to_ref =
-                    nn->second.to_ref_index
-                        ? osmdata.name_offset_map.name(nn->second.to_ref_index)
-                        : "";
+                std::string from_ref = nn->second.from_ref_index
+                                           ? osmdata.name_offset_map.name(nn->second.from_ref_index)
+                                           : "";
+                std::string to_ref = nn->second.to_ref_index
+                                         ? osmdata.name_offset_map.name(nn->second.to_ref_index)
+                                         : "";
                 value += from_ref;
                 value += '\0';
                 value += to_ref;

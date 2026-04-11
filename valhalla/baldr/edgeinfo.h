@@ -24,9 +24,9 @@ constexpr size_t kMaxNamesPerEdge = 15;
  * Represents one node_network route segment on this edge.
  */
 struct BikeNodeNetwork {
-  uint8_t network;       // Bike network level (kNcn, kRcn, or kLcn)
-  std::string from_ref;  // Junction ref at the start of the route segment
-  std::string to_ref;    // Junction ref at the end of the route segment
+  uint8_t network;      // Bike network level (kNcn, kRcn, or kLcn)
+  std::string from_ref; // Junction ref at the start of the route segment
+  std::string to_ref;   // Junction ref at the end of the route segment
 
   /**
    * Parse a BikeNodeNetwork from the raw tagged value blob (after the tag byte is stripped).
