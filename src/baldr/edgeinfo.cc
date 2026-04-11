@@ -121,6 +121,15 @@ size_t EdgeInfo::TaggedValueSize(const char* ptr) {
       // These are null-terminated strings after the tag byte
       return strlen(ptr) + 1; // +1 for null terminator
 
+    case TaggedValue::kBikeNodeNetwork: {
+      // Format: [tag byte][network byte][from_ref\0][to_ref\0]
+      // Two null-terminated strings after the 2-byte header
+      const char* p = ptr + 2;       // skip tag + network byte
+      p += strlen(p) + 1;            // skip from_ref + its null
+      p += strlen(p) + 1;            // skip to_ref + its null
+      return static_cast<size_t>(p - ptr);
+    }
+
     case TaggedValue::kLandmark: {
       // Fixed 9-byte header + null-terminated name + null terminator
       std::string landmark_name = ptr + 10;

@@ -2275,6 +2275,10 @@ function nodes_proc (kv, nokeys)
     kv["bicycle_rental"] = "true"
   end
 
+  -- pass through bike node network refs
+  -- these tags identify junction nodes in bicycle node networks (knooppuntennetwerk)
+  -- rcn_ref, lcn_ref, ncn_ref are kept as-is for C++ processing
+
   if kv["traffic_signals:direction"] == "forward" then
     kv["forward_signal"] = "true"
 
@@ -2444,6 +2448,11 @@ function rels_proc (kv, nokeys)
        end
 
        kv["bike_network_mask"] = bike_mask
+
+       -- flag node network relations (knooppuntennetwerk)
+       if kv["network:type"] == "node_network" then
+         kv["is_node_network"] = "true"
+       end
 
        kv["day_on"] = nil
        kv["day_off"] = nil

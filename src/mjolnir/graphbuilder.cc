@@ -927,6 +927,30 @@ void BuildTileSet(const std::string& ways_file,
               tagged_values.push_back(encoded_node_ids);
             }
 
+            // Append bike node network info as tagged values
+            {
+              auto nn_range = osmdata.node_network_edges.equal_range(w.way_id());
+              for (auto nn = nn_range.first; nn != nn_range.second; ++nn) {
+                // Format: [TaggedValue byte][network level byte][from_ref\0][to_ref\0]
+                // Both from_ref and to_ref are null-terminated strings.
+                std::string value;
+                value += static_cast<char>(TaggedValue::kBikeNodeNetwork);
+                value += static_cast<char>(nn->second.bike_network);
+                std::string from_ref =
+                    nn->second.from_ref_index
+                        ? osmdata.name_offset_map.name(nn->second.from_ref_index)
+                        : "";
+                std::string to_ref =
+                    nn->second.to_ref_index
+                        ? osmdata.name_offset_map.name(nn->second.to_ref_index)
+                        : "";
+                value += from_ref;
+                value += '\0';
+                value += to_ref;
+                tagged_values.push_back(std::move(value));
+              }
+            }
+
             // Update bike_network type
             if (bike_network) {
               bike_network |= w.bike_network();
@@ -1324,6 +1348,30 @@ void BuildTileSet(const std::string& ways_file,
             }
           }
         }
+        // Add bike node network junction ref signs
+        {
+          auto nn_ref_it = osmdata.node_network_refs.find(node.osmid_);
+          if (nn_ref_it != osmdata.node_network_refs.end()) {
+            const auto& nn_ref = nn_ref_it->second;
+            std::vector<SignInfo> nn_signs;
+            std::vector<std::string> nn_linguistics;
+
+            auto add_nn_ref = [&](uint32_t ref_index) {
+              if (ref_index) {
+                nn_signs.emplace_back(Sign::Type::kBikeNodeNetworkRef, false, false, false, 0, 0,
+                                      osmdata.node_names.name(ref_index));
+              }
+            };
+            add_nn_ref(nn_ref.ncn_ref_index);
+            add_nn_ref(nn_ref.rcn_ref_index);
+            add_nn_ref(nn_ref.lcn_ref_index);
+
+            if (!nn_signs.empty()) {
+              graphtile.AddSigns(graphtile.nodes().size() - 1, nn_signs, nn_linguistics);
+            }
+          }
+        }
+
         // Set drive on right flag
         graphtile.nodes().back().set_drive_on_right(dor);
 

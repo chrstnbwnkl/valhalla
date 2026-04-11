@@ -251,6 +251,13 @@ message TripLeg {
     bool traffic_signal = 66;
     HovType hov_type = 67;
     uint32 curvature = 68;
+
+    message BikeNodeNetworkRoute {
+      uint32 network = 1;           // bike network level: 1=ncn, 2=rcn, 4=lcn
+      string from_ref = 2;          // junction ref at start of this route segment
+      string to_ref = 3;            // junction ref at end of this route segment
+    }
+    repeated BikeNodeNetworkRoute bike_node_network_routes = 69; // node network routes on this edge
   }
 
   message IntersectingEdge {

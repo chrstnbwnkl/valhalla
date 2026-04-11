@@ -2223,6 +2223,19 @@ struct graph_parser {
         osmdata_.edge_count += !intersection;
         intersection = true;
         n.set_type(NodeType::kElevator);
+      } else if ((tag.first == "rcn_ref" || tag.first == "lcn_ref" || tag.first == "ncn_ref") &&
+                 hasTag) {
+        // Bike node network junction ref — store in the node_network_refs map
+        auto [it, inserted] =
+            osmdata_.node_network_refs.try_emplace(osmid, OSMNodeNetworkRef{0, 0, 0});
+        uint32_t idx = osmdata_.node_names.index(tag.second);
+        if (tag.first == "ncn_ref") {
+          it->second.ncn_ref_index = idx;
+        } else if (tag.first == "rcn_ref") {
+          it->second.rcn_ref_index = idx;
+        } else {
+          it->second.lcn_ref_index = idx;
+        }
       } else if (tag.first == "access_mask") {
         n.set_access(to_int(tag.second));
       } else if (tag.first == "tagged_access") {
@@ -3841,6 +3854,7 @@ struct graph_parser {
     bool isRestriction = false, isTypeRestriction = false, hasRestriction = false;
     bool isRoad = false, isRoute = false, isBicycle = false, isConnectivity = false;
     bool isConditional = false, isProbable = false, has_multiple_times = false;
+    bool isNodeNetwork = false;
     uint32_t bike_network_mask = 0;
 
     std::string network, ref, name, except;
@@ -3975,6 +3989,8 @@ struct graph_parser {
         day_end = tag.second;
       } else if (tag.first == "bike_network_mask") {
         bike_network_mask = to_int(tag.second);
+      } else if (tag.first == "is_node_network") {
+        isNodeNetwork = (tag.second == "true");
       } else if (tag.first == "to:lanes") {
         to_lanes = tag.second;
       } else if (tag.first == "from:lanes") {
@@ -4038,6 +4054,53 @@ struct graph_parser {
 
       for (const auto& member : members) {
         osmdata_.bike_relations.insert(BikeMultiMap::value_type(member.member_id, bike));
+      }
+
+      // For node_network relations, also store per-way and per-node data.
+      // node_network edges get a TaggedValue; junction nodes get a Sign.
+      if (isNodeNetwork && (bike_network_mask & ~kMcn)) {
+        // Strip MTB flag — node networks are ncn/rcn/lcn only
+        uint8_t nn_network = bike_network_mask & ~kMcn;
+
+        // Parse the relation ref into from_ref and to_ref.
+        // Common formats: "45-67", "45 - 67", "45−67" (en-dash)
+        std::string from_ref, to_ref;
+        if (!ref.empty()) {
+          // Try splitting on " - ", "-", or "−" (en-dash U+2013)
+          std::string_view rv(ref);
+          size_t pos = rv.find(" - ");
+          size_t sep_len = 3;
+          if (pos == std::string_view::npos) {
+            // Try en-dash (UTF-8: 0xE2 0x80 0x93)
+            pos = rv.find("\xe2\x80\x93");
+            sep_len = 3;
+          }
+          if (pos == std::string_view::npos) {
+            pos = rv.find('-');
+            sep_len = 1;
+          }
+          if (pos != std::string_view::npos) {
+            from_ref = std::string(rv.substr(0, pos));
+            to_ref = std::string(rv.substr(pos + sep_len));
+            boost::algorithm::trim(from_ref);
+            boost::algorithm::trim(to_ref);
+          } else {
+            // No separator found — treat entire ref as from_ref
+            from_ref = ref;
+          }
+        }
+
+        OSMNodeNetworkEdge nn_edge;
+        nn_edge.bike_network = nn_network;
+        nn_edge.from_ref_index = osmdata_.name_offset_map.index(from_ref);
+        nn_edge.to_ref_index = osmdata_.name_offset_map.index(to_ref);
+
+        for (const auto& member : members) {
+          if (member.member_type == osmium::item_type::way) {
+            osmdata_.node_network_edges.insert(
+                NodeNetworkEdgeMultiMap::value_type(member.member_id, nn_edge));
+          }
+        }
       }
 
     } else if (isRoad && isRoute && !network.empty() &&

@@ -833,7 +833,8 @@ std::vector<SignInfo> GraphTile::GetSigns(const uint32_t idx, bool signs_on_node
       bool isLinguistic = (signs_[found].type() == Sign::Type::kLinguistic);
 
       bool is_node_sign_type = signs_[found].type() == Sign::Type::kJunctionName ||
-                               signs_[found].type() == Sign::Type::kTollName;
+                               signs_[found].type() == Sign::Type::kTollName ||
+                               signs_[found].type() == Sign::Type::kBikeNodeNetworkRef;
 
       // only add named signs when asking for signs at the node and
       // only add edge signs when asking for signs at the edges.
@@ -959,7 +960,8 @@ std::vector<SignInfo> GraphTile::GetSigns(
       }
 
       bool is_node_sign_type = signs_[found].type() == Sign::Type::kJunctionName ||
-                               signs_[found].type() == Sign::Type::kTollName;
+                               signs_[found].type() == Sign::Type::kTollName ||
+                               signs_[found].type() == Sign::Type::kBikeNodeNetworkRef;
 
       // only add named signs when asking for signs at the node and
       // only add edge signs when asking for signs at the edges.

@@ -25,6 +25,7 @@ public:
     kGuidanceViewJunction,
     kGuidanceViewSignboard,
     kTollName,
+    kBikeNodeNetworkRef,
     kLinguistic = 255
   };
 

@@ -18,6 +18,37 @@ namespace valhalla {
 namespace baldr {
 
 constexpr size_t kMaxNamesPerEdge = 15;
+
+/**
+ * Parsed bike node network tagged value from EdgeInfo.
+ * Represents one node_network route segment on this edge.
+ */
+struct BikeNodeNetwork {
+  uint8_t network;       // Bike network level (kNcn, kRcn, or kLcn)
+  std::string from_ref;  // Junction ref at the start of the route segment
+  std::string to_ref;    // Junction ref at the end of the route segment
+
+  /**
+   * Parse a BikeNodeNetwork from the raw tagged value blob (after the tag byte is stripped).
+   * Format: [network byte][from_ref\0][to_ref...]
+   */
+  static BikeNodeNetwork Parse(const std::string& blob) {
+    BikeNodeNetwork result;
+    if (blob.empty()) {
+      result.network = 0;
+      return result;
+    }
+    result.network = static_cast<uint8_t>(blob[0]);
+    // from_ref is a null-terminated string starting at offset 1
+    const char* p = blob.data() + 1;
+    result.from_ref = p;
+    p += result.from_ref.size() + 1; // skip past null terminator
+    // to_ref is the remainder
+    size_t remaining = blob.size() - (p - blob.data());
+    result.to_ref = std::string(p, remaining);
+    return result;
+  }
+};
 constexpr size_t kMaxEncodedShapeSize = 65535;
 
 // Use elevation bins of 2 meters to store mean elevation. Clamp to a range

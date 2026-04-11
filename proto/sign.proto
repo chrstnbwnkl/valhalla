@@ -21,4 +21,5 @@ message TripSign {
   repeated TripSignElement junction_names = 7;           // The list of junction names, examples: 万年橋東 or Mannenbashi East
   repeated TripSignElement guidance_view_junctions = 8;  // The list of guidance view junctions, examples: AB12345;1 or AB12345;E
   repeated TripSignElement guidance_view_signboards = 9; // The list of guidance view signboards, examples: SI_721701166;1 or SI_721701166;2
+  repeated TripSignElement bike_node_network_refs = 10;  // Bike node network junction refs, example: 45
 }

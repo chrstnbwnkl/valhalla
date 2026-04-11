@@ -111,6 +111,17 @@ void serialize_edges(const AttributesController& controller,
       if (controller(kEdgeBicycleNetwork)) {
         writer("bicycle_network", static_cast<uint64_t>(edge.bicycle_network()));
       }
+      if (edge.bike_node_network_routes_size() > 0) {
+        writer.start_array("bike_node_network_routes");
+        for (const auto& route : edge.bike_node_network_routes()) {
+          writer.start_object();
+          writer("network", static_cast<uint64_t>(route.network()));
+          writer("from_ref", route.from_ref());
+          writer("to_ref", route.to_ref());
+          writer.end_object();
+        }
+        writer.end_array();
+      }
       if (controller(kEdgeCycleLane)) {
         writer("cycle_lane", to_string(static_cast<CycleLane>(edge.cycle_lane())));
       }

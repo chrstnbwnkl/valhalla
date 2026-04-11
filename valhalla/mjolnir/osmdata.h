@@ -39,6 +39,20 @@ struct OSMBike {
   uint32_t ref_index;
 };
 
+// OSM bicycle node network edge data (way member of a network:type=node_network relation)
+struct OSMNodeNetworkEdge {
+  uint8_t bike_network;     // kNcn, kRcn, or kLcn
+  uint32_t from_ref_index;  // Index into UniqueNames for from-node ref (e.g., "45")
+  uint32_t to_ref_index;    // Index into UniqueNames for to-node ref (e.g., "67")
+};
+
+// OSM bicycle node network junction refs (rcn_ref, lcn_ref, ncn_ref on nodes)
+struct OSMNodeNetworkRef {
+  uint32_t ncn_ref_index; // Index into node_names for ncn_ref value
+  uint32_t rcn_ref_index; // Index into node_names for rcn_ref value
+  uint32_t lcn_ref_index; // Index into node_names for lcn_ref value
+};
+
 // OSM lane connectivity (stored within OSMData)
 struct OSMLaneConnectivity {
   uint32_t to_way_id;
@@ -52,6 +66,8 @@ using RestrictionsMultiMap = std::unordered_multimap<uint64_t, OSMRestriction>;
 using ViaSet = std::unordered_set<uint64_t>;
 using AccessRestrictionsMultiMap = std::unordered_multimap<uint64_t, OSMAccessRestriction>;
 using BikeMultiMap = std::unordered_multimap<uint64_t, OSMBike>;
+using NodeNetworkEdgeMultiMap = std::unordered_multimap<uint64_t, OSMNodeNetworkEdge>;
+using NodeNetworkRefMap = std::unordered_map<uint64_t, OSMNodeNetworkRef>;
 using OSMLaneConnectivityMultiMap = std::unordered_multimap<uint64_t, OSMLaneConnectivity>;
 using LinguisticMultiMap = std::unordered_multimap<uint64_t, OSMLinguistic>;
 using ConditionalSpeedLimitsMultiMap =
@@ -119,6 +135,12 @@ struct OSMData {
 
   // Stores bike information from the relations.  Indexed by the way Id.
   BikeMultiMap bike_relations;
+
+  // Stores bike node network edge data from network:type=node_network relations. Indexed by way Id.
+  NodeNetworkEdgeMultiMap node_network_edges;
+
+  // Stores bike node network junction refs (rcn_ref, lcn_ref, ncn_ref). Indexed by OSM node Id.
+  NodeNetworkRefMap node_network_refs;
 
   // Map that stores an updated ref for a way. This needs to remain a map, since relations
   // update many ways at a time (so we can't move this into OSMWay unless that is mapped by Id).

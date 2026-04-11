@@ -1163,8 +1163,8 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
     }
   }
 
-  // Process the named junctions at nodes
-  if (has_junction_name && start_tile) {
+  // Process node signs (junction names and bike node network refs)
+  if (start_tile && (has_junction_name || !trip_edge->bike_node_network_routes().empty())) {
     // Add the node signs
     LinguisticMap linguistics;
     std::vector<SignInfo> node_signs = start_tile->GetSigns(start_node_idx, linguistics, true);
@@ -1178,6 +1178,11 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
               PopulateSignElement(sign_index, sign, linguistics,
                                   trip_sign->mutable_junction_names()->Add());
             }
+            break;
+          }
+          case valhalla::baldr::Sign::Type::kBikeNodeNetworkRef: {
+            auto* element = trip_sign->mutable_bike_node_network_refs()->Add();
+            element->set_text(sign.text());
             break;
           }
           default:
@@ -1545,6 +1550,19 @@ TripLeg_Edge* AddTripEdge(const AttributesController& controller,
 
   if (controller(kEdgeBicycleNetwork)) {
     trip_edge->set_bicycle_network(directededge->bike_network());
+  }
+
+  // Populate bike node network route info from tagged values
+  {
+    const auto& tags = edgeinfo.GetTags();
+    auto nn_range = tags.equal_range(baldr::TaggedValue::kBikeNodeNetwork);
+    for (auto it = nn_range.first; it != nn_range.second; ++it) {
+      auto nn = baldr::BikeNodeNetwork::Parse(it->second);
+      auto* route = trip_edge->add_bike_node_network_routes();
+      route->set_network(nn.network);
+      route->set_from_ref(nn.from_ref);
+      route->set_to_ref(nn.to_ref);
+    }
   }
 
   if (controller(kEdgeSacScale)) {
