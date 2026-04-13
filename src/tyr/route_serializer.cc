@@ -106,6 +106,49 @@ fit::CoursePointType maneuver_type_to_course_point_type(DirectionsLeg_Maneuver_T
   }
 }
 
+// Compute elevation at each shape point by interpolating edge elevation data.
+// Each edge in the trip leg has begin/end shape indices, a sampling interval,
+// and an array of elevation samples. We interpolate between those samples
+// based on where each shape point falls along the edge.
+std::vector<double> get_shape_elevations(const TripLeg& leg,
+                                         const std::vector<PointLL>& shape,
+                                         const std::vector<double>& shape_distances) {
+  std::vector<double> elevations(shape.size(), 0.0);
+
+  for (const auto& node : leg.node()) {
+    const auto& edge = node.edge();
+    if (edge.elevation_size() < 2) {
+      continue;
+    }
+
+    uint32_t begin_idx = edge.begin_shape_index();
+    uint32_t end_idx = edge.end_shape_index();
+    if (begin_idx >= shape.size() || end_idx >= shape.size() || begin_idx >= end_idx) {
+      continue;
+    }
+
+    float interval = edge.elevation_sampling_interval();
+    float edge_length = static_cast<float>(shape_distances[end_idx] - shape_distances[begin_idx]);
+    if (edge_length <= 0.0f || interval <= 0.0f) {
+      continue;
+    }
+
+    // interpolate elevation at each shape point along this edge
+    for (uint32_t i = begin_idx; i <= end_idx; ++i) {
+      float d = static_cast<float>(shape_distances[i] - shape_distances[begin_idx]);
+      float sample_pos = d / interval;
+      uint32_t idx = static_cast<uint32_t>(sample_pos);
+      if (idx >= static_cast<uint32_t>(edge.elevation_size()) - 1) {
+        elevations[i] = edge.elevation(edge.elevation_size() - 1);
+      } else {
+        float pct = sample_pos - idx;
+        elevations[i] = edge.elevation(idx) * (1.0f - pct) + edge.elevation(idx + 1) * pct;
+      }
+    }
+  }
+  return elevations;
+}
+
 std::string pathToFIT(Api& request) {
   const auto& legs = request.trip().routes(0).legs();
   const auto& dir_legs = request.directions().routes(0).legs();
@@ -116,7 +159,7 @@ std::string pathToFIT(Api& request) {
       std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count());
 
   fit::CourseWriter writer;
-  writer.set_course_name("valhalla");
+  writer.set_course_name(request.options().id().empty() ? "valhalla" : request.options().id());
 
   // determine sport from costing
   auto costing = request.options().costing_type();
@@ -143,12 +186,15 @@ std::string pathToFIT(Api& request) {
     double leg_length = shape_distances.empty() ? 0.0 : shape_distances.back();
     double leg_time = leg_idx < dir_legs.size() ? dir_legs[leg_idx].summary().time() : 0.0;
 
+    // get elevation at each shape point from edge elevation data
+    auto elevations = get_shape_elevations(leg, shape, shape_distances);
+
     // add trackpoints for each shape point
     for (size_t i = 0; i < shape.size(); ++i) {
       double frac = (leg_length > 0.0) ? shape_distances[i] / leg_length : 0.0;
       uint32_t ts = base_ts + static_cast<uint32_t>(cumulative_time + frac * leg_time);
-      writer.add_trackpoint(
-          {shape[i].second, shape[i].first, 0.0, cumulative_distance + shape_distances[i], ts});
+      writer.add_trackpoint({shape[i].second, shape[i].first, elevations[i],
+                             cumulative_distance + shape_distances[i], ts});
     }
 
     // add course points from maneuvers (skip start/destination)

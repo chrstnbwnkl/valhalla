@@ -1042,6 +1042,11 @@ void from_json(rapidjson::Document& doc, Options::Action action, Api& api) {
         std::max(std::min(options.elevation_interval(), kMaxElevationInterval), 0.0f));
   }
 
+  // FIT format always needs elevation data for trackpoints
+  if (options.format() == Options_Format_fit && options.elevation_interval() <= 0.0f) {
+    options.set_elevation_interval(30.0f);
+  }
+
   // Elevation service options
   options.set_range(rapidjson::get(doc, "/range", options.range()));
   constexpr uint32_t MAX_HEIGHT_PRECISION = 2;
