@@ -1,5 +1,14 @@
 name: Valhalla MinGW Build
-on: [pull_request]
+on:
+  pull_request:
+    paths-ignore:
+      - "*.md"
+      - .circleci/
+      - docs/
+      - run_route_scripts/
+      - test_requests/
+    branches:
+      - master
 
 jobs:
   build:
@@ -21,13 +30,9 @@ jobs:
             mingw64-gdal \
             mingw64-python3 \
             protobuf-compiler
-      - uses: actions/checkout@v2
-      - name: Checkout submodules
-        shell: bash
-        run: |
-          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
-          git submodule sync --recursive
-          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Configure and run build
         run: |
           mkdir build && cd build \
