@@ -22,6 +22,8 @@ constexpr uint32_t kDefaultTrainSpeedKph = 80;
 // top speed used only for the A* heuristic. Must be an upper bound on the
 // effective speed used in EdgeCost for the heuristic to remain admissible.
 constexpr float kTopTrainSpeedMetersPerSec = 180.0f * kKPHtoMetersPerSec; // 120 kph
+                                                                          //
+constexpr uint8_t kMaxAssumedTrainSpeed = 140;
 
 // usage factors: how cheap/expensive an edge is relative to a main line.
 // Scaled later by the user's `railway_use_main` preference (0..1). At
@@ -48,8 +50,8 @@ constexpr float kUsageFactorUnknown = 1.25f; // slight bias toward tagged mains
 constexpr float kTurnStraight = 0.0f;
 constexpr float kTurnSlight = 0.0f;
 constexpr float kTurnNormal = 10.0f;
-constexpr float kTurnSharp = 600.0f;
-constexpr float kTurnReverse = 1800.0f;
+constexpr float kTurnSharp = 100.0f;
+constexpr float kTurnReverse = 800.0f;
 
 // Option ranges.
 constexpr ranged_default_t<uint32_t> kRailwayPreferredGaugeRange{0, 0,
@@ -60,6 +62,7 @@ constexpr ranged_default_t<float> kRailwayUseMainRange{0.0f, 0.7f, 1.0f};
 constexpr ranged_default_t<uint32_t> kRailwayTrafficModeRange{0, 0,
                                                               static_cast<uint32_t>(
                                                                   RailTrafficMode::kMixed)};
+constexpr ranged_default_t<uint32_t> kTrainSpeedRange{10, kMaxAssumedTrainSpeed, baldr::kMaxSpeedKph};
 
 // Base cost options config. Trains don't meaningfully use most of these,
 // but we still parse the base options so shared knobs like ignore_closures,
@@ -217,9 +220,6 @@ public:
     return false;
   }
 
-  /**
-   * Transit EdgeCost — trains here are OSM rail edges, not GTFS transit lines.
-   */
   virtual Cost EdgeCost(const baldr::DirectedEdge*,
                         const baldr::TransitDeparture*,
                         const uint32_t) const override {
@@ -237,19 +237,21 @@ public:
                         const baldr::TimeInfo&,
                         uint8_t&) const override {
     const float length = static_cast<float>(edge->length());
-    const float seconds =
-        length / (edge->speed() != 0 ? edge->speed() : kDefaultTrainSpeedKph) * kKPHtoMetersPerSec;
+    const auto speed = fixed_speed_ == baldr::kDisableFixedSpeed
+                           ? (edge->speed() != 0 ? edge->speed() : kDefaultTrainSpeedKph)
+                           : fixed_speed_;
+    const float seconds = length / (std::min(speed, top_speed_) * kKPHtoMetersPerSec);
 
     float factor = 1.0f;
     if (tile && tile->header()->has_ext_directededge()) {
       const auto* ext = tile->ext_directededge(edge);
 
-      // Usage preference — blend between "no bias" (use_main_ = 0) and the
+      // Usage preference: blend between "no bias" (use_main_ = 0) and the
       // full per-usage multiplier (use_main_ = 1).
       const float raw = usage_factor(ext->railway_usage());
       factor *= (1.0f - use_main_) + use_main_ * raw;
 
-      // Gauge preference — if the user asked for a specific gauge and the
+      // Gauge preference: if the user asked for a specific gauge and the
       // edge's gauge is known but different, apply the mismatch penalty.
       if (preferred_gauge_ != RailGauge::kUnknown && ext->railway_gauge() != RailGauge::kUnknown &&
           ext->railway_gauge() != preferred_gauge_) {
@@ -261,7 +263,7 @@ public:
   }
 
   /**
-   * Transition cost from predecessor edge — uses the turn type stored on
+   * Transition cost from predecessor edge; uses the turn type stored on
    * the outbound edge (keyed by the predecessor's local index) to charge
    * a seconds-based penalty. Sharp turns and reversals are strongly
    * penalized; straight-through and slight turns are free.
@@ -277,7 +279,7 @@ public:
   }
 
   /**
-   * Reverse transition cost — mirror of TransitionCost. In the reverse
+   * Reverse transition cost: mirror of TransitionCost. In the reverse
    * search the "predecessor" is `pred` (outbound from node in the reverse
    * tree) and `edge` is what it came from. idx is the predecessor's local
    * index at the node.
@@ -301,7 +303,7 @@ public:
    * keep the heuristic admissible.
    */
   virtual float AStarCostFactor() const override {
-    return 1.0f / kTopTrainSpeedMetersPerSec;
+    return 0; // 1.0f / kTopTrainSpeedMetersPerSec;
   }
 
   /**
@@ -395,6 +397,7 @@ void ParseTrainCostOptions(const rapidjson::Document& doc,
                           warnings);
   JSON_PBF_RANGED_DEFAULT(co, kRailwayTrafficModeRange, json, "/railway_traffic_mode",
                           railway_traffic_mode, warnings);
+  JSON_PBF_RANGED_DEFAULT(co, kTrainSpeedRange, json, "/top_speed", top_speed, warnings);
 
   // Plain bool — no range/default helper needed; proto3 default is false.
   co->set_railway_require_electrified(

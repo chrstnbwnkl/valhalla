@@ -937,9 +937,9 @@ function filter_tags_generic(kv)
   local rail = kv["route"] == "shuttle_train"
   -- train routing: detect routable OSM railway ways. kv["rail"] above is
   -- specifically for car-carrying shuttle trains and must stay independent.
-  local railway_types = { rail=true, light_rail=true, subway=true,
-                          tram=true, narrow_gauge=true, monorail=true,
-                          funicular=true }
+  local railway_types = { rail=true, light_rail=false, subway=false,
+                          tram=false, narrow_gauge=true, monorail=false,
+                          funicular=false }
   local train = kv["highway"] == nil and railway_types[kv["railway"]] == true
   local access = any_in(access, kv["access"])
 
