@@ -406,6 +406,7 @@ void DirectionsBuilder::PopulateDirectionsLeg(const Options& options,
         trip_maneuver->set_transit_type(maneuver.transit_type());
         break;
       }
+      case TravelMode::kTrain:
       case TravelMode_INT_MIN_SENTINEL_DO_NOT_USE_:
       case TravelMode_INT_MAX_SENTINEL_DO_NOT_USE_:
         // Sentinel values - should not occur in practice
