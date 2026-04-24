@@ -65,6 +65,14 @@ void ConnectToGraph(GraphTileBuilder& tilebuilder_local,
   tilebuilder_local.nodes().clear();
   std::vector<DirectedEdge> currentedges(std::move(tilebuilder_local.directededges()));
   tilebuilder_local.directededges().clear();
+  // Mirror the extended-edge vector so rail attributes survive this pass.
+  // New transit connector edges get a default ext (no rail attributes).
+  const bool has_ext_local = !tilebuilder_local.directededges_ext().empty();
+  std::vector<DirectedEdgeExt> currentedges_ext;
+  if (has_ext_local) {
+    currentedges_ext = std::move(tilebuilder_local.directededges_ext());
+    tilebuilder_local.directededges_ext().clear();
+  }
 
   // Get the directed edge index of the first sign. If no signs are
   // present in this tile set a value > number of directed edges
@@ -92,6 +100,9 @@ void ConnectToGraph(GraphTileBuilder& tilebuilder_local,
     size_t edge_index = tilebuilder_local.directededges().size();
     for (uint32_t i = 0, idx = nb.edge_index(); i < nb.edge_count(); i++, idx++) {
       tilebuilder_local.directededges().emplace_back(std::move(currentedges[idx]));
+      if (has_ext_local) {
+        tilebuilder_local.directededges_ext().emplace_back(currentedges_ext[idx]);
+      }
 
       // Update any signs that use this idx - increment their index by the
       // number of added edges
@@ -167,6 +178,10 @@ void ConnectToGraph(GraphTileBuilder& tilebuilder_local,
       directededge.set_edgeinfo_offset(edge_info_offset);
       directededge.set_forward(true);
       tilebuilder_local.directededges().emplace_back(std::move(directededge));
+      if (has_ext_local) {
+        // Transit connector edges get a default ext (no rail attributes).
+        tilebuilder_local.directededges_ext().emplace_back();
+      }
 
       LOG_DEBUG("Add conn from OSM to stop: ei offset = " + std::to_string(edge_info_offset));
 

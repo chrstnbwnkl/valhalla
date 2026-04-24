@@ -979,6 +979,21 @@ void BuildTileSet(const std::string& ways_file,
                                  static_cast<RoadClass>(edge.attributes.importance_hierarchy));
 
           DirectedEdge& directededge = graphtile.directededges().emplace_back(de);
+
+          // Emit a parallel DirectedEdgeExt for every edge. For railway edges
+          // we populate the rail attribute bitfields from the OSMWay. For
+          // non-rail edges this is zero-initialized. graphtilebuilder requires
+          // the ext vector to either be empty or the same size as the edge
+          // vector, so once we start pushing for rail we must push for every
+          // edge in the tile.
+          DirectedEdgeExt& directededge_ext = graphtile.directededges_ext().emplace_back();
+          if (w.train_forward() || w.train_backward()) {
+            directededge_ext.set_railway_gauge(w.railway_gauge());
+            directededge_ext.set_railway_usage(w.railway_usage());
+            directededge_ext.set_railway_traffic_mode(w.railway_traffic_mode());
+            directededge_ext.set_railway_electrified(w.railway_electrified());
+          }
+
           // temporarily set the leaves tile flag to indicate when we need to search the access.bin
           // file. ferries don't have overrides in country access logic, so use this bit to indicate
           // if the speed has been set via the duration and length

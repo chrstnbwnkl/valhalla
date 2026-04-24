@@ -357,6 +357,38 @@ struct graph_parser {
     tag_handlers_["pedestrian_backward"] = [this]() {
       way_.set_pedestrian_backward(tag_.second == "true" ? true : false);
     };
+    tag_handlers_["train_forward"] = [this]() {
+      way_.set_train_forward(tag_.second == "true" ? true : false);
+    };
+    tag_handlers_["train_backward"] = [this]() {
+      way_.set_train_backward(tag_.second == "true" ? true : false);
+    };
+    tag_handlers_["railway_gauge"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_gauge(static_cast<valhalla::baldr::RailGauge>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_usage"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_usage(static_cast<valhalla::baldr::RailUsage>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_traffic_mode"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_traffic_mode(
+          static_cast<valhalla::baldr::RailTrafficMode>(std::stoi(tag_.second)));
+    };
+    tag_handlers_["railway_electrified"] = [this]() {
+      if (tag_.second.empty()) {
+        return;
+      }
+      way_.set_railway_electrified(
+          static_cast<valhalla::baldr::RailElectrified>(std::stoi(tag_.second)));
+    };
     tag_handlers_["private"] = [this]() {
       // Make sure we do not unset this flag if set previously
       if (tag_.second == "true")
@@ -2223,6 +2255,12 @@ struct graph_parser {
         osmdata_.edge_count += !intersection;
         intersection = true;
         n.set_type(NodeType::kElevator);
+      } else if (tag.first == "railway_stop" && tag.second == "true") {
+        // Force an intersection at rail stop points so trains can target
+        // them as a waypoint on the line.
+        osmdata_.edge_count += !intersection;
+        intersection = true;
+        n.set_type(NodeType::kRailwayStop);
       } else if (tag.first == "access_mask") {
         n.set_access(to_int(tag.second));
       } else if (tag.first == "tagged_access") {

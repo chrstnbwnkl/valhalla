@@ -45,6 +45,7 @@ constexpr uint16_t kHOVAccess = 128;
 constexpr uint16_t kWheelchairAccess = 256;
 constexpr uint16_t kMopedAccess = 512;
 constexpr uint16_t kMotorcycleAccess = 1024;
+constexpr uint16_t kTrainAccess = 2048;
 constexpr uint16_t kAllAccess = 4095;
 
 // Constant representing vehicular access types
@@ -242,6 +243,7 @@ enum class NodeType : uint8_t {
   kSumpBuster = 12,             // Sump Buster
   kBuildingEntrance = 13,       // Building entrance
   kElevator = 14,               // Elevator
+  kRailwayStop = 15,            // Rail stop point on a railway line (railway=stop)
 };
 inline std::string to_string(NodeType n) {
   static const std::unordered_map<uint8_t, std::string> NodeTypeStrings =
@@ -259,7 +261,8 @@ inline std::string to_string(NodeType n) {
        {static_cast<uint8_t>(NodeType::kTollGantry), "toll_gantry"},
        {static_cast<uint8_t>(NodeType::kSumpBuster), "sump_buster"},
        {static_cast<uint8_t>(NodeType::kBuildingEntrance), "building_entrance"},
-       {static_cast<uint8_t>(NodeType::kElevator), "elevator"}};
+       {static_cast<uint8_t>(NodeType::kElevator), "elevator"},
+       {static_cast<uint8_t>(NodeType::kRailwayStop), "railway_stop"}};
 
   auto i = NodeTypeStrings.find(static_cast<uint8_t>(n));
   if (i == NodeTypeStrings.cend()) {
@@ -644,6 +647,128 @@ inline std::string to_string(SacScale c) {
 // Mountain bike scale
 const uint32_t kMaxMtbScale = 6;
 const uint32_t kMaxMtbUphillScale = 5;
+
+// Track gauge for railway edges. Stored in 4 bits on DirectedEdgeExt.
+// Covers the gauges that appear most frequently in OSM.
+enum class RailGauge : uint8_t {
+  kUnknown = 0,
+  kMiniature = 1, // <600 mm (ride-on garden railways, park rides)
+  k600mm = 2,     // 600 mm (industrial narrow gauge)
+  k750mm = 3,     // 750 mm (Bosnian gauge, various heritage)
+  k1000mm = 4,    // 1000 mm (metre gauge)
+  k1067mm = 5,    // 1067 mm (Cape gauge)
+  k1372mm = 6,    // 1372 mm (Scotch gauge)
+  k1435mm = 7,    // 1435 mm (standard gauge)
+  k1520mm = 8,    // 1520 mm (Russian broad gauge)
+  k1524mm = 9,    // 1524 mm (Finnish / historical 5 ft)
+  k1600mm = 10,   // 1600 mm (Irish gauge)
+  k1668mm = 11,   // 1668 mm (Iberian gauge)
+  kOther = 15     // Any other tagged gauge
+};
+inline std::string to_string(RailGauge g) {
+  static const std::unordered_map<uint8_t, std::string> RailGaugeStrings = {
+      {static_cast<uint8_t>(RailGauge::kUnknown), "unknown"},
+      {static_cast<uint8_t>(RailGauge::kMiniature), "miniature"},
+      {static_cast<uint8_t>(RailGauge::k600mm), "600"},
+      {static_cast<uint8_t>(RailGauge::k750mm), "750"},
+      {static_cast<uint8_t>(RailGauge::k1000mm), "1000"},
+      {static_cast<uint8_t>(RailGauge::k1067mm), "1067"},
+      {static_cast<uint8_t>(RailGauge::k1372mm), "1372"},
+      {static_cast<uint8_t>(RailGauge::k1435mm), "1435"},
+      {static_cast<uint8_t>(RailGauge::k1520mm), "1520"},
+      {static_cast<uint8_t>(RailGauge::k1524mm), "1524"},
+      {static_cast<uint8_t>(RailGauge::k1600mm), "1600"},
+      {static_cast<uint8_t>(RailGauge::k1668mm), "1668"},
+      {static_cast<uint8_t>(RailGauge::kOther), "other"},
+  };
+  auto i = RailGaugeStrings.find(static_cast<uint8_t>(g));
+  if (i == RailGaugeStrings.cend()) {
+    return "null";
+  }
+  return i->second;
+}
+
+// OSM railway=*/usage=* classification. 4 bits.
+enum class RailUsage : uint8_t {
+  kUnknown = 0,
+  kMain = 1,       // usage=main
+  kBranch = 2,     // usage=branch
+  kIndustrial = 3, // usage=industrial
+  kMilitary = 4,   // usage=military
+  kTest = 5,       // usage=test
+  kTourism = 6,    // usage=tourism
+  kScience = 7,    // usage=science
+  kFreight = 8,    // usage=freight (service=yard/siding/spur/crossover handled below)
+  kYard = 9,       // service=yard
+  kSiding = 10,    // service=siding
+  kSpur = 11,      // service=spur
+  kCrossover = 12  // service=crossover
+};
+inline std::string to_string(RailUsage u) {
+  static const std::unordered_map<uint8_t, std::string> RailUsageStrings = {
+      {static_cast<uint8_t>(RailUsage::kUnknown), "unknown"},
+      {static_cast<uint8_t>(RailUsage::kMain), "main"},
+      {static_cast<uint8_t>(RailUsage::kBranch), "branch"},
+      {static_cast<uint8_t>(RailUsage::kIndustrial), "industrial"},
+      {static_cast<uint8_t>(RailUsage::kMilitary), "military"},
+      {static_cast<uint8_t>(RailUsage::kTest), "test"},
+      {static_cast<uint8_t>(RailUsage::kTourism), "tourism"},
+      {static_cast<uint8_t>(RailUsage::kScience), "science"},
+      {static_cast<uint8_t>(RailUsage::kFreight), "freight"},
+      {static_cast<uint8_t>(RailUsage::kYard), "yard"},
+      {static_cast<uint8_t>(RailUsage::kSiding), "siding"},
+      {static_cast<uint8_t>(RailUsage::kSpur), "spur"},
+      {static_cast<uint8_t>(RailUsage::kCrossover), "crossover"},
+  };
+  auto i = RailUsageStrings.find(static_cast<uint8_t>(u));
+  if (i == RailUsageStrings.cend()) {
+    return "null";
+  }
+  return i->second;
+}
+
+// railway:traffic_mode=*. 2 bits.
+enum class RailTrafficMode : uint8_t { kUnknown = 0, kFreight = 1, kPassenger = 2, kMixed = 3 };
+inline std::string to_string(RailTrafficMode t) {
+  switch (t) {
+    case RailTrafficMode::kUnknown:
+      return "unknown";
+    case RailTrafficMode::kFreight:
+      return "freight";
+    case RailTrafficMode::kPassenger:
+      return "passenger";
+    case RailTrafficMode::kMixed:
+      return "mixed";
+  }
+  return "null";
+}
+
+// electrified=*. 3 bits.
+enum class RailElectrified : uint8_t {
+  kUnknown = 0,
+  kNo = 1,                     // electrified=no
+  kYes = 2,                    // electrified=yes (type unspecified)
+  kContactLine = 3,            // electrified=contact_line (overhead)
+  kRail = 4,                   // electrified=rail (third rail)
+  kGroundLevelPowerSupply = 5, // electrified=ground-level_power_supply
+};
+inline std::string to_string(RailElectrified e) {
+  switch (e) {
+    case RailElectrified::kUnknown:
+      return "unknown";
+    case RailElectrified::kNo:
+      return "no";
+    case RailElectrified::kYes:
+      return "yes";
+    case RailElectrified::kContactLine:
+      return "contact_line";
+    case RailElectrified::kRail:
+      return "rail";
+    case RailElectrified::kGroundLevelPowerSupply:
+      return "ground_level_power_supply";
+  }
+  return "null";
+}
 
 // Generalized representation of surface types. Lower values indicate smoother
 // surfaces. Vehicle or bicycle type can use this to avoid or disallow edges

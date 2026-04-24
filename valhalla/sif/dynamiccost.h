@@ -167,6 +167,7 @@ const std::unordered_map<Costing::Type, std::vector<Costing::Type>> kCostingType
     {Costing::pedestrian, {Costing::pedestrian}},
     {Costing::transit, {Costing::transit, Costing::pedestrian}},
     {Costing::truck, {Costing::truck}},
+    {Costing::train, {Costing::train}},
     {Costing::motorcycle, {Costing::motorcycle}},
     {Costing::taxi, {Costing::taxi}},
     {Costing::auto_, {Costing::auto_}},
@@ -405,6 +406,24 @@ public:
   inline virtual bool Allowed(const baldr::NodeInfo* node) const {
     return ((node->access() & access_mask_) || ignore_access_) &&
            !(exclude_cash_only_tolls_ && node->cash_only_toll());
+  }
+
+  /**
+   * Whether this costing wants locations to snap to a specific kind of
+   * node (rather than an arbitrary point along the closest edge). Used
+   * by train costing to force snapping to railway=stop nodes.
+   */
+  virtual bool RequiresPreferredSnapNode() const {
+    return false;
+  }
+
+  /**
+   * If RequiresPreferredSnapNode() returns true, loki::search will call
+   * this for each candidate endpoint node and pick the closest one that
+   * returns true.
+   */
+  virtual bool IsPreferredSnapNode(const baldr::NodeInfo*) const {
+    return true;
   }
 
   /**

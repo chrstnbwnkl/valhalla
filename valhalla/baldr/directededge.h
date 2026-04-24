@@ -1309,13 +1309,59 @@ protected:
 
 /**
  * Extended directed edge attribution. This structure provides the ability to add extra
- * attribution per directed edge without breaking backward compatibility. For now this structure
- * is unused.
+ * attribution per directed edge without breaking backward compatibility.
+ *
+ * Currently used to carry railway attributes for edges that have kTrainAccess set.
+ * Since railway edges are not traversable by any other costing mode, these bits are
+ * safe to reuse for other per-edge data as long as that data is never needed on
+ * rail edges (or vice versa).
  */
 class DirectedEdgeExt {
+public:
+  // Railway track gauge.
+  RailGauge railway_gauge() const {
+    return static_cast<RailGauge>(railway_gauge_);
+  }
+  void set_railway_gauge(const RailGauge g) {
+    railway_gauge_ = static_cast<uint64_t>(g);
+  }
+
+  // Railway usage (main/branch/industrial/service variant/...).
+  RailUsage railway_usage() const {
+    return static_cast<RailUsage>(railway_usage_);
+  }
+  void set_railway_usage(const RailUsage u) {
+    railway_usage_ = static_cast<uint64_t>(u);
+  }
+
+  // railway:traffic_mode — freight/passenger/mixed.
+  RailTrafficMode railway_traffic_mode() const {
+    return static_cast<RailTrafficMode>(railway_traffic_mode_);
+  }
+  void set_railway_traffic_mode(const RailTrafficMode t) {
+    railway_traffic_mode_ = static_cast<uint64_t>(t);
+  }
+
+  // electrified=*.
+  RailElectrified railway_electrified() const {
+    return static_cast<RailElectrified>(railway_electrified_);
+  }
+  void set_railway_electrified(const RailElectrified e) {
+    railway_electrified_ = static_cast<uint64_t>(e);
+  }
+
+  /**
+   * Create a json object representing the extended edge attributes.
+   * @param writer The writer json object to represent the object
+   */
+  void json(rapidjson::writer_wrapper_t& writer) const;
 
 protected:
-  uint64_t spare0_ : 64;
+  uint64_t railway_gauge_ : 4;        // RailGauge
+  uint64_t railway_usage_ : 4;        // RailUsage
+  uint64_t railway_traffic_mode_ : 2; // RailTrafficMode
+  uint64_t railway_electrified_ : 3;  // RailElectrified
+  uint64_t spare0_ : 51;
 };
 
 } // namespace baldr

@@ -370,6 +370,7 @@ enum TravelMode {
   kPedestrian = 1;
   kBicycle = 2;
   kTransit = 3;
+  kTrain = 4;
 }
 
 // TODO: review and update as needed

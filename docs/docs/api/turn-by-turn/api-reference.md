@@ -82,6 +82,7 @@ Valhalla's routing service uses dynamic, run-time costing to generate the route 
 | `multimodal` | Currently supports pedestrian and transit. In the future, multimodal will support a combination of all of the above. |
 | `pedestrian` | Standard walking route that excludes roads without pedestrian access. In general, pedestrian routes are shortest distance with the following exceptions: walkways and footpaths are slightly favored, while steps or stairs and alleys are slightly avoided. |
 |**BETA** `auto_pedestrian` | A combination of `auto` and `pedestrian`, that assumes starting with `auto` and ending with `pedestrian`. Uses parking lots to change the travel mode |
+|**BETA** `train` | Costing for using railway infrastructure (note that this is different from transit routing in that it does not rely on schedules; it simply routes on railway infrastructure. See below for costing options. |
 
 #### Costing options
 
@@ -103,6 +104,20 @@ Additionally to the main costing option, the `recostings` option can be used to 
 ]
 ```
 to the route request, the values `time_auto_20` and `time_auto_50` will be added to summaries to show how much time the route would cost with these given costing options. Passing a recosting which make the route impossible to follow (e.g. the main rout is by car over a motorway and recosting with pedestrian costing) leads to a `none` result of this recosting.
+
+##### Train costing options
+
+These options are available for the `train` costing method. Train costing routes on OSM railway infrastructure (not schedule-based transit). Locations are snapped to the nearest `railway=stop` node rather than arbitrary points along rail edges.
+
+| Train options | Description |
+| :-------------------------- | :----------- |
+| `railway_preferred_gauge` | Preferred track gauge. When set, edges with a known gauge that differs from this value are penalized by `railway_gauge_penalty`. Specified as an integer corresponding to a gauge class: `0` unknown (default, no preference), `1` miniature (<600 mm), `2` 600 mm, `3` 750 mm, `4` 1000 mm (metre gauge), `5` 1067 mm (Cape gauge), `6` 1372 mm (Scotch gauge), `7` 1435 mm (standard gauge), `8` 1520 mm (Russian gauge), `9` 1524 mm (Finnish gauge), `10` 1600 mm (Irish gauge), `11` 1668 mm (Iberian gauge), `15` other. Range: `0` to `15`. Default: `0`. |
+| `railway_gauge_penalty` | Penalty factor applied to edges whose gauge does not match `railway_preferred_gauge`. Only takes effect when `railway_preferred_gauge` is set to a non-zero value and the edge has a known gauge. Higher values make gauge-mismatched edges more expensive. Range: `1.0` to `20.0`. Default: `3.0`. |
+| `railway_use_main` | Controls the preference for main-line railway tracks over branch lines, sidings, spurs, yards, and other secondary rail usage types. This is a range of values between 0 and 1. At `0.0` all usage types cost the same; at `1.0` the full usage-based cost multipliers are applied (e.g. yard and spur tracks become 3x more expensive than main lines). Default: `0.7`. |
+| `railway_traffic_mode` | Filter edges by traffic mode. `0` no filter (default), `1` freight only, `2` passenger only, `3` mixed. Edges with an unknown traffic mode always pass the filter. Edges tagged as mixed traffic satisfy any filter value. |
+| `railway_require_electrified` | If `true`, avoid edges that are known to be non-electrified. Edges with unknown electrification status are still allowed so that routes are not broken by sparse tagging. Default: `false`. |
+
+**Location snapping:** Unlike other costing modes, train routing snaps input locations to the nearest OSM node tagged [`railway=stop`](https://wiki.openstreetmap.org/wiki/Tag:railway%3Dstop) instead of projecting onto the closest point of the nearest edge. This means routes always start and end at a station stop rather than an arbitrary point along a track. If no railway stop is found within the location's `search_cutoff` radius, the request will fail with a "no suitable edge found" error — increase `search_cutoff` or move the input location closer to a station.
 
 ##### Automobile and bus costing options
 

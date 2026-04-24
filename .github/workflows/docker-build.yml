@@ -50,7 +50,7 @@ jobs:
         variant: [prod, dev]
         os: [ubuntu-latest, ubuntu-24.04-arm]
 
-    if: ${{ github.repository_owner == 'valhalla' }}
+    if: ${{ github.repository_owner == 'chrstnbwnkl' }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -115,7 +115,7 @@ jobs:
           provenance: false # needed to be able to converge into one image
           platforms: ${{ steps.vars.outputs.platform }}
           push: true
-          tags: ghcr.io/valhalla/valhalla${{ steps.buildargs.outputs.image_name_suffix }}:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
+          tags: ghcr.io/chrstnbwnkl/valhalla${{ steps.buildargs.outputs.image_name_suffix }}:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
           cache-from: type=gha,scope=${{ steps.vars.outputs.platform }}
           cache-to: type=gha,mode=max,scope=${{ steps.vars.outputs.platform }}
           build-args: |
@@ -131,12 +131,12 @@ jobs:
           provenance: false # needed to be able to converge into one image
           platforms: ${{ steps.vars.outputs.platform }}
           push: true
-          tags: ghcr.io/valhalla/valhalla-scripted:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
+          tags: ghcr.io/chrstnbwnkl/valhalla-scripted:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
           cache-from: type=gha,scope=${{ steps.vars.outputs.platform }}
           cache-to: type=gha,mode=max,scope=${{ steps.vars.outputs.platform }}
           build-args: |
             VERSION_MODIFIER=${{ steps.extract_gitsha.outputs.version_modifier }}
-            VALHALLA_BUILDER_IMAGE=ghcr.io/valhalla/valhalla:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
+            VALHALLA_BUILDER_IMAGE=ghcr.io/chrstnbwnkl/valhalla:${{ needs.extract_image_tag.outputs.tag }}-${{ steps.vars.outputs.tagsuffix }}
 
   create-manifests:
     strategy:
@@ -158,10 +158,10 @@ jobs:
       - name: Create and push manifest
         run: |
           docker manifest create \
-            ghcr.io/valhalla/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }} \
-            --amend ghcr.io/valhalla/${{ matrix.image }}:${{  needs.extract_image_tag.outputs.tag  }}-amd64 \
-            --amend ghcr.io/valhalla/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }}-arm64 
-          docker manifest push ghcr.io/valhalla/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }}
+            ghcr.io/chrstnbwnkl/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }} \
+            --amend ghcr.io/chrstnbwnkl/${{ matrix.image }}:${{  needs.extract_image_tag.outputs.tag  }}-amd64 \
+            --amend ghcr.io/chrstnbwnkl/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }}-arm64 
+          docker manifest push ghcr.io/chrstnbwnkl/${{ matrix.image }}:${{ needs.extract_image_tag.outputs.tag }}
 
   test-image:
     if: github.ref == 'refs/heads/master'
@@ -188,7 +188,7 @@ jobs:
 
       - name: Test latest scripted image
         run: |
-          docker pull ghcr.io/valhalla/valhalla-scripted:${{  needs.extract_image_tag.outputs.tag  }}
+          docker pull ghcr.io/chrstnbwnkl/valhalla-scripted:${{  needs.extract_image_tag.outputs.tag  }}
           sudo apt-get update > /dev/null
           sudo apt-get install -y moreutils tree > /dev/null
-          sudo /bin/bash -c "./docker/test.sh ghcr.io/valhalla/valhalla-scripted:${{  needs.extract_image_tag.outputs.tag  }}"
+          sudo /bin/bash -c "./docker/test.sh ghcr.io/chrstnbwnkl/valhalla-scripted:${{  needs.extract_image_tag.outputs.tag  }}"
