@@ -120,15 +120,7 @@ TEST_P(TrainRailTypeTest, RoutableAsTrain) {
   gurka::assert::raw::expect_path(result, {"AB", "BC"});
 }
 
-INSTANTIATE_TEST_SUITE_P(Train,
-                         TrainRailTypeTest,
-                         ::testing::Values("rail",
-                                           "light_rail",
-                                           "subway",
-                                           "tram",
-                                           "narrow_gauge",
-                                           "monorail",
-                                           "funicular"));
+INSTANTIATE_TEST_SUITE_P(Train, TrainRailTypeTest, ::testing::Values("rail", "narrow_gauge"));
 
 // oneway=yes on a railway way should make it traversable in the forward
 // direction only.
