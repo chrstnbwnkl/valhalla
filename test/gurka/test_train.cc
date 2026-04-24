@@ -218,3 +218,33 @@ TEST(Train, YJunction) {
   auto to_d = gurka::do_action(Options::route, map, {"A", "D"}, "train");
   gurka::assert::raw::expect_path(to_d, {"AB", "BD"});
 }
+
+// A simple railway=rail line should be routable with costing=train.
+TEST(Train, BasicLineBufferStop) {
+  const std::string ascii_map = R"(
+    A----B----C----D
+  )";
+
+  const gurka::ways ways = {
+      {"AB", {{"railway", "rail"}}},
+      {"BC", {{"railway", "rail"}}},
+      {"CD", {{"railway", "rail"}}},
+  };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "buffer_stop"}}},
+      {"B", {{"railway", "buffer_stop"}}},
+      {"C", {{"railway", "buffer_stop"}}},
+      {"D", {{"railway", "buffer_stop"}}},
+  };
+
+  const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_basic_buffer_stop",
+                               kTrainConfig);
+
+  auto result = gurka::do_action(Options::route, map, {"A", "D"}, "train");
+  gurka::assert::raw::expect_path(result, {"AB", "BC", "CD"});
+
+  // reverse direction (default rail is bidirectional)
+  result = gurka::do_action(Options::route, map, {"D", "A"}, "train");
+  gurka::assert::raw::expect_path(result, {"CD", "BC", "AB"});
+}
