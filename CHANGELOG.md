@@ -14,6 +14,7 @@
    * FIXED: edge walking should not end on a shortcut [#6034](https://github.com/valhalla/valhalla/pull/6034)
    * FIXED: Exclusion check in the reverse direction [#5375](https://github.com/valhalla/valhalla/pull/5375)
 * **Enhancement**
+   * UPDATED: timezone database to 2026b [#20](https://github.com/chrstnbwnkl/valhalla/pull/20)
    * ADDED: multimodal costing `auto_pedestrian` [#5780](https://github.com/valhalla/valhalla/pull/5780)
    * CHANGED: remove `baldr::{Location,PathLocation}` and use their protobuf versions instead [#5906](https://github.com/valhalla/valhalla/pull/5906) 
    * ADDED: `Cache-Control = public, max-age=N"` response header to `/tile` requests; also added RPATH to local debug builds to fix ldd resolving when libvalhalla is installed system-wide [#5902](https://github.com/valhalla/valhalla/pull/5902)
