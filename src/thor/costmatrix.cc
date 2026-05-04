@@ -67,6 +67,19 @@ inline const valhalla::PathEdge* find_correlated_edge(const valhalla::Location& 
 namespace valhalla {
 namespace thor {
 
+/**
+ * Status of a location. Tracks remaining locations to be found
+ * and a threshold or iterations. When threshold goes to 0 expansion
+ * stops for this location.
+ */
+struct CostMatrix::LocationStatus {
+  int threshold;
+  ankerl::unordered_dense::pmr::set<uint32_t> unfound_connections;
+
+  LocationStatus(const int t, std::pmr::memory_resource* mr) : threshold(t), unfound_connections(mr) {
+  }
+};
+
 class CostMatrix::ReachedMap {
 public:
   using PmrVector = std::vector<uint32_t, std::pmr::polymorphic_allocator<uint32_t>>;
@@ -127,8 +140,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       edgestatus_{edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
                   edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
-                                                                            new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {

@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <memory>
 #include <memory_resource>
-#include <set>
 #include <vector>
 
 namespace valhalla {
@@ -33,19 +32,6 @@ constexpr float kCostThresholdBicycleDivisor =
     56.0f; // 200 km distance threshold will result in a cost threshold of ~3600 (1 hour)
 constexpr float kCostThresholdPedestrianDivisor =
     28.0f; // 200 km distance threshold will result in a cost threshold of ~7200 (2 hours)
-
-/**
- * Status of a location. Tracks remaining locations to be found
- * and a threshold or iterations. When threshold goes to 0 expansion
- * stops for this location.
- */
-struct LocationStatus {
-  int threshold;
-  ankerl::unordered_dense::pmr::set<uint32_t> unfound_connections;
-
-  LocationStatus(const int t, std::pmr::memory_resource* mr) : threshold(t), unfound_connections(mr) {
-  }
-};
 
 /**
  * Best connection. Information about the best connection found between
@@ -150,6 +136,7 @@ protected:
   // The path distance threshold being used for the currently executing query
   float current_pathdist_threshold_;
 
+  struct LocationStatus;
   // Status
   std::array<std::vector<LocationStatus, std::pmr::polymorphic_allocator<LocationStatus>>, 2>
       locs_status_;
