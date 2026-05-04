@@ -232,7 +232,7 @@ public:
    * usage factors pulled from the edge's extended attributes.
    */
   virtual Cost EdgeCost(const baldr::DirectedEdge* edge,
-                        const baldr::GraphId& /*edgeid*/,
+                        const baldr::GraphId& edgeid,
                         const graph_tile_ptr& tile,
                         const baldr::TimeInfo&,
                         uint8_t&) const override {
@@ -258,6 +258,8 @@ public:
         factor *= gauge_penalty_factor_;
       }
     }
+
+    factor *= EdgeFactor(edgeid);
 
     return {seconds * factor, seconds};
   }
