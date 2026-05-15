@@ -119,7 +119,7 @@ private:
 CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
     : MatrixAlgorithm(config),
       buffer_(std::make_unique<std::vector<std::byte>>(
-          config.get<uint32_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20)),
+          config.get<uint64_t>("costmatrix.memory_pool_size_mb", kDefaultPoolSizeMb) << 20)),
       pool_(buffer_->data(), buffer_->size(), std::pmr::new_delete_resource()),
       check_reverse_connection_(config.get<bool>("costmatrix.check_reverse_connection", true)),
       min_iterations_(
@@ -140,8 +140,8 @@ CostMatrix::CostMatrix(const boost::property_tree::ptree& config)
       edgestatus_{edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_)),
                   edge_status_vec_t(std::pmr::polymorphic_allocator<EdgeStatus>(&pool_))},
       best_connection_(std::pmr::polymorphic_allocator<BestCandidate>(&pool_)), locs_remaining_{0, 0},
-      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)}, sources_{
-                                                                            new ReachedMap(&pool_)} {
+      current_pathdist_threshold_(0), targets_{new ReachedMap(&pool_)},
+      sources_{new ReachedMap(&pool_)} {
 }
 
 CostMatrix::~CostMatrix() {
