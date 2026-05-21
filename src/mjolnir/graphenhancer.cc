@@ -972,6 +972,7 @@ void enhance(const boost::property_tree::ptree& pt,
   bool apply_country_overrides = pt.get<bool>("data_processing.apply_country_overrides", true);
   bool use_urban_tag = pt.get<bool>("data_processing.use_urban_tag", false);
   bool use_admin_db = pt.get<bool>("data_processing.use_admin_db", true);
+  bool deadends_as_railway_stops = pt.get<bool>("deadends_as_railway_stops", false);
   // Initialize the admin DB (if it exists)
   auto admin_db = (database && use_admin_db) ? AdminDB::open(*database) : std::optional<AdminDB>{};
   if (!database && use_admin_db) {
@@ -1357,7 +1358,7 @@ void enhance(const boost::property_tree::ptree& pt,
           nodeinfo.type() != NodeType::kTollGantry && nodeinfo.type() != NodeType::kSumpBuster) {
         if (drivable_count == 1) {
           nodeinfo.set_intersection(IntersectionType::kDeadEnd);
-        } else if (train_use_count == 1) {
+        } else if (train_use_count == 1 && deadends_as_railway_stops) {
           // set the end node type to railway stop
           nodeinfo.set_type(NodeType::kRailwayStop);
           nodeinfo.set_intersection(IntersectionType::kDeadEnd);

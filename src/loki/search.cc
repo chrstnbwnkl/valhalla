@@ -605,16 +605,18 @@ struct bin_handler_t {
       // direct endpoint check; if neither endpoint qualifies, this edge
       // is not a valid candidate for any of the input points in this
       // bin.
+      std::cerr << "CEEHHHH\n";
       if (costing->RequiresPreferredSnapNode()) {
+        std::cerr << "BEEHHHH\n";
         // Endpoint positions from the full shape: for forward edges
         // shape.front() is the begin node and shape.back() is the end
         // node; reversed for non-forward edges. We use shape points
         // (not node->latlng()) so the equality check in finalize() that
         // picks the node-snap path fires without relying on float
         // tolerance.
-        const auto& full_shape = edge_info.shape();
-        const PointLL shape_front = full_shape.front();
-        const PointLL shape_back = full_shape.back();
+        const auto& shape = edge_info.shape();
+        const PointLL shape_front = shape.front();
+        const PointLL shape_back = shape.back();
         const PointLL begin_ll = edge->forward() ? shape_front : shape_back;
         const PointLL end_ll = edge->forward() ? shape_back : shape_front;
 
@@ -649,6 +651,7 @@ struct bin_handler_t {
             c_itr->prefiltered = true;
             continue;
           }
+          std::cerr << "AAHHHH\n";
           const double end_d2 = end_preferred ? p_itr->project.approx.DistanceSquared(end_ll)
                                               : std::numeric_limits<double>::max();
           const double begin_d2 = begin_preferred ? p_itr->project.approx.DistanceSquared(begin_ll)
@@ -659,7 +662,7 @@ struct bin_handler_t {
             // Index points at the last segment so correlate_edge would
             // still work as a fallback; the front/back equality check
             // in finalize() will force a node-snap anyway.
-            c_itr->index = full_shape.size() >= 2 ? full_shape.size() - 2 : 0;
+            c_itr->index = shape.size() >= 2 ? shape.size() - 2 : 0;
           } else {
             c_itr->sq_distance = begin_d2;
             c_itr->point = begin_ll;

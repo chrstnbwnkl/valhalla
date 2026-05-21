@@ -141,7 +141,7 @@ public:
     use_main_ = co.railway_use_main();
     traffic_mode_filter_ = static_cast<RailTrafficMode>(co.railway_traffic_mode());
     require_electrified_ = co.railway_require_electrified();
-    snap_to_station_ = !co.normal_snapping();
+    snap_to_station_ = co.has_normal_snapping_case() ? co.normal_snapping() : true;
   }
 
   virtual ~TrainCost() {

@@ -7,11 +7,6 @@ using namespace valhalla;
 namespace {
 
 // Low reachability so tiny test graphs aren't rejected at snap time.
-const std::unordered_map<std::string, std::string> kTrainConfig = {
-    // {"mjolnir.concurrency", "1"},
-    // {"loki.service_defaults.minimum_reachability", "2"},
-    // {"loki.service_defaults.radius", "10"},
-};
 
 constexpr double kGridSize = 100;
 
@@ -36,7 +31,7 @@ TEST(Train, BasicLine) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_basic", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_basic");
 
   auto result = gurka::do_action(Options::route, map, {"A", "D"}, "train");
   gurka::assert::raw::expect_path(result, {"AB", "BC", "CD"});
@@ -63,8 +58,7 @@ TEST(Train, AutoCannotUseRailway) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map =
-      gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_auto_reject", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_auto_reject");
 
   EXPECT_THROW(gurka::do_action(Options::route, map, {"A", "C"}, "auto"), std::runtime_error);
 }
@@ -86,8 +80,7 @@ TEST(Train, TrainCannotUseHighway) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_highway_reject",
-                               kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_highway_reject");
 
   EXPECT_THROW(gurka::do_action(Options::route, map, {"A", "C"}, "train"), std::runtime_error);
 }
@@ -113,8 +106,7 @@ TEST_P(TrainRailTypeTest, RoutableAsTrain) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_type_" + railway_type,
-                               kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_type_" + railway_type);
 
   auto result = gurka::do_action(Options::route, map, {"A", "C"}, "train");
   gurka::assert::raw::expect_path(result, {"AB", "BC"});
@@ -140,7 +132,7 @@ TEST(Train, OnewayForward) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_oneway", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_oneway");
 
   // forward works
   auto result = gurka::do_action(Options::route, map, {"A", "C"}, "train");
@@ -168,8 +160,7 @@ TEST(Train, PreferredDirectionBackward) {
       {"C", {{"railway", "stop"}}},
   };
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_preferred_backward",
-                               kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_preferred_backward");
 
   // backward (C->A) works because that's the preferred direction
   auto result = gurka::do_action(Options::route, map, {"C", "A"}, "train");
@@ -201,8 +192,7 @@ TEST(Train, YJunction) {
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
-  auto map =
-      gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_y_junction", kTrainConfig);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_y_junction");
 
   auto to_c = gurka::do_action(Options::route, map, {"A", "C"}, "train");
   gurka::assert::raw::expect_path(to_c, {"AB", "BC"});
@@ -223,7 +213,8 @@ TEST(Train, BasicLineBufferStop) {
       {"CD", {{"railway", "rail"}}},
   };
   const gurka::nodes nodes = {
-      {"A", {{"railway", "buffer_stop"}}}, {"B", {{"railway", "buffer_stop"}}},
+      {"A", {{"railway", "buffer_stop"}}},
+      {"B", {{"railway", "buffer_stop"}}},
       // C should be a regular intersection
       // D should be classified as a railway stop
       // because it's a deadend
@@ -231,7 +222,7 @@ TEST(Train, BasicLineBufferStop) {
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
   auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_basic_buffer_stop",
-                               kTrainConfig);
+                               {{"mjolnir.deadends_as_railway_stops", "1"}});
 
   auto result = gurka::do_action(Options::route, map, {"A", "D"}, "train");
   gurka::assert::raw::expect_path(result, {"AB", "BC", "CD"});
@@ -250,6 +241,48 @@ TEST(Train, BasicLineBufferStop) {
 
   EXPECT_TRUE(deCD->deadend());
   EXPECT_EQ(reader.nodeinfo(deCD->endnode())->type(), baldr::NodeType::kRailwayStop);
+  EXPECT_EQ(reader.nodeinfo(deBC->endnode())->type(), baldr::NodeType::kStreetIntersection)
+      << baldr::to_string(reader.nodeinfo(deBC->endnode())->type());
+}
+
+TEST(Train, NoDeadendStops) {
+  const std::string ascii_map = R"(
+    A----B----C----D
+  )";
+
+  const gurka::ways ways = {
+      {"AB", {{"railway", "rail"}}},
+      {"BC", {{"railway", "rail"}}},
+      {"CD", {{"railway", "rail"}}},
+  };
+  const gurka::nodes nodes = {
+      {"A", {{"railway", "buffer_stop"}}},
+      {"B", {{"railway", "buffer_stop"}}},
+      // C should be a regular intersection
+      // D should not be classified as a railway stop
+      // even though it's a deadend
+  };
+
+  const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
+  auto map = gurka::buildtiles(layout, ways, nodes, {}, "test/data/gurka_train_no_deadend_stop");
+
+  auto result = gurka::do_action(Options::route, map, {"A", "D"}, "train");
+  gurka::assert::raw::expect_path(result, {"AB"});
+
+  // reverse direction (default rail is bidirectional)
+  result = gurka::do_action(Options::route, map, {"D", "A"}, "train");
+  gurka::assert::raw::expect_path(result, {"AB"});
+
+  valhalla::baldr::GraphReader reader(map.config.get_child("mjolnir"));
+
+  auto edgeCD = gurka::findEdgeByNodes(reader, layout, "C", "D");
+  auto edgeBC = gurka::findEdgeByNodes(reader, layout, "B", "C");
+
+  auto deCD = std::get<1>(edgeCD);
+  auto deBC = std::get<1>(edgeBC);
+
+  EXPECT_FALSE(deCD->deadend());
+  EXPECT_EQ(reader.nodeinfo(deCD->endnode())->type(), baldr::NodeType::kStreetIntersection);
   EXPECT_EQ(reader.nodeinfo(deBC->endnode())->type(), baldr::NodeType::kStreetIntersection)
       << baldr::to_string(reader.nodeinfo(deBC->endnode())->type());
 }
