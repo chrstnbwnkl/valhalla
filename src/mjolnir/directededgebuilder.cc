@@ -31,7 +31,6 @@ DirectedEdgeBuilder::DirectedEdgeBuilder(const OSMWay& way,
     : DirectedEdge() {
   set_endnode(endnode);
   set_use(use);
-  set_speed(speed);             // KPH
   set_truck_speed(truck_speed); // KPH
 
   // Protect against 0 length edges
@@ -165,6 +164,12 @@ DirectedEdgeBuilder::DirectedEdgeBuilder(const OSMWay& way,
   if ((way.pedestrian_forward() && !forward) || (way.pedestrian_backward() && forward)) {
     reverse_access |= kPedestrianAccess;
   }
+  if ((way.train_forward() && forward) || (way.train_backward() && !forward)) {
+    forward_access |= kTrainAccess;
+  }
+  if ((way.train_forward() && !forward) || (way.train_backward() && forward)) {
+    reverse_access |= kTrainAccess;
+  }
   if (way.use() != Use::kSteps && way.use() != Use::kConstruction &&
       way.surface() != Surface::kImpassable) {
     if (way.wheelchair_tag() && way.wheelchair()) {
@@ -183,6 +188,8 @@ DirectedEdgeBuilder::DirectedEdgeBuilder(const OSMWay& way,
   // Set access modes
   set_forwardaccess(forward_access);
   set_reverseaccess(reverse_access);
+  // need to set this after access so we can ignore kMaxAssumed in case of train access
+  set_speed(speed); // KPH
 }
 
 } // namespace mjolnir

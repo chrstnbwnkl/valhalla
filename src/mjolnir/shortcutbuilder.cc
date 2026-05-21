@@ -624,6 +624,13 @@ std::tuple<uint32_t, uint32_t, uint32_t> FormShortcuts(GraphReader& reader, cons
     GraphId new_tile(tileid, tile_level, 0);
     GraphTileBuilder tilebuilder(reader.tile_dir(), new_tile, false);
 
+    // The existing tile may carry extended directed edge attributes (rail
+    // tags etc.). Because we construct with deserialize=false, the ext
+    // builder starts empty and must be mirrored in lockstep with every
+    // edge we push. If the base tile has no ext, skip mirroring and
+    // StoreTileData will leave the header flag cleared.
+    const bool copy_ext = tile->header()->has_ext_directededge();
+
     // Since the old tile is not serialized we must copy any data that is not
     // dependent on edge Id into the new builders (e.g., node transitions)
     if (tile->header()->transitioncount() > 0) {
@@ -651,8 +658,18 @@ std::tuple<uint32_t, uint32_t, uint32_t> FormShortcuts(GraphReader& reader, cons
 
       // Add shortcut edges first.
       std::unordered_map<uint32_t, uint32_t> shortcuts;
+      size_t shortcut_start = tilebuilder.directededges().size();
       auto stats = AddShortcutEdges(reader, tile, tilebuilder, node_id, old_edge_index,
                                     old_edge_count, shortcuts);
+      // Mirror default ext entries for each shortcut we just pushed so the
+      // ext vector stays 1:1 with the edges vector. Shortcuts carry no rail
+      // attributes of their own (rail stays at level 2).
+      if (copy_ext) {
+        size_t added_shortcuts = tilebuilder.directededges().size() - shortcut_start;
+        for (size_t s = 0; s < added_shortcuts; ++s) {
+          tilebuilder.directededges_ext().emplace_back();
+        }
+      }
       shortcut_count += stats.first;
       total_edge_count += stats.second;
       if (stats.first > kMaxShortcutsFromNode) {
@@ -728,6 +745,11 @@ std::tuple<uint32_t, uint32_t, uint32_t> FormShortcuts(GraphReader& reader, cons
 
         // Add directed edge
         tilebuilder.directededges().emplace_back(std::move(newedge));
+        // Mirror extended directed edge attributes from the base tile so
+        // rail tags (and any future ext data) survive the shortcut rebuild.
+        if (copy_ext) {
+          tilebuilder.directededges_ext().emplace_back(*tile->ext_directededge(edgeid));
+        }
       }
 
       // Set the edge count for the new node

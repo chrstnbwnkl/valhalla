@@ -12,6 +12,7 @@ set(sources
   motorscootercost.cc
   nocost.cc
   pedestriancost.cc
+  traincost.cc
   transitcost.cc
   truckcost.cc
   dynamiccost.cc

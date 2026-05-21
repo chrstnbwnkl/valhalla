@@ -215,6 +215,16 @@ void serialize_edges(const Location& location,
         directed_edge->json(writer);
         writer.end_object();
 
+        // Extended per-edge attributes (currently railway-only), if this tile
+        // has them.
+        if (tile->header()->has_ext_directededge()) {
+          if (const auto* ext = tile->ext_directededge(GraphId(edge.graph_id()))) {
+            writer.start_object("edge_ext");
+            ext->json(writer);
+            writer.end_object();
+          }
+        }
+
         writer.start_object("edge_id");
         GraphId(edge.graph_id()).json(writer);
         writer.end_object();

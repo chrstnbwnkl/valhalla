@@ -211,6 +211,7 @@ bool Costing_Enum_Parse(const std::string& costing, Costing::Type* c) {
       {"pedestrian", Costing::pedestrian},
       {"transit", Costing::transit},
       {"truck", Costing::truck},
+      {"train", Costing::train},
       {"motorcycle", Costing::motorcycle},
       // auto_data_fix is deprecated
       {"none", Costing::none_},
@@ -226,7 +227,8 @@ bool Costing_Enum_Parse(const std::string& costing, Costing::Type* c) {
 }
 
 const std::string_view TravelMode_Enum_Name(const TravelMode mode) {
-  constexpr std::array<std::string_view, 4> modes{"drive", "pedestrian", "bicycle", "transit"};
+  constexpr std::array<std::string_view, 5> modes{"drive", "pedestrian", "bicycle", "transit",
+                                                  "train"};
   if (static_cast<size_t>(mode) >= modes.size())
     return "unknown";
   return modes[static_cast<size_t>(mode)];
@@ -244,6 +246,7 @@ const std::string& Costing_Enum_Name(const Costing::Type costing) {
       {Costing::pedestrian, "pedestrian"},
       {Costing::transit, "transit"},
       {Costing::truck, "truck"},
+      {Costing::train, "train"},
       {Costing::motorcycle, "motorcycle"},
       // auto_data_fix is deprecated
       {Costing::none_, "none"},

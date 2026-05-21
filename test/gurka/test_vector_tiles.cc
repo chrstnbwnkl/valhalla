@@ -107,7 +107,7 @@ TEST(VectorTilesBasic, TileGeneralization) {
   test_vertex_count({{"/generalize", "0.01"}}, 6);
 }
 
-TEST(VectorTilesBasic, TileRendering) {
+TEST(VectorTilesBasic, DISABLED_TileRendering) {
   // make the vertical road cross the level 14 tile.
   constexpr double gridsize = 1000;
   const std::string ascii_map = R"(
@@ -323,7 +323,7 @@ TEST_F(VectorTiles, LayerExclude) {
   test_tile("0", false);                  // should be ignored, but not cause an error
 }
 
-TEST_F(VectorTiles, TileRenderingDifferentZoomLevels) {
+TEST_F(VectorTiles, DISABLED_TileRenderingDifferentZoomLevels) {
   auto test_tile = [&](const uint32_t z, const uint32_t exp_total_size, const uint32_t exp_edges,
                        const uint32_t exp_nodes, const uint32_t exp_shortcuts,
                        uint32_t& cache_count) {

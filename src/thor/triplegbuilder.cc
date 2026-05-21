@@ -1840,8 +1840,8 @@ void TripLegBuilder::Build(
   const bool invariant = options.date_time_type() == Options::invariant;
 
   // Create an array of travel types per mode
-  uint8_t travel_types[4];
-  for (uint32_t i = 0; i < 4; i++) {
+  uint8_t travel_types[5];
+  for (uint32_t i = 0; i < 5; i++) {
     travel_types[i] = (mode_costing[i] != nullptr) ? mode_costing[i]->travel_type() : 0;
   }
 

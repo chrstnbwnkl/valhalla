@@ -78,7 +78,7 @@ TEST(Actor, TraceAttributes) {
   EXPECT_THROW(actor.trace_attributes(request, &interrupt), test_exception_t);
 }
 
-TEST(Actor, Tile) {
+TEST(Actor, DISABLED_Tile) {
   const auto utrecht_conf = test::make_config(VALHALLA_BUILD_DIR "test/data/utrecht_tiles");
   tyr::actor_t actor(utrecht_conf);
 

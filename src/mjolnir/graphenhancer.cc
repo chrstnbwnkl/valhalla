@@ -972,6 +972,7 @@ void enhance(const boost::property_tree::ptree& pt,
   bool apply_country_overrides = pt.get<bool>("data_processing.apply_country_overrides", true);
   bool use_urban_tag = pt.get<bool>("data_processing.use_urban_tag", false);
   bool use_admin_db = pt.get<bool>("data_processing.use_admin_db", true);
+  bool deadends_as_railway_stops = pt.get<bool>("deadends_as_railway_stops", false);
   // Initialize the admin DB (if it exists)
   auto admin_db = (database && use_admin_db) ? AdminDB::open(*database) : std::optional<AdminDB>{};
   if (!database && use_admin_db) {
@@ -1137,7 +1138,7 @@ void enhance(const boost::property_tree::ptree& pt,
       }
 
       // Go through directed edges and "enhance" directed edge attributes
-      uint32_t drivable_count = 0;
+      uint32_t drivable_count = 0, train_use_count = 0;
       const DirectedEdge* edges = tilebuilder->directededges(nodeinfo.edge_index());
       for (uint32_t j = 0; j < nodeinfo.edge_count(); j++) {
         DirectedEdge& directededge = tilebuilder->directededge_builder(nodeinfo.edge_index() + j);
@@ -1261,6 +1262,9 @@ void enhance(const boost::property_tree::ptree& pt,
         if ((directededge.forwardaccess() & kAutoAccess) ||
             (directededge.reverseaccess() & kAutoAccess)) {
           drivable_count++;
+        } else if ((directededge.forwardaccess() & kTrainAccess) ||
+                   (directededge.reverseaccess() & kTrainAccess)) {
+          train_use_count++;
         }
 
         // Use::kPedestrian is really a kFootway
@@ -1353,6 +1357,10 @@ void enhance(const boost::property_tree::ptree& pt,
       if (nodeinfo.type() != NodeType::kGate && nodeinfo.type() != NodeType::kTollBooth &&
           nodeinfo.type() != NodeType::kTollGantry && nodeinfo.type() != NodeType::kSumpBuster) {
         if (drivable_count == 1) {
+          nodeinfo.set_intersection(IntersectionType::kDeadEnd);
+        } else if (train_use_count == 1 && deadends_as_railway_stops) {
+          // set the end node type to railway stop
+          nodeinfo.set_type(NodeType::kRailwayStop);
           nodeinfo.set_intersection(IntersectionType::kDeadEnd);
         } else if (nodeinfo.edge_count() == 2) {
           nodeinfo.set_intersection(IntersectionType::kFalse);

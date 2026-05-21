@@ -159,6 +159,7 @@ config = {
         "global_synchronized_cache": False,
         "max_concurrent_reader_users": 1,
         "reclassify_links": True,
+        "deadends_as_railway_stops": False,
         "default_speeds_config": Optional(str),
         "data_processing": {
             "infer_internal_intersections": True,
@@ -371,6 +372,12 @@ config = {
             "max_matrix_distance": 400000.0,
             "max_matrix_location_pairs": 2500,
         },
+        "train": {
+            "max_distance": 5000000.0,
+            "max_locations": 20,
+            "max_matrix_distance": 400000.0,
+            "max_matrix_location_pairs": 2500,
+        },
         "skadi": {"max_shape": 750000, "min_resample": 10.0},
         "isochrone": {
             "max_contours": 4,
@@ -496,6 +503,7 @@ help_text = {
         "global_synchronized_cache": "bool indicating whether global_synchronized_cache is used - default to False",
         "max_concurrent_reader_users": "number of threads in the threadpool which can be used to fetch tiles over the network via curl",
         "reclassify_links": "bool indicating whether or not to reclassify links - reclassifies ramps based on the lowest class connecting road",
+        "deadends_as_railway_stops": "bool indicating whether deadend nodes on the rail network should be set as railway stops",
         "default_speeds_config": "a path indicating the json config file which graph enhancer will use to set the speeds of edges in the graph based on their geographic location (state/country), density (urban/rural), road class, road use (form of way)",
         "data_processing": {
             "infer_internal_intersections": "bool indicating whether or not to infer internal intersections during the graph enhancer phase or use the internal_intersection key from the pbf",
@@ -707,6 +715,12 @@ help_text = {
             "max_matrix_location_pairs": "Maximum number of routes computed with the matrix, e.g. 2500 = 50:50 or 1:2500",
         },
         "truck": {
+            "max_distance": "Maximum b-line distance between all locations in meters",
+            "max_locations": "Maximum number of input locations",
+            "max_matrix_distance": "Maximum b-line distance between 2 most distant locations in meters for a matrix",
+            "max_matrix_location_pairs": "Maximum number of routes computed with the matrix, e.g. 2500 = 50:50 or 1:2500",
+        },
+        "train": {
             "max_distance": "Maximum b-line distance between all locations in meters",
             "max_locations": "Maximum number of input locations",
             "max_matrix_distance": "Maximum b-line distance between 2 most distant locations in meters for a matrix",

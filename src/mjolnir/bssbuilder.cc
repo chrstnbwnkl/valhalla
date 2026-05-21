@@ -348,6 +348,11 @@ void add_bss_nodes_and_edges(GraphTileBuilder& tilebuilder_local,
 
       directededge.set_edgeinfo_offset(edge_info_offset);
       tilebuilder_local.directededges().emplace_back(std::move(directededge));
+      // Mirror the ext vector if the source tile has one. BSS node edges get
+      // a default ext (no rail attributes).
+      if (tile.header()->has_ext_directededge()) {
+        tilebuilder_local.directededges_ext().emplace_back();
+      }
     }
   }
 }
@@ -406,6 +411,14 @@ void create_edges(GraphTileBuilder& tilebuilder_local,
   tilebuilder_local.nodes().clear();
   std::vector<DirectedEdge> currentedges(std::move(tilebuilder_local.directededges()));
   tilebuilder_local.directededges().clear();
+  // Mirror the extended-edge vector alongside the directed edges so rail
+  // attributes survive through this pass. New BSS edges get a default ext.
+  const bool has_ext = !tilebuilder_local.directededges_ext().empty();
+  std::vector<DirectedEdgeExt> currentedges_ext;
+  if (has_ext) {
+    currentedges_ext = std::move(tilebuilder_local.directededges_ext());
+    tilebuilder_local.directededges_ext().clear();
+  }
 
   // Get the directed edge index of the first sign. If no signs are
   // present in this tile set a value > number of directed edges
@@ -436,6 +449,9 @@ void create_edges(GraphTileBuilder& tilebuilder_local,
       // the directed edge index
       for (uint32_t i = 0, idx = nb.edge_index(); i < nb.edge_count(); i++, idx++) {
         tilebuilder_local.directededges().emplace_back(std::move(currentedges[idx]));
+        if (has_ext) {
+          tilebuilder_local.directededges_ext().emplace_back(currentedges_ext[idx]);
+        }
 
         // Update any signs that use this idx - increment their index by the
         // number of added edges
@@ -490,6 +506,10 @@ void create_edges(GraphTileBuilder& tilebuilder_local,
       directededge.set_edgeinfo_offset(edge_info_offset);
 
       tilebuilder_local.directededges().emplace_back(std::move(directededge));
+      if (has_ext) {
+        // BSS connector edges get a default ext (no rail attributes).
+        tilebuilder_local.directededges_ext().emplace_back();
+      }
       added_edges++;
       std::advance(lower, 1);
     };
