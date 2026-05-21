@@ -1261,6 +1261,11 @@ void enhance(const boost::property_tree::ptree& pt,
         if ((directededge.forwardaccess() & kAutoAccess) ||
             (directededge.reverseaccess() & kAutoAccess)) {
           drivable_count++;
+        } else if ((directededge.forwardaccess() & kTrainAccess) ||
+                   (directededge.reverseaccess() & kTrainAccess)) {
+          drivable_count++;
+          // set the end node type to railway stop
+          nodeinfo.set_type(NodeType::kRailwayStop);
         }
 
         // Use::kPedestrian is really a kFootway

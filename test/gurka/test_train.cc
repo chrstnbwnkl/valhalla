@@ -226,7 +226,8 @@ TEST(Train, BasicLineBufferStop) {
       {"A", {{"railway", "buffer_stop"}}},
       {"B", {{"railway", "buffer_stop"}}},
       {"C", {{"railway", "buffer_stop"}}},
-      {"D", {{"railway", "buffer_stop"}}},
+      // note that D should be classified as a railway stop
+      // because it's a deadend
   };
 
   const auto layout = gurka::detail::map_to_coordinates(ascii_map, kGridSize);
@@ -239,4 +240,12 @@ TEST(Train, BasicLineBufferStop) {
   // reverse direction (default rail is bidirectional)
   result = gurka::do_action(Options::route, map, {"D", "A"}, "train");
   gurka::assert::raw::expect_path(result, {"CD", "BC", "AB"});
+
+  valhalla::baldr::GraphReader reader(map.config.get_child("mjolnir"));
+  auto edgeCD = gurka::findEdgeByNodes(reader, layout, "C", "D");
+
+  auto deCD = std::get<1>(edgeCD);
+
+  EXPECT_TRUE(deCD->deadend());
+  EXPECT_EQ(reader.nodeinfo(deCD->endnode())->type(), baldr::NodeType::kRailwayStop);
 }
