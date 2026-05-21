@@ -225,8 +225,8 @@ TEST(Train, BasicLineBufferStop) {
   const gurka::nodes nodes = {
       {"A", {{"railway", "buffer_stop"}}},
       {"B", {{"railway", "buffer_stop"}}},
-      {"C", {{"railway", "buffer_stop"}}},
-      // note that D should be classified as a railway stop
+      // C should be a regular intersection
+      // D should be classified as a railway stop
       // because it's a deadend
   };
 
@@ -242,10 +242,15 @@ TEST(Train, BasicLineBufferStop) {
   gurka::assert::raw::expect_path(result, {"CD", "BC", "AB"});
 
   valhalla::baldr::GraphReader reader(map.config.get_child("mjolnir"));
+
   auto edgeCD = gurka::findEdgeByNodes(reader, layout, "C", "D");
+  auto edgeBC = gurka::findEdgeByNodes(reader, layout, "B", "C");
 
   auto deCD = std::get<1>(edgeCD);
+  auto deBC = std::get<1>(edgeBC);
 
   EXPECT_TRUE(deCD->deadend());
   EXPECT_EQ(reader.nodeinfo(deCD->endnode())->type(), baldr::NodeType::kRailwayStop);
+  EXPECT_EQ(reader.nodeinfo(deBC->endnode())->type(), baldr::NodeType::kStreetIntersection)
+      << baldr::to_string(reader.nodeinfo(deBC->endnode())->type());
 }
