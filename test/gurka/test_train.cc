@@ -223,8 +223,7 @@ TEST(Train, BasicLineBufferStop) {
       {"CD", {{"railway", "rail"}}},
   };
   const gurka::nodes nodes = {
-      {"A", {{"railway", "buffer_stop"}}},
-      {"B", {{"railway", "buffer_stop"}}},
+      {"A", {{"railway", "buffer_stop"}}}, {"B", {{"railway", "buffer_stop"}}},
       // C should be a regular intersection
       // D should be classified as a railway stop
       // because it's a deadend
