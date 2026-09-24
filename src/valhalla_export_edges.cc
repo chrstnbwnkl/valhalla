@@ -7,6 +7,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <cxxopts.hpp>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/writer.h>
 
 #include <algorithm>
 #include <cstdint>
@@ -19,7 +21,7 @@ using namespace valhalla::baldr;
 
 // global options instead of passing them around
 std::string row_separator, column_separator;
-bool ferries, unnamed;
+bool ferries, unnamed, stop_at_junction_nodes, geojson;
 
 namespace {
 
@@ -69,12 +71,32 @@ edge_t opposing(GraphReader& reader, graph_tile_ptr tile, const GraphId& edge_id
   return {opp_id, opp_edge};
 }
 
+bool strict_edge_equality(const DirectedEdge* from, const DirectedEdge* to) {
+  if (from->part_of_complex_restriction() || to->part_of_complex_restriction() ||
+      (from->destonly() != to->destonly()) || (from->speed() != to->speed()) ||
+      (from->classification() != to->classification()) || (from->use() != to->use()) ||
+      (from->use_sidepath() != to->use_sidepath()) || (from->destonly_hgv() != to->destonly_hgv()) ||
+      (from->access_restriction() != to->access_restriction()) || (from->bridge() != to->bridge()) ||
+      (from->internal() || to->internal()) || (from->truck_speed() != to->truck_speed()) ||
+      (from->ctry_crossing() != to->ctry_crossing()) || (from->lit() != to->lit()) ||
+      (from->bike_network() != to->bike_network()) || (from->surface() != to->surface()) ||
+      (from->link() != to->link()) || (from->toll() != to->toll()) ||
+      (from->cyclelane() != to->cyclelane()) || (from->shoulder() != to->shoulder())) {
+    return false;
+  }
+
+  return true;
+}
+
 edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
             const bitset_t& edge_set,
             GraphReader& reader,
             graph_tile_ptr& tile,
             const edge_t& edge,
-            const std::vector<std::string>& names) {
+            const std::vector<std::string>& names,
+            const bool stop_at_junctions,
+            size_t& all_nodes,
+            size_t& contracted_nodes) {
   // get the right tile
   if (tile->id() != edge.e->endnode().tile_base()) {
     tile = reader.GetGraphTile(edge.e->endnode());
@@ -84,6 +106,12 @@ edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
 
   // check all the edges here
   const auto* node = tile->node(edge.e->endnode());
+
+  all_nodes++;
+  if (stop_at_junctions && node->local_edge_count() > 2) {
+    return {};
+  }
+
   for (size_t i = 0; i < node->edge_count(); ++i) {
     // get the edge
     GraphId id = tile->id();
@@ -93,6 +121,7 @@ edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
       continue;
     }
     edge_t candidate{id, tile->directededge(id)};
+
     // dont need these
     if (!ferries && candidate.e->use() == Use::kFerry) {
       continue;
@@ -106,6 +135,11 @@ edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
     auto candidate_names = tile->edgeinfo(candidate.e).GetNames();
     if (names.size() == candidate_names.size() &&
         std::equal(names.cbegin(), names.cend(), candidate_names.cbegin())) {
+
+      if (stop_at_junctions && !strict_edge_equality(edge.e, candidate.e)) {
+        return {};
+      }
+      contracted_nodes++;
       return candidate;
     }
   }
@@ -161,7 +195,9 @@ int main(int argc, char* argv[]) {
       ("x,column", "What separator to use between columns [default=\\0].", cxxopts::value<std::string>(column_separator)->default_value("\0"s))
       ("r,row", "What separator to use between row [default=\\n].", cxxopts::value<std::string>(row_separator)->default_value("\n"))
       ("f,ferries", "Export ferries as well [default=false]", cxxopts::value<bool>(ferries)->default_value("false"))
-      ("u,unnamed", "Export unnamed edges as well [default=false]", cxxopts::value<bool>(unnamed)->default_value("false"));
+      ("u,unnamed", "Export unnamed edges as well [default=false]", cxxopts::value<bool>(unnamed)->default_value("false"))
+       ("s,stop-at-junction-nodes", "", cxxopts::value<bool>(stop_at_junction_nodes)->default_value("false"))
+      ("g,geojson", "Write a single GeoJSON FeatureCollection instead of separated rows, ignores -x and -r [default=false]", cxxopts::value<bool>(geojson)->default_value("false"));
     // clang-format on
 
     auto result = options.parse(argc, argv);
@@ -208,6 +244,19 @@ int main(int argc, char* argv[]) {
   // maximize continuous edges we need to avoid the lady and the tramp scenario where two threads
   // are
   // consuming the same stretch of road at the same time
+
+  rapidjson::OStreamWrapper out(std::cout);
+  rapidjson::Writer<rapidjson::OStreamWrapper> writer(out);
+  writer.SetMaxDecimalPlaces(7);
+  if (geojson) {
+    writer.StartObject();
+    writer.Key("type");
+    writer.String("FeatureCollection");
+    writer.Key("features");
+    writer.StartArray();
+  }
+
+  size_t all_nodes = 0, contracted_nodes = 0;
 
   // for each tile
   LOG_INFO("Exporting " + std::to_string(edge_count) + " edges");
@@ -275,7 +324,8 @@ int main(int argc, char* argv[]) {
 
       // go forward
       auto t = tile;
-      while ((edge = next(tile_set, edge_set, reader, t, edge, names))) {
+      while ((edge = next(tile_set, edge_set, reader, t, edge, names, stop_at_junction_nodes,
+                          all_nodes, contracted_nodes))) {
         // mark them to never be used again
         edge_set.set(tile_set.find(edge.i.tile_base())->second + edge.i.id());
         edge_t other = opposing(reader, t, edge);
@@ -290,7 +340,8 @@ int main(int argc, char* argv[]) {
 
       // go backward
       edge = opposing_edge;
-      while ((edge = next(tile_set, edge_set, reader, t, edge, names))) {
+      while ((edge = next(tile_set, edge_set, reader, t, edge, names, stop_at_junction_nodes,
+                          all_nodes, contracted_nodes))) {
         // mark them to never be used again
         edge_set.set(tile_set.find(edge.i.tile_base())->second + edge.i.id());
         edge_t other = opposing(reader, t, edge);
@@ -309,6 +360,37 @@ int main(int argc, char* argv[]) {
         extend(reader, t, e, shape);
       }
 
+      if (geojson) {
+        writer.StartObject();
+        writer.Key("type");
+        writer.String("Feature");
+        writer.Key("geometry");
+        writer.StartObject();
+        writer.Key("type");
+        writer.String("LineString");
+        writer.Key("coordinates");
+        writer.StartArray();
+        for (const auto& p : shape) {
+          writer.StartArray();
+          writer.Double(p.lng());
+          writer.Double(p.lat());
+          writer.EndArray();
+        }
+        writer.EndArray();
+        writer.EndObject();
+        writer.Key("properties");
+        writer.StartObject();
+        // writer.Key("names");
+        // writer.StartArray();
+        // for (const auto& name : names) {
+        //   writer.String(name);
+        // }
+        // writer.EndArray();
+        writer.EndObject();
+        writer.EndObject();
+        continue;
+      }
+
       // output it as: shape,name,name,...
       auto encoded = encode(shape);
       std::cout << encoded << column_separator;
@@ -325,6 +407,13 @@ int main(int argc, char* argv[]) {
       LOG_INFO(std::to_string(progress = procent) + "%");
     }
   }
+  if (geojson) {
+    writer.EndArray();
+    writer.EndObject();
+    std::cout.flush();
+  }
+  LOG_INFO("All nodes: {} | contracted nodes: {} ({:.3f}%)", all_nodes, contracted_nodes,
+           (float(contracted_nodes) / float(all_nodes)) * 100.f);
   LOG_INFO("Done");
 
   for (uint64_t i = 0; i < edge_count; ++i) {
