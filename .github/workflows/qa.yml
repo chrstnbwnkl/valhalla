@@ -113,8 +113,7 @@ jobs:
             done
             curl -fs "http://localhost:$QA_PORT/status" > /dev/null # fail if never came up
  
-            python3 harness/run_requests.py --valhalla-url "http://localhost:$QA_PORT" -j4 \ 
-                    --output "results/$tree"
+            python3 harness/run_requests.py --valhalla-url "http://localhost:$QA_PORT" -j4 --output "results/$tree"
  
             kill "$pid"; wait "$pid" 2>/dev/null || true
             pid=""
