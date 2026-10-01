@@ -85,9 +85,9 @@ jobs:
  
           for tree in base pr; do
             echo "::group::$tree: build"
-            cmake -S "$tree" -B "$tree/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            cmake -S "$tree" -B "$tree/build" -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-              -DENABLE_TESTS=OFF -DENABLE_PYTHON_BINDINGS=OFF
+              -DENABLE_TESTS=OFF -DENABLE_PYTHON_BINDINGS=OFF -DENABLE_SINGLE_FILES_WERROR=OFF
             cmake --build "$tree/build"
             echo "::endgroup::"
  
