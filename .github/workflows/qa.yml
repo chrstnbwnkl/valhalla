@@ -45,6 +45,11 @@ jobs:
   qa:
     needs: gate
     runs-on: [self-hosted, hetzner-qa, chris-hetzner-dedicated]
+    env:
+      VCPKG_ROOT: /opt/vcpkg
+      VCPKG_BINARY_SOURCES: "clear;files,/var/cache/vcpkg,readwrite"
+      QA_PBF: /home/gh-actions/switzerland-250101.pbf
+      QA_PORT: "8002"
     steps:
       - name: checkout fork master
         uses: actions/checkout@v4
@@ -53,7 +58,7 @@ jobs:
           path: base
           submodules: recursive # valhalla vendors third_party deps as submodules
           persist-credentials: false
-
+ 
       - name: checkout pr
         uses: actions/checkout@v4
         with:
@@ -61,8 +66,68 @@ jobs:
           path: pr
           submodules: recursive
           persist-credentials: false
-
-      - name: show what we got
+ 
+      - name: checkout qa harness
+        uses: actions/checkout@v4
+        with:
+          repository: chrstnbwnkl/valhalla-qa # adjust
+          path: harness
+          persist-credentials: false
+ 
+      - name: update vcpkg registry
+        run: git -C "$VCPKG_ROOT" fetch --quiet origin
+ 
+      - name: build, tile, serve, qa
         run: |
-          echo "base: $(git -C base log -1 --oneline)"
-          echo "pr:   $(git -C pr log -1 --oneline)"
+          set -euo pipefail
+          pid=""
+          trap '[[ -n "$pid" ]] && kill "$pid" 2>/dev/null || true' EXIT
+ 
+          for tree in base pr; do
+            echo "::group::$tree: build"
+            cmake -S "$tree" -B "$tree/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+              -DENABLE_TESTS=OFF -DENABLE_PYTHON_BINDINGS=OFF
+            cmake --build "$tree/build"
+            echo "::endgroup::"
+ 
+            echo "::group::$tree: tiles"
+            # each tree generates its own config, the schema may change in the pr
+            mkdir -p "$tree/tiles"
+            python3 "$tree/scripts/valhalla_build_config" \
+              --mjolnir-tile-dir "$PWD/$tree/tiles" \
+              --mjolnir-tile-extract "$PWD/$tree/tiles.tar" \
+              --mjolnir-timezone "/home/gh-actions/tz_world.sqlite" \
+              --mjolnir-admin "/home/gh-actions/admin.sqlite" \
+              --httpd-service-listen "tcp://*:$QA_PORT" > "$tree/valhalla.json"
+            "$tree/build/valhalla_build_tiles" -c "$tree/valhalla.json" "$QA_PBF"
+            echo "::endgroup::"
+ 
+            echo "::group::$tree: qa"
+            "$tree/build/valhalla_service" "$tree/valhalla.json" 4 > "$tree/service.log" 2>&1 &
+            pid=$!
+            for _ in $(seq 120); do
+              curl -fs "http://localhost:$QA_PORT/status" > /dev/null && break
+              kill -0 "$pid" 2>/dev/null || { cat "$tree/service.log"; exit 1; }
+              sleep 1
+            done
+            curl -fs "http://localhost:$QA_PORT/status" > /dev/null # fail if never came up
+ 
+            python3 harness/run_requests.py --valhalla-url "http://localhost:$QA_PORT" -j4 \ 
+                    --output "results/$tree"
+ 
+            kill "$pid"; wait "$pid" 2>/dev/null || true
+            pid=""
+            echo "::endgroup::"
+          done
+ 
+      - name: summary
+        run: python3 harness/summary.py results/base results/pr --output results_bundled  | tee -a "$GITHUB_STEP_SUMMARY" 
+ 
+      - name: upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-results
+          path: results_bundled/
+ 
