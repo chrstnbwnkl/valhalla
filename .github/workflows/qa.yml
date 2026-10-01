@@ -44,7 +44,7 @@ jobs:
 
   qa:
     needs: gate
-    runs-on: [self-hosted, hetzner-qa]
+    runs-on: [self-hosted, hetzner-qa, chris-hetzner-dedicated]
     steps:
       - name: checkout fork master
         uses: actions/checkout@v4
