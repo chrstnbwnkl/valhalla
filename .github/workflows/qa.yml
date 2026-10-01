@@ -70,7 +70,7 @@ jobs:
       - name: checkout qa harness
         uses: actions/checkout@v4
         with:
-          repository: chrstnbwnkl/valhalla-qa # adjust
+          repository: chrstnbwnkl/valhalla-qa
           path: harness
           persist-credentials: false
  
@@ -87,8 +87,9 @@ jobs:
             echo "::group::$tree: build"
             cmake -S "$tree" -B "$tree/build" -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-              -DENABLE_TESTS=OFF -DENABLE_PYTHON_BINDINGS=OFF -DENABLE_SINGLE_FILES_WERROR=OFF
-            cmake --build "$tree/build"
+              -DENABLE_TESTS=OFF -DENABLE_PYTHON_BINDINGS=OFF -DENABLE_SINGLE_FILES_WERROR=OFF \
+              -DVCPKG_TARGET_TRIPLET=x64-linux-release
+            cmake --build "$tree/build" -j12
             echo "::endgroup::"
  
             echo "::group::$tree: tiles"
