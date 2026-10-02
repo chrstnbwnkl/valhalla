@@ -683,6 +683,10 @@ Cost TruckCost::TransitionCostReverse(const uint32_t idx,
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
       turn_cost = kTCCrossing;
+    } else if (turntype == Turn::Type::kStraight) {
+      turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
+                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
+                  (static_cast<float>(stopimpact) / static_cast<float>(kMaxStopImpact));
     } else {
       turn_cost = (node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)];
@@ -789,7 +793,7 @@ namespace {
 
 class TestTruckCost : public TruckCost {
 public:
-  TestTruckCost(const Costing& costing_options) : TruckCost(costing_options){};
+  TestTruckCost(const Costing& costing_options) : TruckCost(costing_options) {};
 
   using TruckCost::alley_penalty_;
   using TruckCost::country_crossing_cost_;
