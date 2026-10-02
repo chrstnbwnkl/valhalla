@@ -49,6 +49,8 @@ constexpr float kTCReverse = 9.5f;
 constexpr float kTCRamp = 1.5f;
 constexpr float kTCRoundabout = 0.5f;
 
+constexpr float kStopImpactMax = 3.f;
+
 // Default truck attributes
 constexpr float kDefaultTruckWeight = 21.77f;  // Metric Tons (48,000 lbs)
 constexpr float kDefaultTruckAxleLoad = 9.07f; // Metric Tons (20,000 lbs)
@@ -595,11 +597,12 @@ Cost TruckCost::TransitionCost(const baldr::DirectedEdge* edge,
   if (stopimpact > 0 && !shortest_) {
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
-      turn_cost = kTCCrossing * (static_cast<float>(stopimpact) / static_cast<float>(kMaxStopImpact));
+      turn_cost = kTCCrossing *
+                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
     } else if (turntype == Turn::Type::kStraight) {
       turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                             : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
-                  (static_cast<float>(stopimpact) / static_cast<float>(kMaxStopImpact));
+                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
     } else {
       turn_cost = (node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)];
@@ -682,11 +685,12 @@ Cost TruckCost::TransitionCostReverse(const uint32_t idx,
   if (stopimpact > 0 && !shortest_) {
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
-      turn_cost = kTCCrossing;
+      turn_cost = kTCCrossing *
+                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
     } else if (turntype == Turn::Type::kStraight) {
       turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                             : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
-                  (static_cast<float>(stopimpact) / static_cast<float>(kMaxStopImpact));
+                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
     } else {
       turn_cost = (node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)];
