@@ -48,6 +48,7 @@ constexpr float kTCReverse = 9.5f;
 constexpr float kTCRamp = 1.5f;
 constexpr float kTCRoundabout = 0.5f;
 
+constexpr float kStopImpactMax = 2.f;
 // How much to favor taxi roads.
 constexpr float kTaxiFactor = 0.85f;
 
@@ -635,7 +636,15 @@ Cost AutoCost::TransitionCostReverse(const uint32_t idx,
   if (stopimpact > 0 && !shortest_) {
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
-      turn_cost = kTCCrossing;
+      turn_cost =
+          kTCCrossing *
+          (turntype == Turn::Type::kStraight
+               ? std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f)
+               : 1.f);
+    } else if (turntype == Turn::Type::kStraight) {
+      turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
+                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
+                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
     } else {
       turn_cost = (node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                            : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)];
@@ -1067,7 +1076,7 @@ namespace {
 
 class TestAutoCost : public AutoCost {
 public:
-  TestAutoCost(const Costing& costing_options) : AutoCost(costing_options){};
+  TestAutoCost(const Costing& costing_options) : AutoCost(costing_options) {};
 
   using AutoCost::alley_penalty_;
   using AutoCost::country_crossing_cost_;
