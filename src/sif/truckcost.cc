@@ -597,8 +597,11 @@ Cost TruckCost::TransitionCost(const baldr::DirectedEdge* edge,
   if (stopimpact > 0 && !shortest_) {
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
-      turn_cost = kTCCrossing *
-                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
+      turn_cost =
+          kTCCrossing *
+          (turntype == Turn::Type::kStraight
+               ? std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f)
+               : 1.f);
     } else if (turntype == Turn::Type::kStraight) {
       turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                             : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
@@ -685,8 +688,11 @@ Cost TruckCost::TransitionCostReverse(const uint32_t idx,
   if (stopimpact > 0 && !shortest_) {
     float turn_cost;
     if (edge->edge_to_right(idx) && edge->edge_to_left(idx)) {
-      turn_cost = kTCCrossing *
-                  std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f);
+      turn_cost =
+          kTCCrossing *
+          (turntype == Turn::Type::kStraight
+               ? std::min(static_cast<float>(stopimpact) / static_cast<float>(kStopImpactMax), 1.f)
+               : 1.f);
     } else if (turntype == Turn::Type::kStraight) {
       turn_cost = ((node->drive_on_right()) ? kRightSideTurnCosts[static_cast<uint32_t>(turntype)]
                                             : kLeftSideTurnCosts[static_cast<uint32_t>(turntype)]) *
