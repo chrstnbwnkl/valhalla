@@ -49,7 +49,7 @@ constexpr float kTCReverse = 9.5f;
 constexpr float kTCRamp = 1.5f;
 constexpr float kTCRoundabout = 0.5f;
 
-constexpr float kStopImpactMax = 3.f;
+constexpr float kStopImpactMax = 2.f;
 
 // Default truck attributes
 constexpr float kDefaultTruckWeight = 21.77f;  // Metric Tons (48,000 lbs)
@@ -797,7 +797,7 @@ namespace {
 
 class TestTruckCost : public TruckCost {
 public:
-  TestTruckCost(const Costing& costing_options) : TruckCost(costing_options){};
+  TestTruckCost(const Costing& costing_options) : TruckCost(costing_options) {};
 
   using TruckCost::alley_penalty_;
   using TruckCost::country_crossing_cost_;
