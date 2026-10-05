@@ -172,6 +172,7 @@ config = {
         "data_processing": {
             "infer_internal_intersections": True,
             "infer_turn_channels": True,
+            "aggregate_edges": False,
             "apply_country_overrides": True,
             "use_admin_db": True,
             "use_direction_on_ways": False,
@@ -513,6 +514,7 @@ help_text = {
         "data_processing": {
             "infer_internal_intersections": "bool indicating whether or not to infer internal intersections during the graph enhancer phase or use the internal_intersection key from the pbf",
             "infer_turn_channels": "bool indicating whether or not to infer turn channels during the graph enhancer phase or use the turn_channel key from the pbf",
+            "aggregate_edges": "bool indicating whether or not to merge edges that meet at a node joining only those two edges, if they carry the same attributes, while building the graph",
             "apply_country_overrides": "bool indicating whether or not to apply country overrides during the graph enhancer phase",
             "use_admin_db": "bool indicating whether or not to use the administrative database during the graph enhancer phase or use the admin keys from the pbf that are set on the node",
             "use_direction_on_ways": "bool indicating whether or not to process the direction key on the ways or utilize the guidance relation tags during the parsing phase",

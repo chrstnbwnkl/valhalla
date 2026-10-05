@@ -57,7 +57,9 @@ struct Edge {
     uint64_t way_end : 1;              // True if last edge of way
     uint64_t importance_hierarchy : 4; // will be set when edge needs to be moved in the hierarchy
                                        // defaults to kInvalidRoadClass
-    uint64_t spare : 21;
+    uint64_t absorbed : 1;             // merged into another edge, no longer part of the graph
+    uint64_t chained : 1;              // edge is part of a merged chain (the anchor or absorbed)
+    uint64_t spare : 19;
   };
   EdgeAttributes attributes{};
 
@@ -224,6 +226,10 @@ struct Node {
   }
   bool is_end() const {
     return end_of != static_cast<uint32_t>(-1);
+  }
+  // all edges at this node were merged away, so it is not a graph node anymore
+  bool is_detached() const {
+    return !is_start() && !is_end();
   }
 };
 

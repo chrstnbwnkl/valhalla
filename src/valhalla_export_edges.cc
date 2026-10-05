@@ -88,6 +88,10 @@ bool strict_edge_equality(const DirectedEdge* from, const DirectedEdge* to) {
   return true;
 }
 
+bool contractable_node(const NodeInfo* node) {
+  return node->can_contract();
+}
+
 edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
             const bitset_t& edge_set,
             GraphReader& reader,
@@ -108,7 +112,7 @@ edge_t next(const std::unordered_map<GraphId, uint64_t>& tile_set,
   const auto* node = tile->node(edge.e->endnode());
 
   all_nodes++;
-  if (stop_at_junctions && node->local_edge_count() > 2) {
+  if (stop_at_junctions && (node->local_edge_count() > 2 || !contractable_node(node))) {
     return {};
   }
 

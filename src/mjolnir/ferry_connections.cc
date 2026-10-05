@@ -334,7 +334,7 @@ void ReclassifyFerryConnections(const std::string& ways_file,
   sequence<Node>::iterator node_itr = nodes.begin();
   while (node_itr != nodes.end()) {
     auto bundle = collect_node_edges(node_itr, nodes, edges);
-    if (bundle.node.ferry_edge_ && bundle.node.non_ferry_edge_ &&
+    if (!bundle.is_detached() && bundle.node.ferry_edge_ && bundle.node.non_ferry_edge_ &&
         GetBestNonFerryClass(bundle.node_edges) > kFerryUpClass &&
         !ShortFerry(node_itr.position(), bundle, edges, nodes, edge_shapes)) {
       bool inbound_path_found = false;
