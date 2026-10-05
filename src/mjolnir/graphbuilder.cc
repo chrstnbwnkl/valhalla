@@ -211,6 +211,7 @@ bool CanMerge(const OSMNode& node,
 void AggregateEdges(sequence<Node>& nodes,
                     const std::string& edges_file,
                     const std::string& ways_file,
+                    const std::string& way_nodes_file,
                     const OSMData& osmdata,
                     const std::string& complex_restriction_from_file,
                     const std::string& chains_file,
@@ -218,6 +219,7 @@ void AggregateEdges(sequence<Node>& nodes,
   SCOPED_TIMER();
   sequence<Edge> edges(edges_file, false);
   sequence<OSMWay> ways(ways_file, false);
+  sequence<OSMWayNode> way_nodes(way_nodes_file, false);
   if (edges.size() >= (1u << 30)) {
     LOG_WARN("Too many edges to aggregate, skipping edge aggregation");
     return;
@@ -300,6 +302,11 @@ void AggregateEdges(sequence<Node>& nodes,
   const auto linked = [&link](const uint32_t edge, const uint32_t end) {
     return *link[2 * edge + end] != kNoLink;
   };
+  const auto end_node = [&edges, &way_nodes](const uint32_t edge, const uint32_t end) {
+    const Edge e = *edges[edge];
+    const size_t idx = e.llindex_ + (end == kSource ? 0 : e.attributes.llcount - 1);
+    return (*way_nodes[idx]).node.osmid_;
+  };
   sequence<ChainPart> chains(chains_file, true);
   std::vector<std::pair<uint32_t, bool>> members; // edge, walked in its own direction
   size_t merged_chains = 0, absorbed_edges = 0, unmerged_chains = 0;
@@ -328,6 +335,20 @@ void AggregateEdges(sequence<Node>& nodes,
     }
     llcount -= members.size() - 1;
 
+    // the parser splits loops so no edge starts and ends at the same node; keep it that way by
+    // leaving the last edge out, which makes an interior merge node the new end
+    if (members.size() > 2 &&
+        end_node(members.front().first, free1) == end_node(members.back().first, free2)) {
+      const uint32_t last = members.back().first;
+      link[2 * last + kSource] = kNoLink;
+      link[2 * last + kTarget] = kNoLink;
+      llcount -= (*edges[last]).attributes.llcount - 1;
+      members.pop_back();
+      const auto& [tail, tail_fwd] = members.back();
+      free2 = tail_fwd ? kTarget : kSource;
+      link[2 * tail + free2] = kNoLink;
+    }
+
     // the anchor keeps its slot; the other end flips its slot when both ends use the same one
     const uint32_t e1 = members.front().first, e2 = members.back().first;
     std::optional<bool> anchor_first;
@@ -336,7 +357,8 @@ void AggregateEdges(sequence<Node>& nodes,
     } else if (is_movable(e1, free1)) {
       anchor_first = false;
     }
-    if (!anchor_first || llcount > kMaxLLCount) {
+    const bool loop = members.size() == 2 && end_node(e1, free1) == end_node(e2, free2);
+    if (!anchor_first || llcount > kMaxLLCount || loop) {
       for (const auto& [member, fwd] : members) {
         link[2 * member + kSource] = kNoLink;
         link[2 * member + kTarget] = kNoLink;
@@ -442,6 +464,7 @@ void AggregateEdges(sequence<Node>& nodes,
 std::map<GraphId, size_t> SortGraph(const std::string& nodes_file,
                                     const std::string& edges_file,
                                     const std::string& ways_file,
+                                    const std::string& way_nodes_file,
                                     const OSMData* osmdata,
                                     const std::string& complex_restriction_from_file,
                                     const std::string& chains_file,
@@ -465,8 +488,8 @@ std::map<GraphId, size_t> SortGraph(const std::string& nodes_file,
       concurrency);
 
   if (osmdata) {
-    AggregateEdges(nodes, edges_file, ways_file, *osmdata, complex_restriction_from_file, chains_file,
-                   concurrency);
+    AggregateEdges(nodes, edges_file, ways_file, way_nodes_file, *osmdata,
+                   complex_restriction_from_file, chains_file, concurrency);
   }
 
   // run through the sorted nodes, going back to the edges they reference and updating each edge
@@ -2021,7 +2044,7 @@ std::map<GraphId, size_t> GraphBuilder::BuildEdges(const boost::property_tree::p
   const bool aggregate = osmdata && !edge_chains_file.empty() &&
                          !complex_restriction_from_file.empty() &&
                          pt.get<bool>("mjolnir.data_processing.aggregate_edges", true);
-  return SortGraph(nodes_file, edges_file, ways_file, aggregate ? osmdata : nullptr,
+  return SortGraph(nodes_file, edges_file, ways_file, way_nodes_file, aggregate ? osmdata : nullptr,
                    complex_restriction_from_file, edge_chains_file, concurrency);
 }
 
