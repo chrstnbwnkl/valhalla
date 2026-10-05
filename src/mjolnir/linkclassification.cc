@@ -116,7 +116,7 @@ nodelist_t FormExitNodes(sequence<Node>& nodes, sequence<Edge>& edges) {
   while (node_itr != nodes.end()) {
     // If the node has a both links and non links at it
     auto bundle = collect_node_edges(node_itr, nodes, edges);
-    if (bundle.node.link_edge_ && bundle.node.non_link_edge_) {
+    if (!bundle.is_detached() && bundle.node.link_edge_ && bundle.node.non_link_edge_) {
       // Check if this node has a link edge that is outgoing (i.e. driveforward) from the node
       for (const auto& edge : bundle.node_edges) {
         if (edge.first.attributes.link && (edge.first.attributes.driveforward)) {

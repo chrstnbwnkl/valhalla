@@ -39,6 +39,7 @@ const std::string ways_file = "ways.bin";
 const std::string way_nodes_file = "way_nodes.bin";
 const std::string edge_shapes_file = "edge_shapes.bin";
 const std::string edge_node_ids_file = "edge_node_ids.bin";
+const std::string edge_chains_file = "edge_chains.bin";
 const std::string nodes_file = "nodes.bin";
 const std::string edges_file = "edges.bin";
 const std::string tile_manifest_file = "tile_manifest.json";
@@ -700,6 +701,7 @@ bool build_tile_set(const boost::property_tree::ptree& original_config,
   std::string way_nodes_bin = tile_dir + way_nodes_file;
   std::string edge_shapes_bin = tile_dir + edge_shapes_file;
   std::string edge_node_ids_bin = tile_dir + edge_node_ids_file;
+  std::string edge_chains_bin = tile_dir + edge_chains_file;
   std::string nodes_bin = tile_dir + nodes_file;
   std::string edges_bin = tile_dir + edges_file;
   std::string tile_manifest = tile_dir + tile_manifest_file;
@@ -794,7 +796,8 @@ bool build_tile_set(const boost::property_tree::ptree& original_config,
     if (start_stage == BuildStage::kConstructEdges)
       osm_data.read_from_temp_files(tile_dir);
 
-    tiles = GraphBuilder::BuildEdges(config, ways_bin, way_nodes_bin, nodes_bin, edges_bin);
+    tiles = GraphBuilder::BuildEdges(config, ways_bin, way_nodes_bin, nodes_bin, edges_bin, &osm_data,
+                                     edge_chains_bin, cr_from_bin);
     // Output manifest
     TileManifest manifest{tiles};
     manifest.LogToFile(tile_manifest);
@@ -812,14 +815,15 @@ bool build_tile_set(const boost::property_tree::ptree& original_config,
         // TODO: Remove this backfill in the future, and make calling constructedges stage
         // explicitly required in the future.
         LOG_WARN("Tile manifest not found, rebuilding edges and manifest");
-        tiles = GraphBuilder::BuildEdges(config, ways_bin, way_nodes_bin, nodes_bin, edges_bin);
+        tiles = GraphBuilder::BuildEdges(config, ways_bin, way_nodes_bin, nodes_bin, edges_bin,
+                                         &osm_data, edge_chains_bin, cr_from_bin);
       }
     }
 
     // Build the graph using the OSMNodes and OSMWays from the parser
     GraphBuilder::Build(config, osm_data, ways_bin, way_nodes_bin, nodes_bin, edges_bin,
                         edge_shapes_bin, edge_node_ids_bin, cr_from_bin, cr_to_bin,
-                        linguistic_node_bin, tiles);
+                        linguistic_node_bin, tiles, edge_chains_bin);
     log_stage(BuildStage::kBuild);
   }
 
@@ -909,6 +913,7 @@ bool build_tile_set(const boost::property_tree::ptree& original_config,
     remove_temp_file(way_nodes_bin);
     remove_temp_file(edge_shapes_bin);
     remove_temp_file(edge_node_ids_bin);
+    remove_temp_file(edge_chains_bin);
     remove_temp_file(nodes_bin);
     remove_temp_file(edges_bin);
     remove_temp_file(access_bin);

@@ -37,6 +37,8 @@ public:
    * in memory
    * @param  linguistic_node_file           where to store the to linguistic info so they are not in
    * memory
+   * @param  edge_chains_file               parts of the merged edges written by BuildEdges, used
+   *                                        when mjolnir.data_processing.aggregate_edges is on
    *
    */
   static void Build(const boost::property_tree::ptree& pt,
@@ -50,13 +52,20 @@ public:
                     const std::string& complex_from_restriction_file,
                     const std::string& complex_to_restriction_file,
                     const std::string& linguistic_node_file,
-                    const std::map<baldr::GraphId, size_t>& tiles);
+                    const std::map<baldr::GraphId, size_t>& tiles,
+                    const std::string& edge_chains_file = {});
 
-  static std::map<baldr::GraphId, size_t> BuildEdges(const boost::property_tree::ptree& conf,
-                                                     const std::string& ways_file,
-                                                     const std::string& way_nodes_file,
-                                                     const std::string& nodes_file,
-                                                     const std::string& edges_file);
+  // With mjolnir.data_processing.aggregate_edges, osmdata, edge_chains_file and
+  // complex_restriction_from_file must be set to merge edges through degree-2 nodes.
+  static std::map<baldr::GraphId, size_t>
+  BuildEdges(const boost::property_tree::ptree& conf,
+             const std::string& ways_file,
+             const std::string& way_nodes_file,
+             const std::string& nodes_file,
+             const std::string& edges_file,
+             const OSMData* osmdata = nullptr,
+             const std::string& edge_chains_file = {},
+             const std::string& complex_restriction_from_file = {});
 
   static std::string GetRef(const std::string& way_ref, const std::string& relation_ref);
 

@@ -24,11 +24,16 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <array>
+#include <cstring>
 #include <filesystem>
 #include <future>
+#include <limits>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <thread>
+#include <unordered_set>
 #include <utility>
 
 using namespace valhalla::midgard;
@@ -37,12 +42,433 @@ using namespace valhalla::mjolnir;
 
 namespace {
 
+// Edge ends, as used by the aggregation links: start_of slots are sources, end_of slots targets
+constexpr uint32_t kSource = 0;
+constexpr uint32_t kTarget = 1;
+constexpr uint32_t kNoLink = std::numeric_limits<uint32_t>::max();
+// marks a link entry that tells pass 3 to point a node slot at the chain's anchor edge
+constexpr uint32_t kRetarget = 1u << 31;
+constexpr uint32_t kNoSlot = static_cast<uint32_t>(-1);
+constexpr uint32_t kMaxLLCount = (1u << 16) - 1;
+
+// One edge of a merged chain, in the direction of the anchor edge that survives
+struct ChainPart {
+  uint32_t anchor;
+  uint32_t position;
+  // shape range of the part, taken before the anchor's llcount covers the whole chain
+  uint32_t llindex;
+  uint32_t llcount : 16;
+  uint32_t reversed : 1;
+  uint32_t spare : 15;
+};
+
+// Flips a way so its forward fields describe the backward direction and left becomes right.
+OSMWay ReverseWay(OSMWay w) {
+#define SWAP_FIELDS(a, b)                                                                            \
+  {                                                                                                  \
+    const auto tmp = w.a;                                                                            \
+    w.a = w.b;                                                                                       \
+    w.b = tmp;                                                                                       \
+  }
+  SWAP_FIELDS(ref_left_index_, ref_right_index_)
+  SWAP_FIELDS(ref_left_lang_index_, ref_right_lang_index_)
+  SWAP_FIELDS(int_ref_left_index_, int_ref_right_index_)
+  SWAP_FIELDS(int_ref_left_lang_index_, int_ref_right_lang_index_)
+  SWAP_FIELDS(name_left_index_, name_right_index_)
+  SWAP_FIELDS(name_left_lang_index_, name_right_lang_index_)
+  SWAP_FIELDS(name_forward_index_, name_backward_index_)
+  SWAP_FIELDS(name_forward_lang_index_, name_backward_lang_index_)
+  SWAP_FIELDS(alt_name_left_index_, alt_name_right_index_)
+  SWAP_FIELDS(alt_name_left_lang_index_, alt_name_right_lang_index_)
+  SWAP_FIELDS(official_name_left_index_, official_name_right_index_)
+  SWAP_FIELDS(official_name_left_lang_index_, official_name_right_lang_index_)
+  SWAP_FIELDS(tunnel_name_left_index_, tunnel_name_right_index_)
+  SWAP_FIELDS(tunnel_name_left_lang_index_, tunnel_name_right_lang_index_)
+  SWAP_FIELDS(fwd_turn_lanes_index_, bwd_turn_lanes_index_)
+  SWAP_FIELDS(fwd_jct_base_index_, bwd_jct_base_index_)
+  SWAP_FIELDS(fwd_jct_overlay_index_, bwd_jct_overlay_index_)
+  SWAP_FIELDS(fwd_signboard_base_index_, bwd_signboard_base_index_)
+  SWAP_FIELDS(destination_forward_index_, destination_backward_index_)
+  SWAP_FIELDS(destination_forward_lang_index_, destination_backward_lang_index_)
+  SWAP_FIELDS(oneway_, oneway_reverse_)
+  SWAP_FIELDS(forward_tagged_speed_, backward_tagged_speed_)
+  SWAP_FIELDS(forward_tagged_lanes_, backward_tagged_lanes_)
+  SWAP_FIELDS(sidewalk_left_, sidewalk_right_)
+  SWAP_FIELDS(forward_lanes_, backward_lanes_)
+  SWAP_FIELDS(pedestrian_forward_, pedestrian_backward_)
+  SWAP_FIELDS(auto_forward_, auto_backward_)
+  SWAP_FIELDS(bus_forward_, bus_backward_)
+  SWAP_FIELDS(taxi_forward_, taxi_backward_)
+  SWAP_FIELDS(truck_forward_, truck_backward_)
+  SWAP_FIELDS(motorcycle_forward_, motorcycle_backward_)
+  SWAP_FIELDS(emergency_forward_, emergency_backward_)
+  SWAP_FIELDS(hov_forward_, hov_backward_)
+  SWAP_FIELDS(moped_forward_, moped_backward_)
+  SWAP_FIELDS(cycle_lane_left_, cycle_lane_right_)
+  SWAP_FIELDS(cycle_lane_left_opposite_, cycle_lane_right_opposite_)
+  SWAP_FIELDS(shoulder_left_, shoulder_right_)
+  SWAP_FIELDS(bike_forward_, bike_backward_)
+  SWAP_FIELDS(forward_speed_, backward_speed_)
+  SWAP_FIELDS(truck_speed_forward_, truck_speed_backward_)
+#undef SWAP_FIELDS
+  return w;
+}
+
+// Whether two ways produce the same edge attributes when walked in the given directions.
+bool WaysEquivalent(const OSMWay& a, const bool a_fwd, const OSMWay& b, const bool b_fwd) {
+  OSMWay wa = a;
+  OSMWay wb = a_fwd == b_fwd ? b : ReverseWay(b);
+  wa.osmwayid_ = wb.osmwayid_ = 0;
+  wa.nodecount_ = wb.nodecount_ = 0;
+  // ways are zeroed on construction and copied as raw bytes, so padding compares equal
+  return std::memcmp(&wa, &wb, sizeof(OSMWay)) == 0;
+}
+
+// Way ids that OSMData attaches extra data to, which a merged edge would lose
+std::unordered_set<uint64_t> WaysWithRelations(const OSMData& osmdata,
+                                               const std::string& complex_restriction_from_file) {
+  std::unordered_set<uint64_t> ids(osmdata.via_set.begin(), osmdata.via_set.end());
+  // every complex restriction is in this file with its real from/to; the to file only has swapped
+  // copies for lookup by to way
+  sequence<OSMRestriction> complex_restrictions(complex_restriction_from_file, false);
+  complex_restrictions.enumerate([&ids](const OSMRestriction& restriction) {
+    ids.insert(restriction.from());
+    ids.insert(restriction.to());
+  });
+  for (const auto& [from, restriction] : osmdata.restrictions) {
+    ids.insert(from);
+    ids.insert(restriction.to());
+  }
+  for (const auto& [to, lane] : osmdata.lane_connectivity_map) {
+    ids.insert(to);
+    ids.insert(lane.from_way_id);
+  }
+  for (const auto& entry : osmdata.access_restrictions) {
+    ids.insert(entry.first);
+  }
+  for (const auto& entry : osmdata.bike_relations) {
+    ids.insert(entry.first);
+  }
+  for (const auto& entry : osmdata.conditional_speeds) {
+    ids.insert(entry.first);
+  }
+  for (const auto& entry : osmdata.way_ref) {
+    ids.insert(entry.first);
+  }
+  for (const auto& entry : osmdata.way_ref_rev) {
+    ids.insert(entry.first);
+  }
+  return ids;
+}
+
+bool HasEdgeControl(const Edge& e) {
+  return e.attributes.traffic_signal || e.attributes.stop_sign || e.attributes.yield_sign;
+}
+
+// Can the edges a and b, joined at node, become one edge? a_fwd/b_fwd say whether each edge is
+// walked in its own direction when going from a through node into b.
+bool CanMerge(const OSMNode& node,
+              const Edge& a,
+              const bool a_fwd,
+              const Edge& b,
+              const bool b_fwd,
+              sequence<OSMWay>& ways,
+              const std::unordered_set<uint64_t>& excluded_ways) {
+  if (node.type() != NodeType::kStreetIntersection || node.traffic_signal() || node.stop_sign() ||
+      node.yield_sign() || node.named_intersection()) {
+    return false;
+  }
+
+  if (a.attributes.link || b.attributes.link || HasEdgeControl(a) || HasEdgeControl(b) ||
+      a.attributes.importance != b.attributes.importance ||
+      a.attributes.drivable_ferry != b.attributes.drivable_ferry ||
+      a.attributes.turn_channel != b.attributes.turn_channel) {
+    return false;
+  }
+
+  const auto a_access =
+      a_fwd ? std::pair(a.fwd_access, a.rev_access) : std::pair(a.rev_access, a.fwd_access);
+  const auto b_access =
+      b_fwd ? std::pair(b.fwd_access, b.rev_access) : std::pair(b.rev_access, b.fwd_access);
+  if (a_access != b_access) {
+    return false;
+  }
+
+  const OSMWay wa = *ways[a.wayindex_];
+  const OSMWay wb = *ways[b.wayindex_];
+  if (excluded_ways.count(wa.way_id()) || excluded_ways.count(wb.way_id())) {
+    return false;
+  }
+  return WaysEquivalent(wa, a_fwd, wb, b_fwd);
+}
+
+/**
+ * Merges chains of edges through degree-2 nodes into one edge each. The nodes must already be
+ * sorted so that all entries of one OSM node are adjacent. Afterwards, merged-away nodes have no
+ * start_of/end_of left (Node::is_detached), merged-away edges are marked absorbed, and the parts
+ * of every merged edge are listed in chains_file for BuildEdgeShapes.
+ */
+void AggregateEdges(sequence<Node>& nodes,
+                    const std::string& edges_file,
+                    const std::string& ways_file,
+                    const std::string& way_nodes_file,
+                    const OSMData& osmdata,
+                    const std::string& complex_restriction_from_file,
+                    const std::string& chains_file,
+                    const uint32_t concurrency) {
+  SCOPED_TIMER();
+  sequence<Edge> edges(edges_file, false);
+  sequence<OSMWay> ways(ways_file, false);
+  sequence<OSMWayNode> way_nodes(way_nodes_file, false);
+  if (edges.size() >= (1u << 30)) {
+    LOG_WARN("Too many edges to aggregate, skipping edge aggregation");
+    return;
+  }
+  LOG_INFO("Aggregating edges...");
+
+  // link[2 * edge + end] holds (other_edge << 1 | other_end) of the edge end it merges with
+  auto link_file = std::filesystem::path(edges_file);
+  link_file.replace_filename(link_file.filename().string() + ".links.tmp");
+  auto movable_file = std::filesystem::path(edges_file);
+  movable_file.replace_filename(movable_file.filename().string() + ".movable.tmp");
+  {
+    sequence<uint32_t> link(link_file.string(), true);
+    sequence<uint8_t> movable(movable_file.string(), true);
+    for (size_t i = 0; i < edges.size(); ++i) {
+      link.push_back(kNoLink);
+      link.push_back(kNoLink);
+      movable.push_back(0);
+    }
+  }
+  sequence<uint32_t> link(link_file.string(), false);
+  // bit (1 << end) is set when the node slot of that edge end shares its entry with no other slot
+  sequence<uint8_t> movable(movable_file.string(), false);
+  const auto set_movable = [&movable](const uint32_t edge, const uint32_t end) {
+    auto element = movable[edge];
+    element = static_cast<uint8_t>(*element | (1u << end));
+  };
+  const auto is_movable = [&movable](const uint32_t edge, const uint32_t end) {
+    return (*movable[edge] >> end) & 1u;
+  };
+
+  const auto excluded_ways = WaysWithRelations(osmdata, complex_restriction_from_file);
+
+  // Pass 1: link the edge ends that meet at a mergeable degree-2 node
+  struct End {
+    uint32_t edge;
+    uint32_t end;
+  };
+  size_t merge_nodes = 0;
+  for (auto run = nodes.begin(); run != nodes.end();) {
+    const Node first = *run;
+    std::array<End, 2> ends{};
+    uint32_t degree = 0;
+    auto it = run;
+    for (Node n; it != nodes.end() && (n = *it).node.osmid_ == first.node.osmid_; ++it) {
+      if (n.is_start()) {
+        if (degree < 2) {
+          ends[degree] = {n.start_of, kSource};
+        }
+        ++degree;
+        if (!n.is_end()) {
+          set_movable(n.start_of, kSource);
+        }
+      }
+      if (n.is_end()) {
+        if (degree < 2) {
+          ends[degree] = {n.end_of, kTarget};
+        }
+        ++degree;
+        if (!n.is_start()) {
+          set_movable(n.end_of, kTarget);
+        }
+      }
+    }
+    const auto [a, b] = ends;
+    if (degree == 2 && a.edge != b.edge) {
+      const bool a_fwd = a.end == kTarget;
+      const bool b_fwd = b.end == kSource;
+      if (CanMerge(first.node, *edges[a.edge], a_fwd, *edges[b.edge], b_fwd, ways, excluded_ways)) {
+        link[2 * a.edge + a.end] = (b.edge << 1) | b.end;
+        link[2 * b.edge + b.end] = (a.edge << 1) | a.end;
+        ++merge_nodes;
+      }
+    }
+    run = it;
+  }
+  LOG_INFO("Found " + std::to_string(merge_nodes) + " nodes to merge edges at");
+
+  // Pass 2: walk every chain from one free end to the other and collapse it into its anchor
+  const auto linked = [&link](const uint32_t edge, const uint32_t end) {
+    return *link[2 * edge + end] != kNoLink;
+  };
+  const auto end_node = [&edges, &way_nodes](const uint32_t edge, const uint32_t end) {
+    const Edge e = *edges[edge];
+    const size_t idx = e.llindex_ + (end == kSource ? 0 : e.attributes.llcount - 1);
+    return (*way_nodes[idx]).node.osmid_;
+  };
+  sequence<ChainPart> chains(chains_file, true);
+  std::vector<std::pair<uint32_t, bool>> members; // edge, walked in its own direction
+  size_t merged_chains = 0, absorbed_edges = 0, unmerged_chains = 0;
+  for (uint32_t e = 0; e < edges.size(); ++e) {
+    const bool src_linked = linked(e, kSource);
+    if (src_linked == linked(e, kTarget) || (*edges[e]).attributes.chained) {
+      continue;
+    }
+
+    // enter at the free end, leave through the other one until the end we leave by is free
+    members.clear();
+    const uint32_t free1 = src_linked ? kTarget : kSource;
+    uint32_t edge = e, entry = free1, free2;
+    size_t llcount = 0;
+    while (true) {
+      members.emplace_back(edge, entry == kSource);
+      llcount += (*edges[edge]).attributes.llcount;
+      const uint32_t exit = 1 - entry;
+      const uint32_t next = *link[2 * edge + exit];
+      if (next == kNoLink) {
+        free2 = exit;
+        break;
+      }
+      edge = next >> 1;
+      entry = next & 1u;
+    }
+    llcount -= members.size() - 1;
+
+    // the parser splits loops so no edge starts and ends at the same node; keep it that way by
+    // leaving the last edge out, which makes an interior merge node the new end
+    if (members.size() > 2 &&
+        end_node(members.front().first, free1) == end_node(members.back().first, free2)) {
+      const uint32_t last = members.back().first;
+      link[2 * last + kSource] = kNoLink;
+      link[2 * last + kTarget] = kNoLink;
+      llcount -= (*edges[last]).attributes.llcount - 1;
+      members.pop_back();
+      const auto& [tail, tail_fwd] = members.back();
+      free2 = tail_fwd ? kTarget : kSource;
+      link[2 * tail + free2] = kNoLink;
+    }
+
+    // the anchor keeps its slot; the other end flips its slot when both ends use the same one
+    const uint32_t e1 = members.front().first, e2 = members.back().first;
+    std::optional<bool> anchor_first;
+    if (free1 != free2 || is_movable(e2, free2)) {
+      anchor_first = true;
+    } else if (is_movable(e1, free1)) {
+      anchor_first = false;
+    }
+    const bool loop = members.size() == 2 && end_node(e1, free1) == end_node(e2, free2);
+    if (!anchor_first || llcount > kMaxLLCount || loop) {
+      for (const auto& [member, fwd] : members) {
+        link[2 * member + kSource] = kNoLink;
+        link[2 * member + kTarget] = kNoLink;
+      }
+      ++unmerged_chains;
+      continue;
+    }
+
+    const auto& anchor_member = *anchor_first ? members.front() : members.back();
+    const uint32_t anchor = anchor_member.first;
+    const uint32_t anchor_free = *anchor_first ? free1 : free2;
+    const uint32_t far = *anchor_first ? e2 : e1;
+    const uint32_t far_free = *anchor_first ? free2 : free1;
+
+    // list the parts in the anchor's direction
+    if (!anchor_member.second) {
+      std::reverse(members.begin(), members.end());
+      for (auto& member : members) {
+        member.second = !member.second;
+      }
+    }
+    for (uint32_t i = 0; i < members.size(); ++i) {
+      const auto [member, fwd] = members[i];
+      auto element = edges[member];
+      Edge part = *element;
+      chains.push_back({.anchor = anchor,
+                        .position = i,
+                        .llindex = part.llindex_,
+                        .llcount = static_cast<uint32_t>(part.attributes.llcount),
+                        .reversed = !fwd,
+                        .spare = 0});
+      if (member != anchor) {
+        part.attributes.absorbed = true;
+        part.attributes.chained = true;
+        element = part;
+      }
+    }
+
+    const Edge first_part = *edges[members.front().first];
+    const Edge last_part = *edges[members.back().first];
+    auto element = edges[anchor];
+    Edge merged = *element;
+    merged.attributes.llcount = llcount;
+    merged.attributes.way_begin =
+        members.front().second ? first_part.attributes.way_begin : first_part.attributes.way_end;
+    merged.attributes.way_end =
+        members.back().second ? last_part.attributes.way_end : last_part.attributes.way_begin;
+    merged.attributes.chained = true;
+    element = merged;
+
+    const uint32_t needed = anchor_free == kSource ? kTarget : kSource;
+    link[2 * far + far_free] = kRetarget | (anchor << 1) | needed;
+    ++merged_chains;
+    absorbed_edges += members.size() - 1;
+  }
+
+  // rings without a free end are left as they are
+  for (uint32_t e = 0; e < edges.size(); ++e) {
+    if (!(*edges[e]).attributes.chained) {
+      link[2 * e + kSource] = kNoLink;
+      link[2 * e + kTarget] = kNoLink;
+    }
+  }
+  LOG_INFO("Merged " + std::to_string(absorbed_edges) + " edges into " +
+           std::to_string(merged_chains) + " chains, left " + std::to_string(unmerged_chains) +
+           " chains unmerged");
+
+  // Pass 3: drop the node slots inside chains and point the far chain ends at their anchors
+  nodes.transform([&link](Node& n) {
+    const uint32_t start_link = n.is_start() ? *link[2 * n.start_of + kSource] : kNoLink;
+    const uint32_t end_link = n.is_end() ? *link[2 * n.end_of + kTarget] : kNoLink;
+    if (start_link != kNoLink) {
+      n.start_of = kNoSlot;
+    }
+    if (end_link != kNoLink) {
+      n.end_of = kNoSlot;
+    }
+    for (const uint32_t l : {start_link, end_link}) {
+      if (l != kNoLink && (l & kRetarget)) {
+        const uint32_t anchor = (l & ~kRetarget) >> 1;
+        if ((l & 1u) == kSource) {
+          n.start_of = anchor;
+        } else {
+          n.end_of = anchor;
+        }
+      }
+    }
+  });
+
+  chains.sort(
+      [](const ChainPart& a, const ChainPart& b) {
+        return a.anchor == b.anchor ? a.position < b.position : a.anchor < b.anchor;
+      },
+      concurrency);
+  std::filesystem::remove(link_file);
+  std::filesystem::remove(movable_file);
+}
+
 /**
  * we need the nodes to be sorted by graphid and then by osmid to make a set of tiles
  * we also need to then update the edges that pointed to them
  */
-std::map<GraphId, size_t>
-SortGraph(const std::string& nodes_file, const std::string& edges_file, const uint32_t concurrency) {
+std::map<GraphId, size_t> SortGraph(const std::string& nodes_file,
+                                    const std::string& edges_file,
+                                    const std::string& ways_file,
+                                    const std::string& way_nodes_file,
+                                    const OSMData* osmdata,
+                                    const std::string& complex_restriction_from_file,
+                                    const std::string& chains_file,
+                                    const uint32_t concurrency) {
   LOG_INFO("Sorting graph...");
 
   // Sort nodes by graphid then by grid within the tile. This sorts nodes geo-spatially which
@@ -60,6 +486,11 @@ SortGraph(const std::string& nodes_file, const std::string& edges_file, const ui
         return a.graph_id < b.graph_id;
       },
       concurrency);
+
+  if (osmdata) {
+    AggregateEdges(nodes, edges_file, ways_file, way_nodes_file, *osmdata,
+                   complex_restriction_from_file, chains_file, concurrency);
+  }
 
   // run through the sorted nodes, going back to the edges they reference and updating each edge
   // to point to the first (out of the duplicates) nodes index. at the end of this there will be
@@ -81,8 +512,12 @@ SortGraph(const std::string& nodes_file, const std::string& edges_file, const ui
   std::map<GraphId, size_t> tiles;
   nodes.transform(
       [&starts, &ends, &run_index, &node_index, &node_count, &last_node, &tiles](Node& node) {
+        if (node.is_detached()) {
+          ++node_index;
+          return;
+        }
         // remember if this was a new tile
-        if (node_index == 0 || node.graph_id != (--tiles.end())->first) {
+        if (tiles.empty() || node.graph_id != (--tiles.end())->first) {
           tiles.insert({node.graph_id, node_index});
           node.graph_id.set_id(0);
           run_index = node_index;
@@ -197,6 +632,66 @@ void BuildEdgeShapes(const std::string& way_nodes_file,
   for (auto& thread : threads) {
     thread.join();
   }
+}
+
+// Like BuildEdgeShapes, but writes the shape of every live edge one after the other, joining the
+// parts of merged edges, and points Edge::llindex_ at the new positions.
+void BuildMergedEdgeShapes(const std::string& way_nodes_file,
+                           const std::string& edges_file,
+                           const std::string& chains_file,
+                           const std::string& edge_shapes_file,
+                           const std::string& edge_node_ids_file,
+                           const bool keep_node_ids) {
+  SCOPED_TIMER();
+  const size_t count = std::filesystem::file_size(way_nodes_file) / sizeof(OSMWayNode);
+  if (count == 0) {
+    return;
+  }
+  LOG_INFO("Building merged edge shapes...");
+
+  mem_map<OSMWayNode> way_nodes;
+  way_nodes.map_readonly(way_nodes_file, count);
+  sequence<ChainPart> chains(chains_file, false);
+  sequence<OSMWayNodeShape> shapes(edge_shapes_file, true);
+  std::optional<sequence<uint64_t>> node_ids;
+  if (keep_node_ids) {
+    node_ids.emplace(edge_node_ids_file, true);
+  }
+
+  uint32_t written = 0;
+  const auto append = [&](const uint32_t llindex, const uint32_t llcount, const bool reversed,
+                          const bool skip_first) {
+    for (uint32_t i = skip_first; i < llcount; ++i) {
+      const uint32_t offset = reversed ? llcount - 1 - i : i;
+      const OSMNode& node = way_nodes.get()[llindex + offset].node;
+      shapes.push_back({.lng7 = node.lng7_, .lat7 = node.lat7_});
+      if (node_ids) {
+        node_ids->push_back(node.synthetic() ? 0 : node.osmid_);
+      }
+      ++written;
+    }
+  };
+
+  sequence<Edge> edges(edges_file, false);
+  auto chain = chains.begin();
+  uint32_t edge_index = 0;
+  edges.transform([&](Edge& edge) {
+    const uint32_t index = edge_index++;
+    if (edge.attributes.absorbed) {
+      return;
+    }
+    const uint32_t llindex = written;
+    if (!edge.attributes.chained) {
+      append(edge.llindex_, edge.attributes.llcount, false, false);
+    } else {
+      for (bool first = true; chain != chains.end() && (*chain).anchor == index; ++chain) {
+        const ChainPart part = *chain;
+        append(part.llindex, part.llcount, part.reversed, !first);
+        first = false;
+      }
+    }
+    edge.llindex_ = llindex;
+  });
 }
 
 // Construct edges in the graph and assign nodes to tiles.
@@ -672,7 +1167,10 @@ void BuildTileSet(const std::string& ways_file,
 
         // Make sure node has edges
         if (bundle.node_edges.empty()) {
-          LOG_ERROR("Node has no edges - skip");
+          if (!bundle.is_detached()) {
+            LOG_ERROR("Node has no edges - skip");
+          }
+          node_itr += bundle.node_count;
           continue;
         }
 
@@ -1526,7 +2024,10 @@ std::map<GraphId, size_t> GraphBuilder::BuildEdges(const boost::property_tree::p
                                                    const std::string& ways_file,
                                                    const std::string& way_nodes_file,
                                                    const std::string& nodes_file,
-                                                   const std::string& edges_file) {
+                                                   const std::string& edges_file,
+                                                   const OSMData* osmdata,
+                                                   const std::string& edge_chains_file,
+                                                   const std::string& complex_restriction_from_file) {
   SCOPED_TIMER();
   uint8_t level = TileHierarchy::levels().back().level;
   auto tiling = TileHierarchy::get_tiling(level);
@@ -1540,7 +2041,11 @@ std::map<GraphId, size_t> GraphBuilder::BuildEdges(const boost::property_tree::p
 
   const uint32_t concurrency =
       std::max(1u, pt.get<uint32_t>("mjolnir.concurrency", std::thread::hardware_concurrency()));
-  return SortGraph(nodes_file, edges_file, concurrency);
+  const bool aggregate = osmdata && !edge_chains_file.empty() &&
+                         !complex_restriction_from_file.empty() &&
+                         pt.get<bool>("mjolnir.data_processing.aggregate_edges", true);
+  return SortGraph(nodes_file, edges_file, ways_file, way_nodes_file, aggregate ? osmdata : nullptr,
+                   complex_restriction_from_file, edge_chains_file, concurrency);
 }
 
 // Build the graph from the input
@@ -1555,14 +2060,20 @@ void GraphBuilder::Build(const boost::property_tree::ptree& pt,
                          const std::string& complex_from_restriction_file,
                          const std::string& complex_to_restriction_file,
                          const std::string& linguistic_node_file,
-                         const std::map<GraphId, size_t>& tiles) {
+                         const std::map<GraphId, size_t>& tiles,
+                         const std::string& edge_chains_file) {
   SCOPED_TIMER();
 
   const uint32_t concurrency =
       std::max(1u, pt.get<uint32_t>("mjolnir.concurrency", std::thread::hardware_concurrency()));
   const bool keep_node_ids = pt.get<bool>("mjolnir.keep_all_osm_node_ids", false) ||
                              pt.get<bool>("mjolnir.keep_osm_node_ids", false);
-  BuildEdgeShapes(way_nodes_file, edge_shapes_file, edge_node_ids_file, keep_node_ids, concurrency);
+  if (!edge_chains_file.empty() && pt.get<bool>("mjolnir.data_processing.aggregate_edges", false)) {
+    BuildMergedEdgeShapes(way_nodes_file, edges_file, edge_chains_file, edge_shapes_file,
+                          edge_node_ids_file, keep_node_ids);
+  } else {
+    BuildEdgeShapes(way_nodes_file, edge_shapes_file, edge_node_ids_file, keep_node_ids, concurrency);
+  }
 
   // Reclassify links (ramps). Cannot do this when building tiles since the
   // edge list needs to be modified. ReclassifyLinks also infers turn channels
